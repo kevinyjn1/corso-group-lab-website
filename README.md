@@ -71,8 +71,9 @@ update from this one file.
 Add an entry to `src/data/people.yaml` with `role` (`phd`, `ms`, `undergrad`) and `status`
 (`current` or `alumni`). Alumni can carry `thesis`, `firstPosition`, and `currentPosition`.
 
-Portraits are drawn from initials for now. To use photos, add a `photo` field to the schema in
-`src/content.config.ts` and render it in `src/pages/people.astro`.
+To add a portrait, drop an image named after the person's `id` into `src/assets/people/`, for
+example `src/assets/people/yayuan-li.jpg`. It is resized and compressed at build time. People
+without a photo are shown by their initials.
 
 ## Structure
 

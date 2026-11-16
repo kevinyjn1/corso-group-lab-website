@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
+import Portrait from '../components/Portrait.astro';
 import { getPeople, type Person } from '../lib/content';
 import { href, pi, site } from '../lib/site';
 
@@ -12,13 +13,6 @@ const phd = alumni('phd');
 const ms = alumni('ms');
 const undergrad = alumni('undergrad');
 
-const initials = (name: string) =>
-  name
-    .split(' ')
-    .filter((part) => /^[A-Z][a-z]/.test(part))
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2);
 const school = (p: Person) => (p.data.institution === 'buffalo' ? 'Buffalo' : 'Michigan');
 const profileLinks = [
   { label: 'Curriculum vitae', href: site.links.cv },
@@ -45,9 +39,7 @@ const profileLinks = [
   <section class="section">
     <div class="container pi" data-reveal="stagger">
       <div class="pi-card">
-        <div class="portrait ticks" aria-hidden="true">
-          <span>{initials(pi.name)}</span>
-        </div>
+        <Portrait id="jason-corso" name={pi.name} size="large" />
         <ul class="pi-links">
           {profileLinks.map((link) => (
             <li>
@@ -101,9 +93,7 @@ const profileLinks = [
       <ul class="members" data-reveal="stagger">
         {current.map((person) => (
           <li class="member">
-            <div class="avatar ticks" aria-hidden="true">
-              <span>{initials(person.data.name)}</span>
-            </div>
+            <Portrait id={person.id} name={person.data.name} />
             <div>
               <h3 class="h3">{person.data.name}</h3>
               <p class="label">
@@ -114,9 +104,7 @@ const profileLinks = [
           </li>
         ))}
         <li class="member member--open">
-          <div class="avatar ticks" aria-hidden="true">
-            <span>+</span>
-          </div>
+          <Portrait name="Prospective student" mark="+" muted />
           <div>
             <h3 class="h3">This could be you</h3>
             <p class="label">Prospective students</p>
@@ -228,39 +216,6 @@ const profileLinks = [
     align-items: start;
   }
 
-  .portrait,
-  .avatar {
-    --tick-color: var(--accent);
-    display: grid;
-    place-items: center;
-    background-color: var(--bg-2);
-    font-family: var(--font-serif);
-    line-height: 1;
-    color: var(--text);
-  }
-
-  .portrait {
-    --tick: 1rem;
-    position: relative;
-    aspect-ratio: 4 / 5;
-    font-size: clamp(5rem, 10vw, 7.5rem);
-    letter-spacing: -0.03em;
-  }
-
-  /* Dot matrix behind the initials, echoing the home page scene. */
-  .portrait::before {
-    content: '';
-    position: absolute;
-    inset: 1rem;
-    background: radial-gradient(circle, var(--line-2) 1px, transparent 1.5px) center / 0.75rem
-      0.75rem;
-    mask-image: radial-gradient(circle at center, transparent 30%, #000 75%);
-  }
-
-  .portrait span {
-    position: relative;
-  }
-
   .pi-links {
     margin-top: 1.5rem;
     border-top: 1px solid var(--line);
@@ -326,18 +281,6 @@ const profileLinks = [
     align-items: start;
     padding-top: 1.5rem;
     border-top: 1px solid var(--line-2);
-  }
-
-  .avatar {
-    width: 4.5rem;
-    height: 4.5rem;
-    font-size: 1.75rem;
-  }
-
-  .member--open .avatar {
-    --tick-color: var(--line-2);
-    background-color: transparent;
-    color: var(--text-3);
   }
 
   .member .label {
@@ -464,10 +407,6 @@ const profileLinks = [
       grid-template-columns: 9rem minmax(0, 1fr);
       gap: 1.5rem;
       align-items: start;
-    }
-
-    .portrait {
-      font-size: 3.5rem;
     }
 
     .pi-links {

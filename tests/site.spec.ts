@@ -223,6 +223,16 @@ test('mobile menu closes with Escape', async ({ page, isMobile }) => {
   await expect(page.getByRole('navigation', { name: 'Mobile' })).toBeHidden();
 });
 
+test('portraits load, and people without a photo fall back to initials', async ({ page }) => {
+  await page.goto('/people/');
+  const photo = page.getByRole('img', { name: 'Portrait of Jason J. Corso' });
+  await expect(photo).toBeVisible();
+  expect(
+    await photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth),
+  ).toBeGreaterThan(0);
+  await expect(page.locator('.members .initials').first()).toBeVisible();
+});
+
 test('unknown pages show the 404 page', async ({ page }) => {
   const response = await page.goto('/no-such-page/');
   expect(response?.status()).toBe(404);
