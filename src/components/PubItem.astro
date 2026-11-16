@@ -1,0 +1,223 @@
+---
+import { LINK_LABELS, TYPE_LABELS, type Publication } from '../lib/content';
+import { pi } from '../lib/site';
+
+interface Props {
+  pub: Publication;
+  /** Heading level for the title; depends on where the list sits in the page outline. */
+  level?: 'h3' | 'h4';
+}
+
+const { pub, level: Title = 'h3' } = Astro.props;
+const { data } = pub;
+const badge = data.venueShort ?? TYPE_LABELS[data.type];
+const piName = pi.name.replace(/^(\w)\w+ (\w)\. /, '$1. $2. ');
+const links = Object.entries(data.links) as [string, string][];
+const search = [
+  data.title,
+  data.authors.join(' '),
+  data.venue,
+  data.venueShort,
+  data.year,
+  data.note,
+]
+  .filter(Boolean)
+  .join(' ')
+  .toLowerCase();
+---
+
+<li
+  class="pub"
+  id={pub.id}
+  data-pub
+  data-year={data.year}
+  data-type={data.type}
+  data-topics={data.topics.join(' ')}
+  data-search={search}
+>
+  <div class="meta">
+    <span class="venue">{badge}</span>
+    <span class="year">{data.year}</span>
+  </div>
+  <div class="body">
+    <Title class="title">{data.title}</Title>
+    <p class="authors">
+      {data.authors.flatMap((author, i) => [
+        i > 0 ? ', ' : '',
+        author === piName ? <span class="pi">{author}</span> : author,
+      ])}
+    </p>
+    <p class="where">
+      {data.venue}
+      {data.note && <span class="note">{data.note}</span>}
+    </p>
+  </div>
+  <div class="side">
+    <ul class="topics" aria-label="Research areas">
+      {data.topics.map((t) => (
+        <li data-topic={t}>
+          <span class="dot" />
+          <span class="sr-only">{t}</span>
+        </li>
+      ))}
+    </ul>
+    {links.length > 0 && (
+      <ul class="links">
+        {links.map(([kind, url]) => (
+          <li>
+            <a href={url} rel="noopener">
+              {LINK_LABELS[kind]}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</li>
+
+<style>
+  .pub {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr) minmax(8rem, auto);
+    gap: 0.5rem 2rem;
+    align-items: start;
+    padding-block: 1.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-top: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .venue {
+    color: var(--accent);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .year {
+    color: var(--text-3);
+  }
+
+  .title {
+    font-family: var(--font-sans);
+    font-size: 1.075rem;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    text-wrap: pretty;
+  }
+
+  .authors {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+
+  .pi {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .where {
+    margin-top: 0.2rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .note {
+    display: inline-block;
+    margin-left: 0.6rem;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    vertical-align: 0.05em;
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.35rem;
+  }
+
+  .topics {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    max-width: 14rem;
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    height: 1.6rem;
+    padding-inline: 0.5rem;
+    border: 1px solid var(--line-2);
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    transition:
+      color 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      background-color 0.2s var(--ease);
+  }
+
+  .links a:hover {
+    background: var(--maize);
+    border-color: var(--maize);
+    color: var(--on-maize);
+  }
+
+  @media (max-width: 52rem) {
+    .pub {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.6rem;
+    }
+
+    .meta {
+      flex-direction: row;
+      gap: 0.75rem;
+      padding-top: 0;
+    }
+
+    .side {
+      flex-direction: row-reverse;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.9rem;
+      padding-top: 0.2rem;
+    }
+
+    .links {
+      justify-content: flex-start;
+      max-width: none;
+    }
+  }
+</style>

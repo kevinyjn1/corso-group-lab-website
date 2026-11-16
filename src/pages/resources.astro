@@ -1,0 +1,194 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { getResources, type Resource } from '../lib/content';
+import { site } from '../lib/site';
+
+const resources = await getResources();
+const groups: { id: Resource['data']['kind']; title: string; blurb: string }[] = [
+  {
+    id: 'dataset',
+    title: 'Datasets & benchmarks',
+    blurb:
+      'Annotated video and benchmarks built to open up new problems and to compare methods fairly.',
+  },
+  {
+    id: 'software',
+    title: 'Software',
+    blurb: "Platforms, libraries, and reference implementations released with the group's papers.",
+  },
+];
+---
+
+<Base
+  title="Code & Data"
+  description="Open datasets and software from the Corso Group, including YouCook2, A2D, ActivityNet-Entities, SurgAtlas, ViP, and LIBSVX."
+>
+  <PageHead label="Code & Data">
+    <Fragment slot="title">
+      Built in the <em>open</em>.
+    </Fragment>
+    <!-- prettier-ignore -->
+    <p class="lead">
+      {resources.length} datasets and software releases from the group. Code that accompanies a
+      specific paper is also linked from the publications list, and more lives in the group's
+      <a class="link" href={site.links.github} rel="noopener">GitHub organization</a>.
+    </p>
+  </PageHead>
+
+  {groups.map((group) => {
+    const items = resources.filter((r) => r.data.kind === group.id);
+    return (
+      <section class="section" id={group.id}>
+        <div class="container">
+          <div class="section-head" data-reveal>
+            <div>
+              <p class="label">{items.length} releases</p>
+              <h2 class="h2">{group.title}</h2>
+              <p>{group.blurb}</p>
+            </div>
+          </div>
+          <ul class="grid" data-reveal="stagger">
+            {items.map((item) => (
+              <li class="card" id={item.id} data-spotlight data-topic={item.data.topics[0]}>
+                <div class="card-head">
+                  <ul class="card-topics" aria-label="Research areas">
+                    {item.data.topics.map((t) => (
+                      <li data-topic={t}>
+                        <span class="dot" />
+                        <span class="sr-only">{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <span class="label">{item.data.year}</span>
+                </div>
+                <h3 class="h3">{item.data.name}</h3>
+                <p class="summary">{item.data.summary}</p>
+                {item.data.awards.length > 0 && (
+                  <ul class="awards">
+                    {item.data.awards.map((award) => (
+                      <li>{award}</li>
+                    ))}
+                  </ul>
+                )}
+                <ul class="card-links">
+                  {item.data.links.map((link) => (
+                    <li>
+                      <a
+                        href={link.href}
+                        rel="noopener"
+                        aria-label={`${link.label}: ${item.data.name}`}
+                      >
+                        {link.label} <span aria-hidden="true">&nearr;</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    );
+  })}
+</Base>
+
+<style>
+  /* Cell borders rather than a gap fill, so an unfinished last row leaves no empty boxes. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.5rem, 2.4vw, 2rem);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: calc(var(--header-h) + 2rem);
+  }
+
+  .card:target {
+    background: var(--bg-2);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-topics {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .summary {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .awards {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  .awards li {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .awards li::before {
+    content: '\2605';
+    flex: none;
+  }
+
+  .card-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-top: auto;
+    padding-top: 1.75rem;
+  }
+
+  .card-links a {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--line-2);
+    transition: border-color 0.2s var(--ease);
+  }
+
+  .card-links a:hover {
+    border-color: var(--accent);
+  }
+
+  .card-links a span {
+    color: var(--text-3);
+  }
+
+  @media (max-width: 60rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

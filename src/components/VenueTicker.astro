@@ -1,0 +1,113 @@
+---
+import { getPublications } from '../lib/content';
+
+/** A slow ticker of the venues the group publishes in most, with paper counts. */
+const publications = await getPublications();
+const counts = new Map<string, number>();
+for (const pub of publications) {
+  if (!pub.data.venueShort || !['conference', 'journal'].includes(pub.data.type)) continue;
+  counts.set(pub.data.venueShort, (counts.get(pub.data.venueShort) ?? 0) + 1);
+}
+const venues = [...counts.entries()]
+  .filter(([, count]) => count >= 3)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<div class="ticker">
+  <p class="label">Published at</p>
+  <div class="window">
+    <div class="track">
+      {[false, true].map((duplicate) => (
+        <ul aria-hidden={duplicate ? 'true' : undefined}>
+          {venues.map(([name, count]) => (
+            <li>
+              <span class="name">{name}</span>
+              <span class="count">
+                <span class="sr-only">, </span>
+                {count}
+                <span class="sr-only"> papers</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .ticker {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .window {
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 4rem,
+      #000 calc(100% - 4rem),
+      transparent
+    );
+  }
+
+  .track {
+    display: flex;
+    width: max-content;
+    animation: ticker 60s linear infinite;
+  }
+
+  .window:hover .track {
+    animation-play-state: paused;
+  }
+
+  ul {
+    display: flex;
+    flex: none;
+  }
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding-right: clamp(2rem, 4vw, 3.5rem);
+    white-space: nowrap;
+  }
+
+  .name {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .ticker {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+  }
+</style>

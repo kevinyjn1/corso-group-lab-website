@@ -1,0 +1,207 @@
+---
+import { getAreas, getPublications } from '../lib/content';
+
+/** Stacked bars of papers per year, colored by each paper's primary research area. */
+const publications = await getPublications();
+const areas = await getAreas();
+
+const years = publications.map((p) => p.data.year);
+const first = Math.min(...years);
+const last = Math.max(...years);
+const columns = Array.from({ length: last - first + 1 }, (_, i) => {
+  const year = first + i;
+  const pubs = publications.filter((p) => p.data.year === year);
+  return {
+    year,
+    total: pubs.length,
+    segments: areas
+      .map((area) => ({
+        id: area.id,
+        count: pubs.filter((p) => p.data.topics[0] === area.id).length,
+      }))
+      .filter((segment) => segment.count > 0),
+  };
+});
+const peak = Math.max(...columns.map((column) => column.total));
+---
+
+<figure class="timeline" data-reveal>
+  <figcaption class="label">Papers per year, by primary research area</figcaption>
+  <ol class="bars" style={`--columns: ${columns.length}`}>
+    {columns.map((column, i) => (
+      <li style={`--n: ${i}`}>
+        {column.total > 0 ? (
+          <a
+            class="bar"
+            href={`#year-${column.year}`}
+            data-year-link
+            aria-label={`${column.year}: ${column.total} publications`}
+          >
+            <span class="tip" aria-hidden="true">
+              {column.year} &middot; {column.total}
+            </span>
+            <span class="stack" style={`--h: ${column.total / peak}`}>
+              {column.segments.map((segment) => (
+                <span data-topic={segment.id} style={`flex-grow: ${segment.count}`} />
+              ))}
+            </span>
+          </a>
+        ) : (
+          <span class="bar" />
+        )}
+        <span class="tick" aria-hidden="true">
+          {(last - column.year) % 4 === 0 ? column.year : ''}
+        </span>
+      </li>
+    ))}
+  </ol>
+  <ul class="legend" aria-label="Research areas">
+    {areas.map((area) => (
+      <li data-topic={area.id}>
+        <span class="dot" />
+        {area.data.short}
+      </li>
+    ))}
+  </ul>
+</figure>
+
+<style>
+  .timeline {
+    padding-block: clamp(2rem, 4vw, 3rem);
+  }
+
+  .bars {
+    display: grid;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    gap: clamp(2px, 0.45vw, 6px);
+    margin-top: 1.5rem;
+  }
+
+  .bars li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .bar {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    height: clamp(6rem, 13vw, 10rem);
+    border-bottom: 1px solid var(--line-2);
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1px;
+    width: 100%;
+    height: calc(var(--h) * 100%);
+    transform-origin: bottom;
+    transition:
+      transform 0.9s var(--ease) calc(var(--n) * 28ms + 0.15s),
+      opacity 0.2s var(--ease);
+  }
+
+  .stack span {
+    min-height: 2px;
+    background: var(--topic);
+  }
+
+  /* Bars grow from the baseline once the chart scrolls into view. */
+  :global(.js) .timeline:not(.is-visible) .stack {
+    transform: scaleY(0);
+  }
+
+  .bars:hover .bar:not(:hover) .stack,
+  .bars:focus-within .bar:not(:focus-visible) .stack {
+    opacity: 0.35;
+  }
+
+  .tip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--h, 1) * 100% + 0.5rem);
+    padding: 0.3rem 0.45rem;
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, 0.25rem);
+    transition:
+      opacity 0.15s var(--ease),
+      transform 0.15s var(--ease);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .bar:hover .tip,
+  .bar:focus-visible .tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* Tooltips on the outermost bars hug the chart edge instead of spilling past it. */
+  li:nth-child(-n + 2) .tip {
+    left: 0;
+    transform: translate(0, 0.25rem);
+  }
+
+  li:nth-last-child(-n + 2) .tip {
+    left: auto;
+    right: 0;
+    transform: translate(0, 0.25rem);
+  }
+
+  li:nth-child(-n + 2) .bar:is(:hover, :focus-visible) .tip,
+  li:nth-last-child(-n + 2) .bar:is(:hover, :focus-visible) .tip {
+    transform: none;
+  }
+
+  /* Year labels are wider than their bars, so the outer two align to the chart's edges. */
+  .tick {
+    display: flex;
+    justify-content: center;
+    white-space: nowrap;
+    height: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  li:first-child .tick {
+    justify-content: flex-start;
+  }
+
+  li:last-child .tick {
+    justify-content: flex-end;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--text-2);
+  }
+
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 40rem) {
+    .tick {
+      font-size: 0.5625rem;
+      letter-spacing: 0;
+    }
+  }
+</style>

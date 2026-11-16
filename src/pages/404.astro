@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { href } from '../lib/site';
+---
+
+<Base title="Page not found" description="This page could not be found.">
+  <section class="section missing">
+    <div class="container">
+      <div class="frame ticks">
+        <p class="label label--accent">404 &middot; no detections</p>
+        <h1 class="page-title">
+          Nothing in <em>frame</em>.
+        </h1>
+        <p class="lead">The page you were looking for has moved or never existed.</p>
+        <a class="btn btn--primary" href={href('/')}>
+          Back to the home page{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .frame {
+    --tick: 1.25rem;
+    --tick-color: var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: clamp(2.5rem, 8vw, 7rem) clamp(2rem, 6vw, 5rem);
+    background-color: var(--bg-2);
+  }
+</style>

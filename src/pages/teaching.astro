@@ -1,0 +1,247 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { getCourses } from '../lib/content';
+
+const courses = await getCourses();
+const schools = [
+  { id: 'michigan' as const, title: 'University of Michigan', years: '2014 to present' },
+  { id: 'buffalo' as const, title: 'SUNY at Buffalo', years: '2007 to 2014' },
+];
+interface Event {
+  when: string;
+  title: string;
+  where: string;
+  url?: string;
+}
+
+const tutorials: Event[] = [
+  {
+    when: '2015',
+    title: 'Machine Learning II: Ensemble Methods',
+    where: 'U-M Big Data Summer Institute',
+  },
+  {
+    when: '2014',
+    title: 'Tutorial on Video Segmentation',
+    where: 'CVPR 2014, with Irfan Essa and Matthias Grundmann',
+    url: 'https://web.eecs.umich.edu/~jjcorso/t/CVPR14_videoseg/',
+  },
+  {
+    when: '2013',
+    title: 'Graduate Summer School on Computer Vision',
+    where: 'IPAM, University of California, Los Angeles',
+  },
+  {
+    when: '2012',
+    title: 'International Summer School on Vision, Learning and Cognition',
+    where: 'Beijing University of Posts and Telecommunications',
+  },
+];
+const outreach: Event[] = [
+  { when: '2024', title: 'Exploring Careers in AI', where: 'Nichols School, 8th grade' },
+  { when: '2018', title: 'AI Family Challenge', where: 'Panel participant and mentor' },
+  {
+    when: '2015 to 2018',
+    title: 'Lights, Pinhole and Lenses',
+    where: 'U-M College of Engineering Xplore program, for middle school students',
+  },
+];
+---
+
+<Base
+  title="Teaching"
+  description="Courses taught by Professor Jason J. Corso at the University of Michigan and SUNY Buffalo, with tutorials and outreach."
+>
+  <PageHead label="Teaching">
+    <Fragment slot="title">
+      Courses in vision, robotics, and <em>learning</em>.
+    </Fragment>
+    <p class="lead">
+      Graduate and undergraduate courses taught by Prof. Corso, from the foundations of computer
+      vision to 3D robot perception, plus tutorials and outreach.
+    </p>
+  </PageHead>
+
+  {schools.map((school) => (
+    <section class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="label">{school.years}</p>
+            <h2 class="h2">{school.title}</h2>
+          </div>
+        </div>
+        <ul class="rows" data-reveal="stagger">
+          {courses
+            .filter((course) => course.data.institution === school.id)
+            .map((course) => (
+              <li class="course">
+                <p class="code">{course.data.code}</p>
+                <div>
+                  <h3 class="course-title">
+                    {course.data.url ? (
+                      <a href={course.data.url} rel="noopener">
+                        {course.data.title} <span aria-hidden="true">&nearr;</span>
+                      </a>
+                    ) : (
+                      course.data.title
+                    )}
+                  </h3>
+                  {course.data.summary && <p class="course-summary">{course.data.summary}</p>}
+                </div>
+                <ul class="terms" aria-label="Terms taught">
+                  {course.data.terms.map((term) => (
+                    <li class="chip">{term}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+        </ul>
+      </div>
+    </section>
+  ))}
+
+  <section class="section">
+    <div class="container extras" data-reveal="stagger">
+      {[
+        { title: 'Tutorials & summer schools', list: tutorials },
+        { title: 'Outreach', list: outreach },
+      ].map(({ title, list }) => (
+        <div>
+          <h2 class="h3">{title}</h2>
+          <ul class="rows extras-list">
+            {list.map((item) => (
+              <li>
+                <span class="label">{item.when}</span>
+                <div>
+                  <p class="extras-title">
+                    {item.url ? (
+                      <a class="link" href={item.url} rel="noopener">
+                        {item.title}
+                      </a>
+                    ) : (
+                      item.title
+                    )}
+                  </p>
+                  <p class="extras-where">{item.where}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .course {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 0.75rem 2rem;
+    align-items: start;
+    padding-block: 1.6rem;
+  }
+
+  .code {
+    padding-top: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  .course-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.6rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .course-title a span {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--text-3);
+    transition: color 0.2s var(--ease);
+  }
+
+  .course-title a:hover span {
+    color: var(--accent);
+  }
+
+  .course-summary {
+    max-width: 34rem;
+    margin-top: 0.6rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .terms {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    padding-top: 0.25rem;
+  }
+
+  .extras {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem clamp(2rem, 6vw, 6rem);
+  }
+
+  .extras-list {
+    margin-top: 1.5rem;
+  }
+
+  .extras-list li {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
+    padding-block: 0.9rem;
+  }
+
+  .extras-title {
+    font-size: 0.975rem;
+  }
+
+  .extras-where {
+    margin-top: 0.15rem;
+    font-size: 0.875rem;
+    color: var(--text-3);
+  }
+
+  @media (max-width: 56rem) {
+    .course {
+      grid-template-columns: 7rem minmax(0, 1fr);
+    }
+
+    .terms {
+      grid-column: 2;
+      justify-content: flex-start;
+    }
+
+    .extras {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .course {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .terms {
+      grid-column: 1;
+    }
+
+    .code {
+      padding-top: 0;
+    }
+  }
+</style>

@@ -1,0 +1,265 @@
+---
+/** The animated "viewport" on the home page. See src/scripts/hero-scene.ts. */
+const modes = [
+  { id: 'detect', label: 'Detect' },
+  { id: 'segment', label: 'Segment' },
+  { id: 'pose', label: 'Pose' },
+  { id: 'depth', label: 'Depth' },
+];
+---
+
+<figure class="viewport" data-hero-scene>
+  <canvas aria-hidden="true"></canvas>
+  <div class="hud">
+    <div class="modes" role="group" aria-label="Choose how the scene is read">
+      {modes.map((mode, i) => (
+        <button type="button" data-mode={mode.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+          {mode.label}
+        </button>
+      ))}
+    </div>
+    <p class="status" aria-hidden="true">
+      <span class="live"></span>
+      <span class="status-text">Synthetic scene</span>
+      <span class="frame">
+        Frame <span data-frame>000000</span>
+      </span>
+    </p>
+  </div>
+  <div class="caption" aria-hidden="true">
+    <span class="caption-tag">Caption</span>
+    <span class="caption-text">
+      <span data-caption></span>
+      <span class="cursor"></span>
+    </span>
+  </div>
+  <figcaption class="sr-only">
+    Animated illustration of the group's research: in a synthetic video, a walking adult, a running
+    dog, a bouncing ball, and a flying bird are detected and tracked, segmented, given skeletal
+    poses, placed in depth, and described in a sentence.
+  </figcaption>
+</figure>
+
+<script>
+  import { mountHeroScene } from '../scripts/hero-scene';
+
+  const scene = document.querySelector<HTMLElement>('[data-hero-scene]');
+  if (scene) mountHeroScene(scene);
+</script>
+
+<style>
+  .viewport {
+    position: relative;
+    /* Sized so the whole scene, caption included, fits above the fold on a laptop. */
+    height: clamp(22rem, min(44vw, 100svh - 26.5rem), 33rem);
+    overflow: hidden;
+    background: var(--screen);
+    border: 1px solid var(--screen-line);
+    border-radius: var(--radius-lg);
+    color: var(--screen-text);
+    font-family: var(--font-mono);
+    cursor: crosshair;
+    user-select: none;
+    animation: power-on 1s var(--ease) 0.45s both;
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-mono);
+  }
+
+  .hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 1rem 0.65rem 0.65rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--screen-text-2);
+    pointer-events: none;
+  }
+
+  .modes {
+    display: flex;
+    pointer-events: auto;
+    background: rgb(5 8 15 / 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--screen-line);
+    border-radius: var(--radius);
+  }
+
+  .modes button {
+    position: relative;
+    height: 1.75rem;
+    padding-inline: 0.7rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--screen-text-2);
+    cursor: pointer;
+    transition: color 0.2s var(--ease);
+  }
+
+  .modes button + button {
+    border-left: 1px solid var(--screen-line);
+  }
+
+  .modes button:hover,
+  .modes button[aria-pressed='true'] {
+    color: var(--screen-text);
+  }
+
+  /* Fills as the active view counts down to the next one; full once the visitor picks a view. */
+  .modes button::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 2px;
+    background: var(--maize);
+    transform: scaleX(var(--progress, 0));
+    transform-origin: left;
+  }
+
+  .modes button:not([aria-pressed='true'])::after {
+    transform: scaleX(0);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .frame {
+    margin-left: 0.55rem;
+  }
+
+  .live {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: #ff5d5d;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  .caption {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    /* Sits just above the 58px timeline strip that the script draws. */
+    bottom: calc(58px + 0.9rem);
+    display: flex;
+    align-items: stretch;
+    pointer-events: none;
+  }
+
+  .caption-tag {
+    display: flex;
+    align-items: center;
+    flex: none;
+    padding-inline: 0.5rem;
+    background: var(--maize);
+    color: var(--on-maize);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Set like a subtitle, on its own dark plate, so it reads over any view of the scene. */
+  .caption-text {
+    padding: 0.2em 0.55em;
+    background: rgb(5 8 15 / 0.86);
+    font-size: clamp(0.8125rem, 1.25vw, 0.95rem);
+    line-height: 1.5;
+    color: var(--screen-text);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    margin-left: 0.15em;
+    background: var(--maize);
+    vertical-align: -0.15em;
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes power-on {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem) scale(0.985);
+      clip-path: inset(0 0 100% 0 round 0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      clip-path: inset(0 0 0 0 round 0.75rem);
+    }
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* On narrow screens the script reserves a 98px strip under the scene for the caption. */
+  .viewport[data-compact] .caption {
+    flex-direction: column;
+    align-items: flex-start;
+    bottom: auto;
+    top: calc(100% - 98px + 0.6rem);
+  }
+
+  .viewport[data-compact] .caption-tag {
+    padding-block: 0.3rem;
+  }
+
+  .viewport[data-compact] .caption-text {
+    padding-inline: 0;
+    background: none;
+  }
+
+  @media (max-width: 44rem) {
+    .frame {
+      display: none;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .status-text {
+      display: none;
+    }
+
+    .modes button {
+      padding-inline: 0.55rem;
+    }
+  }
+</style>

@@ -1,0 +1,314 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import PubItem from '../components/PubItem.astro';
+import PubTimeline from '../components/PubTimeline.astro';
+import { TYPE_LABELS, getAreas, getPublications, type Publication } from '../lib/content';
+import { site } from '../lib/site';
+
+const publications = await getPublications();
+const areas = await getAreas();
+
+const years = [...new Set(publications.map((p) => p.data.year))];
+const byYear = years.map((year) => ({
+  year,
+  pubs: publications.filter((p) => p.data.year === year),
+}));
+const typesInUse = (Object.keys(TYPE_LABELS) as Publication['data']['type'][]).filter((type) =>
+  publications.some((p) => p.data.type === type),
+);
+const span = years[0] - years[years.length - 1];
+---
+
+<Base
+  title="Publications"
+  description={`All ${publications.length} publications from the Corso Group, searchable by title, author, venue, and research area.`}
+>
+  <PageHead label="Publications">
+    <Fragment slot="title">
+      {publications.length} papers over <em>{span} years</em>.
+    </Fragment>
+    <!-- prettier-ignore -->
+    <p class="lead">
+      Conference papers, journal articles, and preprints from the group. Search by title, author, or
+      venue, or filter by research area. Citation counts live on
+      <a class="link" href={site.links.scholar} rel="noopener">Google Scholar</a>.
+    </p>
+  </PageHead>
+
+  <div data-publications>
+    <div class="container">
+      <PubTimeline />
+    </div>
+    <div class="filters">
+      <div class="container filters-inner">
+        <label class="search">
+          <span class="sr-only">Search publications</span>
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+            <circle
+              cx="8.5"
+              cy="8.5"
+              r="5.75"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            ></circle>
+            <path d="m13 13 5 5" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+          <input
+            type="search"
+            placeholder="Search title, author, or venue"
+            autocomplete="off"
+            spellcheck="false"
+            data-filter-search
+          />
+        </label>
+        <label class="select">
+          <span class="sr-only">Publication type</span>
+          <select data-filter-type>
+            <option value="">All types</option>
+            {typesInUse.map((type) => (
+              <option value={type}>{TYPE_LABELS[type]}</option>
+            ))}
+          </select>
+        </label>
+        <div class="topics" role="group" aria-label="Filter by research area">
+          <button class="topic" type="button" data-filter-topic="" aria-pressed="true">
+            All areas
+          </button>
+          {areas.map((area) => (
+            <button
+              class="topic"
+              type="button"
+              data-filter-topic={area.id}
+              data-topic={area.id}
+              aria-pressed="false"
+            >
+              <span class="dot" />
+              {area.data.short}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="container list">
+      <p class="status label" role="status" aria-live="polite" data-filter-status>
+        {publications.length} publications
+      </p>
+
+      {byYear.map(({ year, pubs }) => (
+        <section class="year" data-year-group aria-labelledby={`year-${year}`}>
+          <h2 class="year-head" id={`year-${year}`}>
+            <span class="year-num">{year}</span>
+            <span class="label" data-year-count>
+              {pubs.length}
+            </span>
+          </h2>
+          <ul class="rows">
+            {pubs.map((pub) => (
+              <PubItem pub={pub} />
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      <div class="empty ticks" data-filter-empty hidden>
+        <p class="h3">No publications match these filters.</p>
+        <button class="btn" type="button" data-filter-reset>
+          Clear filters
+        </button>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { mountPublicationFilter } from '../scripts/publication-filter';
+
+  const root = document.querySelector<HTMLElement>('[data-publications]');
+  if (root) mountPublicationFilter(root);
+</script>
+
+<style>
+  .filters {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .filters-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    padding-block: 1rem;
+  }
+
+  .search {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search svg {
+    position: absolute;
+    left: 0.9rem;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+
+  .search input,
+  .select select {
+    width: 100%;
+    height: 2.75rem;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    background-color: var(--bg-2);
+    font-size: 0.95rem;
+    transition: border-color 0.2s var(--ease);
+  }
+
+  .search input {
+    padding-inline: 2.6rem 1rem;
+  }
+
+  .search input::placeholder {
+    color: var(--text-3);
+  }
+
+  .search input:hover,
+  .select select:hover {
+    border-color: var(--text-3);
+  }
+
+  .search input:focus-visible,
+  .select select:focus-visible {
+    outline-offset: 0;
+    border-color: var(--focus);
+  }
+
+  .search input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  .select select {
+    appearance: none;
+    min-width: 10.5rem;
+    padding-inline: 0.9rem 2.4rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='m2 4.5 4 4 4-4' fill='none' stroke='%238a94a8' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .topics {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Room for focus rings inside the scroll container. */
+    margin: -0.25rem;
+    padding: 0.25rem;
+  }
+
+  .topics::-webkit-scrollbar {
+    display: none;
+  }
+
+  .topic {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: none;
+    height: 2rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--line-2);
+    border-radius: 2px;
+    font-size: 0.8125rem;
+    line-height: 1;
+    color: var(--text-2);
+    white-space: nowrap;
+    transition:
+      color 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      background-color 0.2s var(--ease);
+  }
+
+  .topic:hover {
+    color: var(--text);
+    border-color: var(--text-3);
+  }
+
+  .topic[aria-pressed='true'] {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+  }
+
+  .list {
+    padding-block: 2rem clamp(4rem, 8vw, 7rem);
+  }
+
+  .status {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .year {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    scroll-margin-top: calc(var(--header-h) + 8rem);
+  }
+
+  .year-head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .year-num {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .year-head .label {
+    padding: 0.2rem 0.45rem;
+    border: 1px solid var(--line-2);
+    border-radius: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .empty {
+    --tick: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    background-color: var(--bg-2);
+  }
+
+  .empty[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 36rem) {
+    /* Three rows of controls are too tall to pin on a phone. */
+    .filters {
+      position: static;
+    }
+
+    .filters-inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

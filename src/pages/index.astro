@@ -1,0 +1,601 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroScene from '../components/HeroScene.astro';
+import PubItem from '../components/PubItem.astro';
+import VenueTicker from '../components/VenueTicker.astro';
+import AreaGlyph from '../components/AreaGlyph.astro';
+import {
+  approx,
+  getAreas,
+  getPeople,
+  getPublications,
+  getResources,
+  isPeerReviewed,
+} from '../lib/content';
+import { href, pi, site } from '../lib/site';
+
+const headline = [
+  { text: 'From' },
+  { text: 'pixels' },
+  { text: 'to' },
+  { text: 'language', accent: true },
+  { text: 'to' },
+  { text: 'action.' },
+];
+
+const publications = await getPublications();
+const areas = await getAreas();
+const resources = await getResources();
+const people = await getPeople();
+
+const latest = publications.slice(0, 6);
+const featuredResources = resources.filter((r) => r.data.featured);
+const students = people.filter((p) => p.data.status === 'current' && p.data.role !== 'pi');
+const phdAlumni = people.filter((p) => p.data.status === 'alumni' && p.data.role === 'phd');
+const countByTopic = (topic: string) =>
+  publications.filter((p) => (p.data.topics as string[]).includes(topic)).length;
+
+const stats = [
+  { value: approx(publications.filter(isPeerReviewed).length), label: 'Peer-reviewed papers' },
+  { value: site.scholar.citations, label: `Citations, as of ${site.scholar.asOf}` },
+  { value: String(phdAlumni.length), label: 'Ph.D. graduates' },
+  { value: String(resources.length), label: 'Open datasets and code releases' },
+];
+
+const placements = [
+  'Google',
+  'Microsoft',
+  'Salesforce',
+  'Amazon',
+  'Intel',
+  'Bosch',
+  'University of Rochester',
+  'University of Maine',
+  'SUNY at Buffalo',
+  'University of Leeds',
+];
+---
+
+<Base>
+  <section class="hero">
+    <div class="container">
+      <p class="label eyebrow">
+        <span class="square"></span>
+        {site.name}
+        <span class="sep">/</span>
+        {site.university}
+      </p>
+      <div class="hero-grid">
+        <h1 class="display">
+          {headline.flatMap((word, i) => [
+            i > 0 ? ' ' : '',
+            <span class="word" style={`--i: ${i}`}>
+              <span>{word.accent ? <em>{word.text}</em> : word.text}</span>
+            </span>,
+          ])}
+        </h1>
+        <div class="hero-side">
+          <p class="lead">
+            We build AI that sees, describes, and works alongside people in the physical world -
+            computer vision, language, and robotics, with applications in health, autonomy, and
+            everyday life.
+          </p>
+          <div class="cta">
+            <a class="btn btn--primary" href={href('/research/')}>
+              Explore the research{' '}
+              <span class="arrow" aria-hidden="true">
+                &rarr;
+              </span>
+            </a>
+            <a class="btn" href={href('/publications/')}>
+              Publications
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <HeroScene />
+
+      <dl class="stats" data-reveal="stagger">
+        {stats.map((stat) => (
+          <div>
+            <dt>{stat.label}</dt>
+            <dd data-count>{stat.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <VenueTicker />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Research</p>
+          <h2 class="h2">
+            Six threads, one question: what does it take for a machine to <em>understand</em> what
+            it sees?
+          </h2>
+        </div>
+        <a class="more" href={href('/research/')}>
+          All research{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+
+      <ul class="areas" data-reveal="stagger">
+        {areas.map((area, i) => (
+          <li>
+            <a
+              data-spotlight
+              class="area ticks"
+              href={href(`/research/#${area.id}`)}
+              data-topic={area.id}
+            >
+              <div class="area-top">
+                <span class="label">{String(i + 1).padStart(2, '0')}</span>
+                <AreaGlyph topic={area.id} size={72} />
+              </div>
+              <h3 class="h3">{area.data.title}</h3>
+              <p>{area.data.summary}</p>
+              <span class="area-count">
+                <span class="dot" />
+                {countByTopic(area.id)} papers
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Latest work</p>
+          <h2 class="h2">Recent publications</h2>
+        </div>
+        <a class="more" href={href('/publications/')}>
+          All {publications.length} publications{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+      <ul class="rows" data-reveal="stagger">
+        {latest.map((pub) => (
+          <PubItem pub={pub} />
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Code &amp; data</p>
+          <h2 class="h2">Built in the open</h2>
+          <p>
+            Datasets, benchmarks, and software released by the group - from instructional video to
+            surgical video, and the tools to look closely at your own data.
+          </p>
+        </div>
+        <a class="more" href={href('/resources/')}>
+          All {resources.length} releases{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+
+      <ul class="releases" data-reveal="stagger">
+        {featuredResources.map((resource) => (
+          <li class="release">
+            <div class="release-head">
+              <span class="chip">{resource.data.kind}</span>
+              <span class="label">{resource.data.year}</span>
+            </div>
+            <h3 class="h3">
+              <a href={resource.data.links[0].href} rel="noopener">
+                {resource.data.name}
+              </a>
+            </h3>
+            <p>{resource.data.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container people" data-reveal="stagger">
+      <div>
+        <p class="label people-label">People</p>
+        <h2 class="h2">A small group with a long reach.</h2>
+        <p class="lead">
+          The group is led by {pi.name} and has graduated {phdAlumni.length} Ph.D. students since
+          2009. Alumni have gone on to research and faculty positions across industry and academia.
+        </p>
+        <a class="more" href={href('/people/')}>
+          Meet the group{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+      <div class="people-side">
+        <dl class="roster">
+          <div>
+            <dt class="label">Principal investigator</dt>
+            <dd>{pi.name}</dd>
+          </div>
+          <div>
+            <dt class="label">Ph.D. students</dt>
+            {students.map((s) => (
+              <dd>{s.data.name}</dd>
+            ))}
+          </div>
+        </dl>
+        <div>
+          <p class="label">Where alumni have worked</p>
+          <ul class="placements">
+            {placements.map((place) => (
+              <li class="chip">{place}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section join">
+    <div class="container">
+      <div class="join-card ticks" data-reveal data-spotlight>
+        <p class="label label--accent">Join the group</p>
+        <h2 class="h2">Interested in a Ph.D. in vision, language, and robotics?</h2>
+        <p class="lead">
+          Prospective students apply through the University of Michigan graduate programs. Here is
+          how to indicate your interest in the group.
+        </p>
+        <a class="btn btn--primary" href={href('/join/')}>
+          How to join{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* --- Hero ----------------------------------------------------------------- */
+
+  .hero {
+    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(3rem, 5vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .eyebrow .square {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--maize);
+  }
+
+  .eyebrow .sep {
+    color: var(--line-2);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 2rem clamp(2rem, 5vw, 5rem);
+    align-items: end;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  /* Page-load intro: the headline rises word by word, then the rest settles in. */
+  .word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    margin: 0 -0.06em -0.16em;
+    padding: 0 0.06em 0.16em;
+  }
+
+  .word > span {
+    display: inline-block;
+    animation: word-up 0.95s var(--ease) both;
+    animation-delay: calc(var(--i) * 75ms + 0.05s);
+  }
+
+  @keyframes word-up {
+    from {
+      transform: translateY(110%);
+    }
+  }
+
+  .eyebrow,
+  .hero-side {
+    animation: rise-in 0.8s var(--ease) both;
+  }
+
+  .hero-side {
+    animation-delay: 0.4s;
+  }
+
+  .hero-side .lead {
+    max-width: 30rem;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .stats > div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    padding: 1.5rem 1.5rem 0 0;
+  }
+
+  .stats > div + div {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .stats dd {
+    font-family: var(--font-serif);
+    font-size: clamp(2.25rem, 4.6vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .stats dt {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--text-2);
+  }
+
+  /* --- Research areas ------------------------------------------------------- */
+
+  .areas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .areas > li {
+    display: flex;
+    background: var(--bg);
+  }
+
+  .area {
+    --tick-color: transparent;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: clamp(1.5rem, 2.6vw, 2.25rem);
+    transition:
+      background-color 0.25s var(--ease),
+      --tick-color 0.25s var(--ease);
+  }
+
+  .area:hover {
+    --tick-color: var(--topic);
+    background-color: var(--bg-2);
+  }
+
+  .area-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .area p {
+    margin-top: 0.75rem;
+    margin-bottom: 1.75rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .area-count {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: auto;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* --- Releases ------------------------------------------------------------- */
+
+  .releases {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .release {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line-2);
+  }
+
+  .release-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .release h3 a {
+    background: linear-gradient(var(--maize), var(--maize)) left bottom / 0 2px no-repeat;
+    transition: background-size 0.3s var(--ease);
+  }
+
+  .release h3 a:hover {
+    background-size: 100% 2px;
+  }
+
+  .release p {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* --- People --------------------------------------------------------------- */
+
+  .people {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 3rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .people-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .people-label::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--maize);
+  }
+
+  .people .lead {
+    max-width: 34rem;
+    margin-block: 1.5rem 2rem;
+  }
+
+  .people-side {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .roster {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin: 0;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .roster dt {
+    margin-bottom: 0.75rem;
+  }
+
+  .roster dd {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .placements {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  /* --- Join ----------------------------------------------------------------- */
+
+  .join-card {
+    --tick: 1.25rem;
+    --tick-color: var(--accent);
+    padding: clamp(2rem, 6vw, 5rem);
+    background-color: var(--bg-2);
+  }
+
+  .join-card .h2 {
+    max-width: 22ch;
+    margin-top: 1.25rem;
+  }
+
+  .join-card .lead {
+    max-width: 36rem;
+    margin-block: 1.5rem 2rem;
+  }
+
+  /* --- Responsive ----------------------------------------------------------- */
+
+  @media (max-width: 60rem) {
+    .hero-grid,
+    .people {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .areas,
+    .releases {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 44rem) {
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stats > div:nth-child(3) {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .stats > div:nth-child(n + 3) {
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .areas,
+    .releases {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cta {
+      gap: 0.5rem;
+    }
+
+    .cta .btn {
+      padding-inline: 1rem;
+    }
+  }
+</style>

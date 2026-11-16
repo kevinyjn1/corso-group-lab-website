@@ -1,0 +1,265 @@
+# Open datasets and software released by the group.
+# kind: dataset | software. Each entry needs one to three links.
+
+# --- Datasets ---------------------------------------------------------------
+
+- id: surgatlas
+  name: SurgAtlas
+  kind: dataset
+  year: 2026
+  featured: true
+  summary: A surgical video-language dataset of 15,291 videos (2,391 hours) across 18 specialties, and the first to include open surgery at scale alongside minimally invasive procedures.
+  topics: [health, language]
+  links:
+    - { label: Paper, href: 'https://arxiv.org/abs/2606.25905' }
+
+- id: youcook2
+  name: YouCook2
+  kind: dataset
+  year: 2017
+  featured: true
+  summary: 2,000 long, untrimmed instructional cooking videos covering 89 recipes. Every procedure step is annotated with temporal boundaries and an imperative English sentence.
+  topics: [language, video]
+  links:
+    - { label: Website, href: 'http://youcook2.eecs.umich.edu/' }
+    - { label: Paper, href: 'https://arxiv.org/abs/1703.09788' }
+    - { label: Code, href: 'https://github.com/LuoweiZhou/ProcNets-YouCook2' }
+
+- id: activitynet-entities
+  name: ActivityNet-Entities
+  kind: dataset
+  year: 2019
+  featured: true
+  summary: Bounding boxes that ground the noun phrases of ActivityNet Captions in video, released with Grounded Video Description (CVPR 2019 oral).
+  topics: [language, video]
+  links:
+    - { label: Data, href: 'https://github.com/facebookresearch/ActivityNet-Entities' }
+    - { label: Code, href: 'https://github.com/facebookresearch/grounded-video-description' }
+
+- id: a2d
+  name: 'A2D: Actor-Action Dataset'
+  kind: dataset
+  year: 2015
+  featured: true
+  summary: 3,782 videos with seven actor classes and eight action classes labeled at the pixel level, built for joint actor-action recognition and semantic segmentation.
+  topics: [video]
+  links:
+    - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/a2d/' }
+    - { label: Paper, href: 'https://web.eecs.umich.edu/~jjcorso/pubs/xu_corso_CVPR2015_A2D.pdf' }
+
+- id: robotslang
+  name: RobotSlang
+  kind: dataset
+  year: 2020
+  summary: A benchmark of 169 natural language dialogs between a human driver controlling a physical robot and a human commander guiding it toward navigation goals.
+  topics: [robotics, language]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/RobotSlangBenchmark' }
+    - { label: Paper, href: 'https://arxiv.org/abs/2010.12639' }
+
+- id: devil
+  name: DEVIL
+  kind: dataset
+  year: 2022
+  summary: A diagnostic benchmark for video inpainting that controls for attributes such as camera and scene motion, so that failure modes can be isolated and compared.
+  topics: [video, learning]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/devil' }
+    - { label: Paper, href: 'https://arxiv.org/abs/2105.05332' }
+
+- id: forcepose
+  name: ForcePose
+  kind: dataset
+  year: 2022
+  summary: Data and code for estimating ground reaction forces from video of human motion, without force plates or physical markers.
+  topics: [video]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/ForcePose' }
+    - { label: Paper, href: 'https://arxiv.org/abs/2207.05845' }
+
+- id: surgical-hands
+  name: Surgical Hands
+  kind: dataset
+  year: 2021
+  summary: Data and models for articulated hand pose tracking in surgical videos, released with the CondPose tracking method.
+  topics: [health, video]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/Surgical_Hands_RELEASE' }
+    - { label: Paper, href: 'https://arxiv.org/abs/2101.04281' }
+
+- id: youcook
+  name: YouCook
+  kind: dataset
+  year: 2013
+  summary: 88 third-person cooking videos from the open web with multiple natural language descriptions and object and action annotations for each.
+  topics: [language, video]
+  links:
+    - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/youcook/' }
+
+- id: chen-xiph
+  name: Chen Xiph.org
+  kind: dataset
+  year: 2011
+  summary: Eight videos labeled frame by frame into the 21 MSRC classes, built to evaluate video label propagation and semantic video segmentation.
+  topics: [video]
+  links:
+    - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/labelprop.html' }
+
+# --- Software ---------------------------------------------------------------
+
+- id: fiftyone
+  name: FiftyOne
+  kind: software
+  year: 2020
+  featured: true
+  summary: The open-source tool for visualizing datasets, analyzing them, and debugging models. Built at Voxel51, the company co-founded by Prof. Corso, with more than three million installs.
+  topics: [learning]
+  links:
+    - { label: Code, href: 'https://github.com/voxel51/fiftyone' }
+    - { label: Voxel51, href: 'https://voxel51.com/' }
+
+- id: vip
+  name: ViP
+  kind: software
+  year: 2019
+  featured: true
+  summary: A PyTorch video platform that makes it easier to train and compare models for action recognition and object detection.
+  topics: [video]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/ViP' }
+    - { label: Paper, href: 'https://arxiv.org/abs/1910.02793' }
+
+- id: tased-net
+  name: TASED-Net
+  kind: software
+  year: 2019
+  summary: A temporally aggregating spatial encoder-decoder network for video saliency detection (ICCV 2019).
+  topics: [video]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/TASED-Net' }
+
+- id: a2cl-pt
+  name: A2CL-PT
+  kind: software
+  year: 2020
+  summary: An adversarial background-aware loss for weakly supervised temporal activity localization (ECCV 2020).
+  topics: [video]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/A2CL-PT' }
+    - { label: Paper, href: 'https://arxiv.org/abs/2007.06643' }
+
+- id: gaze-attention
+  name: Gaze-Attention
+  kind: software
+  year: 2021
+  summary: Integrates human gaze into spatiotemporal attention for egocentric activity recognition (WACV 2021).
+  topics: [video, human]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/Gaze-Attention' }
+    - { label: Paper, href: 'https://arxiv.org/abs/2011.03920' }
+
+- id: unified-vlp
+  name: Unified VLP
+  kind: software
+  year: 2020
+  summary: Unified vision-language pretraining for image captioning and visual question answering (AAAI 2020).
+  topics: [language]
+  links:
+    - { label: Code, href: 'https://github.com/LuoweiZhou/VLP' }
+
+- id: bubblenets
+  name: BubbleNets
+  kind: software
+  year: 2019
+  summary: Learns to select the best frame for a person to annotate in video object segmentation (CVPR 2019 oral, best paper finalist).
+  topics: [video]
+  links:
+    - { label: Code, href: 'https://github.com/griffbr/BubbleNets' }
+
+- id: video-grounding
+  name: Video Object Grounding
+  kind: software
+  year: 2018
+  summary: Weakly supervised grounding of objects in video from text, using loss weighting and object interaction (BMVC 2018).
+  topics: [language, video]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/Video-Grounding-from-Text' }
+
+- id: dense-captioning
+  name: Dense Video Captioning
+  kind: software
+  year: 2018
+  summary: End-to-end dense video captioning with a masked transformer (CVPR 2018).
+  topics: [language, video]
+  links:
+    - { label: Code, href: 'https://github.com/LuoweiZhou/densecap' }
+
+- id: m-pact
+  name: M-PACT
+  kind: software
+  year: 2018
+  summary: A TensorFlow platform for repeatable activity classification research, with shared pipelines for training and evaluating video models.
+  topics: [video]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/M-PACT' }
+    - { label: Paper, href: 'https://arxiv.org/abs/1804.05879' }
+
+- id: click-here-cnn
+  name: Click-Here CNNs
+  kind: software
+  year: 2017
+  summary: Human-in-the-loop viewpoint estimation, where a keypoint located by a person guides the network (ICCV 2017).
+  topics: [human, video]
+  links:
+    - { label: Code, href: 'https://github.com/rszeto/click-here-cnn' }
+
+- id: mint
+  name: MINT
+  kind: software
+  year: 2020
+  summary: Deep network compression that trims neurons using the mutual information between adjacent layers.
+  topics: [learning]
+  links:
+    - { label: Code, href: 'https://github.com/MichiganCOG/MINT' }
+    - { label: Paper, href: 'https://arxiv.org/abs/2003.08472' }
+
+- id: libsvx
+  name: LIBSVX
+  kind: software
+  year: 2012
+  summary: A supervoxel library and benchmark for early video processing - a suite of segmentation methods with quantitative 2D and 3D metrics for comparing them fairly.
+  topics: [video]
+  awards:
+    - Best Open Source Code, 3rd Prize, CVPR 2012
+    - Best Demo Prize, Greater New York Multimedia and Vision Meeting 2012
+  links:
+    - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/supervoxels/' }
+
+- id: action-bank
+  name: Action Bank
+  kind: software
+  year: 2012
+  summary: A high-level representation of activity in video, built from many individual action detectors sampled across semantic and viewpoint space.
+  topics: [video]
+  awards:
+    - Best Open Source Code, 3rd Prize, CVPR 2012
+  links:
+    - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/actionbank/' }
+
+- id: random-forest-distance
+  name: Random Forest Distance
+  kind: software
+  year: 2012
+  summary: Tree-structured metric learning that adapts the distance function across the feature space (KDD 2012).
+  topics: [learning]
+  links:
+    - { label: Code, href: 'https://web.eecs.umich.edu/~jjcorso/pubs/RFD_Package.zip' }
+
+- id: graph-shifts
+  name: Graph-Shifts
+  kind: software
+  year: 2008
+  summary: Greedy hierarchical energy minimization for joint image segmentation and labeling, in two and three dimensions.
+  topics: [learning, health]
+  links:
+    - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/graphshifts/' }

@@ -1,0 +1,304 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { href, site } from '../lib/site';
+
+const steps = [
+  {
+    title: 'Read the work',
+    body: 'Start with recent papers and the research areas to see whether the questions the group is asking are the ones you want to spend years on.',
+    link: { label: 'Research areas', href: href('/research/') },
+  },
+  {
+    title: 'Apply to a Michigan graduate program',
+    body: 'Admission is handled by the graduate programs, not by individual faculty. Students in the group come from Robotics, Electrical and Computer Engineering, and Computer Science and Engineering.',
+    link: {
+      label: 'Michigan Robotics graduate programs',
+      href: 'https://robotics.umich.edu/academics/graduate/',
+    },
+  },
+  {
+    title: 'Name the group in your application',
+    body: 'Indicate your interest in working with Prof. Corso in your application materials. That is how applications reach the group for review.',
+  },
+];
+
+const programs = [
+  { name: 'Robotics', href: 'https://robotics.umich.edu/academics/graduate/' },
+  {
+    name: 'Electrical and Computer Engineering',
+    href: 'https://ece.engin.umich.edu/academics/graduate/',
+  },
+  {
+    name: 'Computer Science and Engineering',
+    href: 'https://cse.engin.umich.edu/academics/graduate/',
+  },
+];
+
+const notes = [
+  {
+    q: 'Should I email before applying?',
+    a: 'There is no need. Because of volume, most messages from prospective students cannot be answered individually. A strong application that names the group is the best introduction.',
+  },
+  {
+    q: 'How many students join each year?',
+    a: 'The group generally adds one new Ph.D. student per year.',
+  },
+  {
+    q: 'Are there summer internships?',
+    a: 'The group does not host summer internship students.',
+  },
+  {
+    q: 'I am already a Michigan student. Can I get involved?',
+    a: 'Current Michigan students interested in research are welcome to reach out by email with a short note on their background and interests.',
+  },
+];
+---
+
+<Base
+  title="Join"
+  description="How to join the Corso Group at the University of Michigan as a Ph.D. student, and how to get in touch."
+>
+  <PageHead label="Join">
+    <Fragment slot="title">
+      Work with <em>us</em>.
+    </Fragment>
+    <p class="lead">
+      We are always looking for bright, motivated students who want to work on vision, language, and
+      robotics for the physical world.
+    </p>
+  </PageHead>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Prospective Ph.D. students</p>
+          <h2 class="h2">How to apply</h2>
+        </div>
+      </div>
+      <ol class="steps" data-reveal="stagger">
+        {steps.map((step, i) => (
+          <li class="step ticks" data-spotlight>
+            <span class="step-num">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="h3">{step.title}</h3>
+            <p>{step.body}</p>
+            {step.link && (
+              <a class="more" href={step.link.href} rel="noopener">
+                {step.link.label}{' '}
+                <span class="arrow" aria-hidden="true">
+                  &rarr;
+                </span>
+              </a>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split" data-reveal="stagger">
+      <div>
+        <p class="label mark">Good to know</p>
+        <h2 class="h2">Before you write</h2>
+        <h3 class="label programs-label">Graduate programs</h3>
+        <ul class="programs rows">
+          {programs.map((program) => (
+            <li>
+              <a href={program.href} rel="noopener">
+                {program.name} <span aria-hidden="true">&nearr;</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <dl class="notes rows">
+        {notes.map((note) => (
+          <div>
+            <dt>{note.q}</dt>
+            <dd>{note.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="contact ticks" data-reveal data-spotlight>
+        <div>
+          <p class="label label--accent">Contact</p>
+          <h2 class="h2">Get in touch</h2>
+        </div>
+        <dl class="contact-list">
+          <div>
+            <dt class="label">Email</dt>
+            <dd>
+              <a class="link" href={`mailto:${site.email}`}>
+                {site.email}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt class="label">Location</dt>
+            <dd>University of Michigan, {site.location}</dd>
+          </div>
+          <div>
+            <dt class="label">Code</dt>
+            <dd>
+              <a class="link" href={site.links.github} rel="noopener">
+                github.com/MichiganCOG
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .mark {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .mark::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--maize);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: clamp(1.5rem, 2.6vw, 2.25rem);
+    background-color: var(--bg-2);
+  }
+
+  .step-num {
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .step p {
+    margin-top: 0.75rem;
+    margin-bottom: 1.75rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .step .more {
+    margin-top: auto;
+    white-space: normal;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 3rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .programs-label {
+    margin-block: 2.5rem 1rem;
+  }
+
+  .programs a {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.85rem;
+    font-size: 0.975rem;
+    transition: color 0.2s var(--ease);
+  }
+
+  .programs a span {
+    color: var(--text-3);
+    transition: color 0.2s var(--ease);
+  }
+
+  .programs a:hover span {
+    color: var(--accent);
+  }
+
+  .notes {
+    margin: 0;
+  }
+
+  .notes > div {
+    padding-block: 1.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .notes dt {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    line-height: 1.2;
+  }
+
+  .notes dd {
+    max-width: 38rem;
+    margin-top: 0.6rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .contact {
+    --tick: 1.25rem;
+    --tick-color: var(--accent);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 2.5rem clamp(2rem, 6vw, 6rem);
+    align-items: end;
+    padding: clamp(2rem, 6vw, 5rem);
+    background-color: var(--bg-2);
+  }
+
+  .contact .h2 {
+    margin-top: 1.25rem;
+  }
+
+  .contact-list {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+  }
+
+  .contact-list > div {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
+  }
+
+  .contact-list dd {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 56rem) {
+    .steps,
+    .split,
+    .contact {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

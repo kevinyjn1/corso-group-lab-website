@@ -1,0 +1,497 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { getPeople, type Person } from '../lib/content';
+import { href, pi, site } from '../lib/site';
+
+const people = await getPeople();
+const current = people.filter((p) => p.data.status === 'current' && p.data.role !== 'pi');
+const alumni = (role: Person['data']['role']) =>
+  people.filter((p) => p.data.status === 'alumni' && p.data.role === role);
+const phd = alumni('phd');
+const ms = alumni('ms');
+const undergrad = alumni('undergrad');
+
+const initials = (name: string) =>
+  name
+    .split(' ')
+    .filter((part) => /^[A-Z][a-z]/.test(part))
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2);
+const school = (p: Person) => (p.data.institution === 'buffalo' ? 'Buffalo' : 'Michigan');
+const profileLinks = [
+  { label: 'Curriculum vitae', href: site.links.cv },
+  { label: 'Google Scholar', href: site.links.scholar },
+  { label: 'Essays', href: site.links.essays },
+  { label: 'Voxel51', href: site.links.voxel51 },
+];
+---
+
+<Base
+  title="People"
+  description="Members and alumni of the Corso Group at the University of Michigan, led by Professor Jason J. Corso."
+>
+  <PageHead label="People">
+    <Fragment slot="title">
+      The <em>group</em>.
+    </Fragment>
+    <p class="lead">
+      One principal investigator, a small team of graduate students, and {phd.length} Ph.D. alumni
+      now working across industry research labs and university faculties.
+    </p>
+  </PageHead>
+
+  <section class="section">
+    <div class="container pi" data-reveal="stagger">
+      <div class="pi-card">
+        <div class="portrait ticks" aria-hidden="true">
+          <span>{initials(pi.name)}</span>
+        </div>
+        <ul class="pi-links">
+          {profileLinks.map((link) => (
+            <li>
+              <a href={link.href} rel="noopener">
+                {link.label} <span aria-hidden="true">&nearr;</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p class="label mark">Principal investigator</p>
+        <h2 class="h2">{pi.name}</h2>
+        <ul class="titles">
+          {pi.titles.map((title) => (
+            <li>{title}</li>
+          ))}
+        </ul>
+        <div class="prose">
+          {pi.bio.map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+          <p>
+            <a class="link" href={`mailto:${site.email}`}>
+              {site.email}
+            </a>
+          </p>
+        </div>
+
+        <h3 class="label honors-label">Selected honors</h3>
+        <ul class="honors rows">
+          {pi.honors.map((honor) => (
+            <li>
+              <span class="label">{honor.year}</span>
+              <span>{honor.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Current members</p>
+          <h2 class="h2">Ph.D. students</h2>
+        </div>
+      </div>
+      <ul class="members" data-reveal="stagger">
+        {current.map((person) => (
+          <li class="member">
+            <div class="avatar ticks" aria-hidden="true">
+              <span>{initials(person.data.name)}</span>
+            </div>
+            <div>
+              <h3 class="h3">{person.data.name}</h3>
+              <p class="label">
+                Ph.D. student{person.data.year && `, expected ${person.data.year}`}
+              </p>
+              {person.data.focus && <p class="focus">{person.data.focus}</p>}
+            </div>
+          </li>
+        ))}
+        <li class="member member--open">
+          <div class="avatar ticks" aria-hidden="true">
+            <span>+</span>
+          </div>
+          <div>
+            <h3 class="h3">This could be you</h3>
+            <p class="label">Prospective students</p>
+            <p class="focus">
+              The group typically adds one new Ph.D. student per year.
+              <a class="link" href={href('/join/')}>
+                How to join
+              </a>
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Alumni</p>
+          <h2 class="h2">Ph.D. graduates</h2>
+          <p>Dissertations advised by Prof. Corso at Michigan and, before 2014, at SUNY Buffalo.</p>
+        </div>
+        <p class="label">{phd.length} dissertations</p>
+      </div>
+
+      <ul class="theses rows" data-reveal="stagger">
+        {phd.map((person) => (
+          <li class="thesis">
+            <div class="thesis-when">
+              <span class="thesis-year">{person.data.year}</span>
+              <span class="label">
+                {school(person)}
+                {person.data.program && ` ${person.data.program}`}
+              </span>
+            </div>
+            <div>
+              <h3 class="thesis-name">{person.data.name}</h3>
+              <p class="thesis-title">{person.data.thesis}</p>
+              {person.data.note && <p class="thesis-note">{person.data.note}</p>}
+            </div>
+            <dl class="thesis-where">
+              <div>
+                <dt class="label">First position</dt>
+                <dd>{person.data.firstPosition}</dd>
+              </div>
+              {person.data.currentPosition && (
+                <div>
+                  <dt class="label">Later</dt>
+                  <dd>{person.data.currentPosition}</dd>
+                </div>
+              )}
+            </dl>
+          </li>
+        ))}
+      </ul>
+      <p class="footnote">
+        Positions as listed in Prof. Corso's curriculum vitae, {site.scholar.asOf}.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container more-alumni" data-reveal="stagger">
+      {[
+        { title: 'M.S.E. graduates', list: ms },
+        { title: 'Undergraduate researchers', list: undergrad },
+      ].map(({ title, list }) => (
+        <div>
+          <h2 class="h3">{title}</h2>
+          <ul class="names rows">
+            {list.map((person) => (
+              <li>
+                <span>{person.data.name}</span>
+                <span class="label">
+                  {school(person)}
+                  {person.data.program && ` ${person.data.program}`} &middot; {person.data.year}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .mark {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .mark::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--maize);
+  }
+
+  /* --- Principal investigator ----------------------------------------------- */
+
+  .pi {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: 3rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .portrait,
+  .avatar {
+    --tick-color: var(--accent);
+    display: grid;
+    place-items: center;
+    background-color: var(--bg-2);
+    font-family: var(--font-serif);
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .portrait {
+    --tick: 1rem;
+    position: relative;
+    aspect-ratio: 4 / 5;
+    font-size: clamp(5rem, 10vw, 7.5rem);
+    letter-spacing: -0.03em;
+  }
+
+  /* Dot matrix behind the initials, echoing the home page scene. */
+  .portrait::before {
+    content: '';
+    position: absolute;
+    inset: 1rem;
+    background: radial-gradient(circle, var(--line-2) 1px, transparent 1.5px) center / 0.75rem
+      0.75rem;
+    mask-image: radial-gradient(circle at center, transparent 30%, #000 75%);
+  }
+
+  .portrait span {
+    position: relative;
+  }
+
+  .pi-links {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .pi-links a {
+    display: flex;
+    justify-content: space-between;
+    padding-block: 0.8rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.95rem;
+    color: var(--text-2);
+    transition: color 0.2s var(--ease);
+  }
+
+  .pi-links a:hover {
+    color: var(--text);
+  }
+
+  .pi-links a span {
+    color: var(--text-3);
+    transition:
+      color 0.2s var(--ease),
+      transform 0.2s var(--ease);
+  }
+
+  .pi-links a:hover span {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  .titles {
+    margin-block: 1.25rem 2rem;
+    font-size: 1.05rem;
+    color: var(--text-2);
+  }
+
+  .honors-label {
+    margin-block: 3rem 1rem;
+  }
+
+  .honors li {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
+    padding-block: 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  /* --- Current members ------------------------------------------------------ */
+
+  .members {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .member {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line-2);
+  }
+
+  .avatar {
+    width: 4.5rem;
+    height: 4.5rem;
+    font-size: 1.75rem;
+  }
+
+  .member--open .avatar {
+    --tick-color: var(--line-2);
+    background-color: transparent;
+    color: var(--text-3);
+  }
+
+  .member .label {
+    margin-top: 0.5rem;
+  }
+
+  .focus {
+    margin-top: 0.85rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* --- Ph.D. alumni --------------------------------------------------------- */
+
+  .thesis {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 0.75rem 2rem;
+    align-items: start;
+    padding-block: 1.5rem;
+  }
+
+  .thesis-when {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .thesis-year {
+    font-family: var(--font-serif);
+    font-size: 1.9rem;
+    line-height: 1;
+  }
+
+  .thesis-name {
+    font-family: var(--font-sans);
+    font-size: 1.075rem;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .thesis-title {
+    margin-top: 0.3rem;
+    font-size: 0.925rem;
+    font-style: italic;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .thesis-note {
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--text-3);
+  }
+
+  .thesis-where {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+    font-size: 0.925rem;
+  }
+
+  .thesis-where dt {
+    margin-bottom: 0.25rem;
+  }
+
+  .footnote {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-3);
+  }
+
+  /* --- Other alumni --------------------------------------------------------- */
+
+  .more-alumni {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem clamp(2rem, 6vw, 6rem);
+  }
+
+  .names {
+    margin-top: 1.5rem;
+  }
+
+  .names li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .names .label {
+    flex: none;
+  }
+
+  /* --- Responsive ----------------------------------------------------------- */
+
+  @media (max-width: 60rem) {
+    .members {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .thesis {
+      grid-template-columns: 6rem minmax(0, 1fr);
+    }
+
+    .thesis-where {
+      grid-column: 2;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .pi,
+    .more-alumni {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pi-card {
+      display: grid;
+      grid-template-columns: 9rem minmax(0, 1fr);
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .portrait {
+      font-size: 3.5rem;
+    }
+
+    .pi-links {
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .members {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .thesis {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .thesis-when {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 0.9rem;
+    }
+
+    .thesis-where {
+      grid-column: 1;
+    }
+  }
+</style>

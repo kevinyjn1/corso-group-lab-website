@@ -1,0 +1,307 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import PubItem from '../components/PubItem.astro';
+import AreaGlyph from '../components/AreaGlyph.astro';
+import { getAreas, getPublications, getResources } from '../lib/content';
+import { href, sponsors } from '../lib/site';
+
+const areas = await getAreas();
+const publications = await getPublications();
+const resources = await getResources();
+
+const sections = areas.map((area) => {
+  const inArea = publications.filter((p) => (p.data.topics as string[]).includes(area.id));
+  // Papers that belong to this area first and foremost: the two newest, then featured ones.
+  const primary = inArea.filter((p) => p.data.topics[0] === area.id);
+  const picks = [
+    ...new Set([...primary.slice(0, 2), ...primary.filter((p) => p.data.featured), ...primary]),
+  ].slice(0, 4);
+  return {
+    area,
+    count: inArea.length,
+    picks,
+    releases: resources.filter((r) => (r.data.topics as string[])[0] === area.id).slice(0, 5),
+  };
+});
+---
+
+<Base
+  title="Research"
+  description="Research areas of the Corso Group: video and scene understanding, vision and language, robot perception, human-AI collaboration, AI for health, and machine learning."
+>
+  <PageHead label="Research">
+    <Fragment slot="title">
+      Cognitive systems for the <em>physical</em> world.
+    </Fragment>
+    <p class="lead">
+      We study the entangled challenges of vision, language, robotics, and learning, with
+      applications in the health sciences, autonomy, and everyday life. The work falls into six
+      connected areas.
+    </p>
+  </PageHead>
+
+  <nav class="toc" aria-label="Research areas">
+    <div class="container">
+      <ul>
+        {sections.map(({ area }, i) => (
+          <li>
+            <a href={`#${area.id}`} data-topic={area.id}>
+              <span class="dot" />
+              <span class="toc-index">{String(i + 1).padStart(2, '0')}</span>
+              {area.data.short}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
+  {sections.map(({ area, count, picks, releases }, i) => (
+    <section class="section area" id={area.id} data-topic={area.id}>
+      <div class="container">
+        <div class="area-grid" data-reveal="stagger">
+          <div class="area-intro">
+            <div class="area-mark">
+              <AreaGlyph topic={area.id} size={64} />
+              <span class="label">
+                {String(i + 1).padStart(2, '0')} / {String(sections.length).padStart(2, '0')}
+              </span>
+            </div>
+            <h2 class="h2">{area.data.title}</h2>
+            <p class="lead">{area.data.summary}</p>
+          </div>
+          <div class="area-body">
+            <div class="prose">
+              {area.data.body.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
+            </div>
+            <ul class="threads">
+              {area.data.threads.map((thread) => (
+                <li class="chip">{thread}</li>
+              ))}
+            </ul>
+            {releases.length > 0 && (
+              <p class="releases">
+                <span class="label">Code &amp; data</span>
+                {releases.map((release) => (
+                  <a class="link" href={href(`/resources/#${release.id}`)}>
+                    {release.data.name}
+                  </a>
+                ))}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div class="papers" data-reveal>
+          <div class="papers-head">
+            <h3 class="label">Selected papers</h3>
+            <a class="more" href={href(`/publications/?topic=${area.id}`)}>
+              All {count} papers{' '}
+              <span class="arrow" aria-hidden="true">
+                &rarr;
+              </span>
+            </a>
+          </div>
+          <ul class="rows">
+            {picks.map((pub) => (
+              <PubItem pub={pub} level="h4" />
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <section class="section">
+    <div class="container support" data-reveal="stagger">
+      <div>
+        <p class="label support-label">Support</p>
+        <h2 class="h2">Made possible by</h2>
+      </div>
+      <div>
+        <p class="lead">
+          The group's research has been funded by federal agencies, foundations, and industry
+          partners, including:
+        </p>
+        <ul class="sponsors">
+          {sponsors.map((sponsor) => (
+            <li>{sponsor}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .toc {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toc ul {
+    display: flex;
+    gap: clamp(1.25rem, 2.5vw, 2.25rem);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .toc ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toc a {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding-block: 0.95rem;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    color: var(--text-2);
+    white-space: nowrap;
+    transition: color 0.2s var(--ease);
+  }
+
+  .toc a:hover {
+    color: var(--text);
+  }
+
+  .toc-index {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+  }
+
+  .area {
+    scroll-margin-top: calc(var(--header-h) + 3rem);
+  }
+
+  .area-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 2.5rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  /* The heading stays in view while the longer description scrolls past. */
+  .area-intro {
+    position: sticky;
+    top: calc(var(--header-h) + 5.5rem);
+  }
+
+  .area-mark {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .area-intro .lead {
+    max-width: 30rem;
+    margin-top: 1.25rem;
+  }
+
+  .threads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  .releases {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.25rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.95rem;
+  }
+
+  .papers {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .papers-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .papers-head .label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .papers-head .label::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--topic);
+  }
+
+  .support {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .support-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .support-label::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--maize);
+  }
+
+  .sponsors {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 2rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .sponsors li {
+    padding-block: 0.8rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 56rem) {
+    .area-grid,
+    .support {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .area-intro {
+      position: static;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .sponsors {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

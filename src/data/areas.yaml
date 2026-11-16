@@ -1,0 +1,92 @@
+# Research areas. The id of each area is the topic key used to tag
+# publications (src/data/publications.yaml) and resources (src/data/resources.yaml).
+
+- id: video
+  order: 1
+  title: Video & Scene Understanding
+  short: Video & Scenes
+  summary: Segmenting, localizing, and recognizing actors, actions, and objects as they unfold over time.
+  body:
+    - Video is the richest record we have of the physical world, and one of the hardest signals to parse. A single clip mixes many actors, many actions, camera motion, and long stretches where nothing relevant happens.
+    - The group has worked on this problem at every level of the stack. Early work built supervoxel hierarchies and streaming segmentation as a foundation for video analysis, then high-level action representations and a pixel-level dataset for joint actor-action understanding. More recent work targets what still breaks in practice - localizing activities with weak supervision, predicting where people look, choosing which frame to annotate, and diagnosing how video inpainting methods fail.
+  threads:
+    - Actor-action recognition and segmentation
+    - Supervoxels and video object segmentation
+    - Weakly supervised temporal localization
+    - Egocentric video and gaze
+    - Video saliency, inpainting, and prediction
+
+- id: language
+  order: 2
+  title: Vision & Language
+  short: Vision & Language
+  summary: Describing what happens in a video, and grounding every word of that description in pixels.
+  body:
+    - Language is how people share what they see. A system that can describe a video, answer questions about it, or follow instructions grounded in it has to connect words to regions, moments, and procedures.
+    - The group began turning video into sentences in 2013, and built the YouCook and YouCook2 datasets of instructional cooking video to study how procedures can be learned from the web. That line continued through dense video captioning, grounded video description, and unified vision-language pretraining. Current work studies how large multimodal models reason about goals and procedures, when they should look again at the evidence, and how to judge what they generate.
+  threads:
+    - Video captioning and dense description
+    - Grounding language in video
+    - Instructional video and procedure learning
+    - Vision-language pretraining
+    - Reasoning and evaluation for multimodal models
+
+- id: robotics
+  order: 3
+  title: Robot Perception & Embodied AI
+  short: Robotics
+  summary: Perception for machines that move - depth, mapping, and navigation guided by language and dialog.
+  body:
+    - A robot does not get a curated dataset. It gets a moving camera, a body, and a task. That changes what perception has to deliver, and it also offers new signal - motion itself can supervise learning.
+    - Work in this area includes estimating object depth from camera motion, driving visual servo control directly from video object segmentation, letting a robot supervise its own segmentation models, and semantic mapping and localization for mobile platforms. On the language side, the group built benchmarks for dialog-guided localization on a physical robot and for navigation agents that persist and improve across many episodes in the same environment.
+  threads:
+    - Depth and geometry from motion
+    - Segmentation-driven visual servoing
+    - Semantic mapping and localization
+    - Vision-and-language navigation
+    - Dialog between people and robots
+
+- id: human
+  order: 4
+  title: Human-AI Collaboration & Task Guidance
+  short: Human-AI
+  summary: AI that works with people on physical tasks - asking for help, catching mistakes, and explaining them.
+  body:
+    - Many of the tasks that matter most are done by people with their hands - cooking a meal, assembling a part, giving first aid. An assistant for that kind of work needs to follow along, notice when something goes wrong, say what went wrong and why, and know when its own judgment should not be trusted.
+    - The group studies both sides of that collaboration. One line asks when a model should defer or ask a person to try again, and how real users respond when it does. Another line builds the perception behind task guidance - detecting procedural mistakes in egocentric video, attributing them to the instruction that was violated and the moment they became irreversible, and measuring whether AI guidance actually improves how people perform.
+  threads:
+    - Mistake detection and attribution
+    - Assistive agents for procedural tasks
+    - Deferral, re-query, and hazy oracles
+    - Human-in-the-loop vision
+    - Gesture and vision-based interaction
+
+- id: health
+  order: 5
+  title: AI for Health & Surgery
+  short: Health
+  summary: From brain tumor segmentation to the operating room and the ultrasound probe.
+  body:
+    - Medicine produces enormous amounts of visual data, and much of it is read by a small number of experts under time pressure. The group has worked with clinicians for nearly two decades to make that data easier to quantify.
+    - Early work developed multilevel and graph-based methods for segmenting brain tumors and subcortical structures, labeling the lumbar spine, and reconstructing computed tomography on GPUs. Later work moved into the operating room - tracking surgeons' hands and tools, and supporting video-based assessment of technical and non-technical skill in cardiac surgery. Current projects build large-scale surgical video-language data and conversational assistance for point-of-care cardiac ultrasound.
+  threads:
+    - Surgical video understanding
+    - Hand and tool tracking in the operating room
+    - Point-of-care echocardiography
+    - Brain tumor and neuroimaging segmentation
+    - Computer-aided diagnosis of the spine
+
+- id: learning
+  order: 6
+  title: Learning, Data & Generation
+  short: Learning & Data
+  summary: The machinery underneath - efficient and robust models, better data, and generative models of motion.
+  body:
+    - Progress on perception depends on the tools beneath it - how models are trained, how small and robust they can be made, and how well we understand the data they learn from.
+    - This area collects the group's work on those foundations. It spans metric learning and active clustering, graphical models and hierarchical energy minimization, and information-theoretic methods for compressing deep networks without giving up robustness. It also covers data-centric questions such as measuring classification difficulty and selecting coresets without labels, and generative models for video, human motion, and co-speech gesture.
+  threads:
+    - Network compression and robustness
+    - Metric learning and active clustering
+    - Graphical models and energy minimization
+    - Data-centric AI and label quality
+    - Video, motion, and gesture generation

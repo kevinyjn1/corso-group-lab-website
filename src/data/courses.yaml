@@ -1,0 +1,74 @@
+# Courses taught by Prof. Corso. Terms are listed newest first.
+
+# --- University of Michigan -------------------------------------------------
+
+- id: rob-599
+  order: 1
+  code: ROB 498/599
+  title: '3D Robot Perception'
+  institution: michigan
+  terms: [Fall 2023]
+
+- id: eecs-504
+  order: 2
+  code: EECS 504
+  title: Foundations of Computer Vision
+  institution: michigan
+  terms: [Fall 2023, Fall 2020, Fall 2018, Winter 2018, Fall 2016, Fall 2015, Fall 2014]
+  summary: Computer vision as a search for visual invariants and as mathematical modeling. Covers foundational representations of images and the cross-cutting problems of reduction, estimation, and matching.
+  url: 'https://web.eecs.umich.edu/~jjcorso/t/504F16/'
+
+- id: eecs-442
+  order: 3
+  code: EECS 442
+  title: Computer Vision
+  institution: michigan
+  terms: [Fall 2018, Fall 2017]
+
+- id: eecs-542
+  order: 4
+  code: EECS 542
+  title: Advanced Topics in Computer Vision
+  institution: michigan
+  terms: [Winter 2017, Winter 2016]
+  summary: Structured representations and embeddings for high-level vision - structured prediction, deep learning, and dictionary learning.
+  url: 'https://web.eecs.umich.edu/~jjcorso/t/542W17/'
+
+- id: eecs-598-pgm
+  order: 5
+  code: EECS 598
+  title: Probabilistic Graphical Models
+  institution: michigan
+  terms: [Winter 2015]
+  url: 'https://web.eecs.umich.edu/~jjcorso/t/598W15/'
+
+# --- SUNY at Buffalo --------------------------------------------------------
+
+- id: cse-555
+  order: 6
+  code: CSE 455/555
+  title: Introduction to Pattern Recognition
+  institution: buffalo
+  terms: [Spring 2013, Spring 2012, Spring 2011, Spring 2010, Spring 2009]
+
+- id: cse-672
+  order: 7
+  code: CSE 672
+  title: Bayesian Vision
+  institution: buffalo
+  terms: [Fall 2012, Fall 2010, Spring 2009]
+
+- id: cse-642
+  order: 8
+  code: CSE 642
+  title: 'Techniques in AI: Vision for HCI'
+  institution: buffalo
+  terms: [Fall 2009]
+
+- id: cse-seminars
+  order: 9
+  code: CSE 7xx
+  title: Graduate seminars
+  institution: buffalo
+  terms: [Spring 2014, Fall 2011, Fall 2010, Fall 2009, Fall 2008, Fall 2007]
+  summary: Readings in joint visual, lingual, and physical models; computer vision and machine learning; video analysis; image semantics; pattern theory; and medical image segmentation.

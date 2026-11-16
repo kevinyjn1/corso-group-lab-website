@@ -1,0 +1,17 @@
+---
+/** Header for inner pages: a label, a serif title, and an optional lead paragraph. */
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<header class="page-head">
+  <div class="container">
+    <p class="label">{label}</p>
+    <h1 class="page-title">
+      <slot name="title" />
+    </h1>
+    <slot />
+  </div>
+</header>
