@@ -40,7 +40,9 @@
 - { id: vaman-rajagopal, name: Vaman Rajagopal, role: undergrad, status: current }
 - { id: wei-liu, name: Wei Liu, role: undergrad, status: current }
 
-# --- Staff ------------------------------------------------------------------
+# --- Researchers and staff --------------------------------------------------
+
+- { id: imran-samad, name: Imran Samad, role: researcher, status: current }
 
 - { id: ethan-ho, name: Ethan Ho, role: staff, status: current }
 - { id: mike-oelke, name: Mike Oelke, role: staff, status: current }

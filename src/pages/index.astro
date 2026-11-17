@@ -40,7 +40,8 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 /** The rest of the group, as counts: the People page has the names. */
 const others = [
   plural(current('undergrad').length, 'undergraduate researcher', 'undergraduate researchers'),
-  plural(current('researcher').length + current('staff').length, 'staff member', 'staff'),
+  plural(current('researcher').length, 'research scientist', 'research scientists'),
+  plural(current('staff').length, 'staff member', 'staff'),
   plural(current('collaborator').length, 'collaborator', 'collaborators'),
 ].filter((line) => !line.startsWith('0 '));
 const phdAlumni = people.filter((p) => p.data.status === 'alumni' && p.data.role === 'phd');
