@@ -1,0 +1,939 @@
+---
+/**
+ * VIGIL, the group's flagship project. The facts are in src/lib/vigil.ts, each with its sources,
+ * and the videos and press are the media items marked `project: vigil`.
+ */
+import Base from '../layouts/Base.astro';
+import Cite from '../components/Cite.astro';
+import MediaRow from '../components/MediaRow.astro';
+import PubItem from '../components/PubItem.astro';
+import ResearchFigure from '../components/ResearchFigure.astro';
+import VideoCard from '../components/VideoCard.astro';
+import VigilName from '../components/VigilName.astro';
+import { getMedia, getPublications } from '../lib/content';
+import { href } from '../lib/site';
+import { SOURCES, vigil, type SourceId } from '../lib/vigil';
+
+const { award, services } = vigil;
+const media = (await getMedia()).filter((item) => item.data.project === 'vigil');
+const talk = media.find((item) => item.data.youtubeId);
+const coverage = media.filter((item) => item !== talk);
+const publications = await getPublications();
+const papers = vigil.papers.flatMap((id) => publications.filter((pub) => pub.id === id));
+const sources = Object.entries(SOURCES) as [SourceId, (typeof SOURCES)[SourceId]][];
+
+const plate = [
+  { name: 'Funder', value: `${award.funderName} (${award.funder})` },
+  { name: 'Program', value: `${award.program}, ${award.area}` },
+  { name: 'Award', value: `${award.amount}, begun ${award.started}` },
+  { name: 'Principal investigator', value: award.pi },
+  { name: 'Led from', value: award.prime },
+];
+---
+
+<Base
+  title="VIGIL"
+  description="VIGIL is the Corso Group's flagship project: an AI agent, funded by ARPA-H's PARADIGM program, that guides generalist clinicians through specialist exams and procedures so hospital-level care can reach rural America."
+>
+  <header class="page-head">
+    <div class="container">
+      <p class="label">
+        Flagship project &middot; {award.funder} {award.program}
+      </p>
+      <h1 class="page-title wordmark">
+        {vigil.name}
+        <span class="sr-only">: {vigil.fullName}</span>
+      </h1>
+      <div class="head-foot">
+        <div>
+          <VigilName decorative />
+          <p class="lead">{vigil.summary}</p>
+          <div class="cta">
+            <a class="btn btn--primary" href="#how">
+              See it work{' '}
+              <span class="arrow" aria-hidden="true">
+                &darr;
+              </span>
+            </a>
+            <a class="btn" href="#watch">
+              Watch the talk
+            </a>
+          </div>
+        </div>
+        <div>
+          <dl class="plate">
+            {plate.map((row) => (
+              <div>
+                <dt class="label">{row.name}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p class="plate-note">
+            As listed by ARPA-H
+            <Cite ids={['award']} />
+          </p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section band--blue how" id="how">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">How it works</p>
+          <h2 class="h2">
+            An agent that sees the room, and <em>guides</em> in it.
+          </h2>
+        </div>
+      </div>
+
+      <div data-reveal>
+        <ResearchFigure topic="vigil" number={1} wide />
+        <p class="note">
+          Live: one guided heart exam, start to finish. Light marks where the probe goes, the system
+          judges the probe as far, close, or on target, and a voice corrects it. This is an
+          illustration drawn from the team's public descriptions, not footage of the system, and the
+          spoken lines are examples.
+        </p>
+      </div>
+
+      <ol class="steps" data-reveal="stagger">
+        {vigil.steps.map((step, i) => (
+          <li>
+            <p class="step-name">
+              <span class="step-index">{String(i + 1).padStart(2, '0')}</span>
+              {step.name}
+            </p>
+            <h3 class="h3">{step.title}</h3>
+            <p class="step-body">
+              {step.body}
+              <Cite ids={step.sources} />
+            </p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Why it matters</p>
+          <h2 class="h2">
+            The hospital keeps getting <em>farther</em> away.
+          </h2>
+        </div>
+      </div>
+
+      <div class="why" data-reveal="stagger">
+        <div class="prose">
+          <p>
+            Over the past ten years, more than 100 hospitals in mostly rural parts of the United
+            States have closed, and at least 600 more, about 30% of all rural hospitals, are at risk
+            of closing.
+            <Cite ids={['paradigm']} />
+            When one closes, the people it served travel farther for the same care, or go without.
+          </p>
+          <p>
+            {award.funder}'s {award.program} program is building a different model: a vehicle that
+            carries hospital-level care to where people live. The program has five parts, from a
+            miniaturized, ruggedized CT scanner to the software that brings a clinic's medical
+            devices into one system. <strong>VIGIL is the fifth: intelligent task guidance</strong>,
+            the part that lets the clinician on board do work that would otherwise wait for a
+            specialist.
+            <Cite ids={['paradigm', 'release']} />
+          </p>
+          <p>
+            The person VIGIL works beside is a generalist: a family doctor, a nurse practitioner, a
+            physician assistant. They have deep foundational knowledge and no specialist down the
+            hall. The agent observes what they do, walks them through what is unfamiliar, and
+            adjusts when something unexpected happens.
+            <Cite ids={['michigan']} />
+          </p>
+        </div>
+
+        <div class="why-side">
+          <dl class="figures">
+            <div>
+              <dd>100+</dd>
+              <dt>Rural hospitals closed in ten years</dt>
+            </div>
+            <div>
+              <dd>600</dd>
+              <dt>More at risk: about 30% of all rural hospitals</dt>
+            </div>
+          </dl>
+          <figure class="quote">
+            <blockquote>
+              <p>We want to bring the hospital to the house, or to the church parking lot.</p>
+            </blockquote>
+            <figcaption>
+              Jason Corso, in Michigan Engineering News
+              <Cite ids={['michigan']} />
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section band--maize room">
+    <div class="container">
+      <div class="room-grid" data-reveal="stagger">
+        <div>
+          <p class="label">The interface</p>
+          <h2 class="h2">
+            No goggles. The interface is the <em>room</em>.
+          </h2>
+        </div>
+        <div>
+          <p class="lead">
+            Guidance like this usually arrives on a headset. The team planned for one, then dropped
+            it. In the clinic, VIGIL projects its guidance onto the patient and the room and speaks
+            through an earpiece, so nothing sits between the clinician and the person they are
+            caring for.
+            <Cite ids={['goggles', 'detroit']} />
+          </p>
+          <ul class="reasons">
+            <li>
+              <h3 class="h3">Nothing to wear</h3>
+              <p>No heavy headset, and none of the motion sickness that comes with one.</p>
+            </li>
+            <li>
+              <h3 class="h3">Eye contact stays</h3>
+              <p>The clinician looks at the patient, not at a screen in front of their eyes.</p>
+            </li>
+            <li>
+              <h3 class="h3">It fits the room</h3>
+              <p>The guidance lands on the table and the tools that are already in use.</p>
+            </li>
+          </ul>
+          <p class="credit">
+            The move to projected guidance was led by Anhong Guo, of Computer Science and
+            Engineering at Michigan.
+            <Cite ids={['goggles']} />
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Scope</p>
+          <h2 class="h2">What it guides</h2>
+          <p>
+            In August 2026, eighteen months into the project, Prof. Corso counted four clinical
+            services that VIGIL supports, among them ultrasound, X-ray, and laryngoscopy.
+            <Cite ids={['update']} />
+          </p>
+        </div>
+      </div>
+
+      <div class="scope" data-reveal="stagger">
+        <div>
+          <h3 class="label">
+            Shown or named so far
+            <Cite ids={['detroit', 'update']} />
+          </h3>
+          <ul class="services">
+            {services.now.map((service) => (
+              <li>
+                <span class="service-name">{service.name}</span>
+                <span class="service-note">{service.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 class="label">
+            Named as possible next steps
+            <Cite ids={['detroit']} />
+          </h3>
+          <ul class="plain">
+            {services.next.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 class="label">
+            Also built
+            <Cite ids={['detroit']} />
+          </h3>
+          <ul class="plain">
+            {services.forms.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section progress">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Progress</p>
+          <h2 class="h2">
+            From award to <em>four</em> services in eighteen months.
+          </h2>
+        </div>
+      </div>
+      <ol class="timeline" data-reveal="stagger">
+        {vigil.timeline.map((moment) => (
+          <li>
+            <p class="when">{moment.when}</p>
+            <p class="what">
+              {moment.what}
+              <Cite ids={moment.sources} />
+            </p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section band--blue" id="watch">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Watch and read</p>
+          <h2 class="h2">VIGIL on the record</h2>
+        </div>
+        <a class="more" href={href('/media/')}>
+          All talks, press, and essays{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+      <div class="record" data-reveal="stagger">
+        {talk && <VideoCard item={talk} sizes="(min-width: 62rem) 45vw, 92vw" />}
+        <ul class="rows record-list">
+          {coverage.map((item) => (
+            <MediaRow item={item} showKind />
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Team</p>
+          <h2 class="h2">
+            Eight universities and RTX BBN, <em>one</em> team.
+          </h2>
+          <p>
+            The team as it was announced in February 2025, in its three sub-teams.
+            <Cite ids={['michigan']} />
+            The program manager at {award.funder} is {award.manager}.
+            <Cite ids={['paradigm']} />
+          </p>
+        </div>
+        <a class="more" href={href('/people/')}>
+          The Corso Group{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+
+      <div class="team" data-reveal="stagger">
+        {vigil.team.map((part) => (
+          <div class="subteam">
+            <h3 class="h3">{part.name}</h3>
+            <p class="subteam-note">{part.note}</p>
+            {part.groups.map((group) => (
+              <div class="place">
+                <h4 class="label">{group.place}</h4>
+                <ul>
+                  {group.people.map((person) => (
+                    <li>{person}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {papers.length > 0 && (
+    <section class="section papers">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="label">From the group</p>
+            <h2 class="h2">Papers on the same problems</h2>
+            <p>
+              Published work from the group on answering clinical questions during a heart
+              ultrasound, on scoring where the probe is, and on AI agents that guide people through
+              physical tasks.
+            </p>
+          </div>
+          <a class="more" href={href('/publications/')}>
+            All publications{' '}
+            <span class="arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+        </div>
+        <ul class="rows" data-reveal="stagger">
+          {papers.map((pub) => (
+            <PubItem pub={pub} />
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="section sources" id="sources">
+    <div class="container sources-grid">
+      <div>
+        <p class="label">Sources</p>
+        <h2 class="h3">Where each fact comes from</h2>
+        <p class="sources-note">
+          The numbers in boxes on this page point here. Every source was read in November 2026.
+        </p>
+      </div>
+      <ol>
+        {sources.map(([id, source], i) => (
+          <li id={`source-${id}`}>
+            <span class="source-index">{i + 1}</span>
+            <a class="link" href={source.href} rel="noopener">
+              {source.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* --- Header --------------------------------------------------------------- */
+
+  /* The name is the page's poster: as large as the screen allows. */
+  .wordmark {
+    font-stretch: 62%;
+    font-weight: 900;
+    font-size: clamp(6.5rem, 33vw, 22rem);
+    line-height: 0.76;
+    letter-spacing: -0.015em;
+  }
+
+  .head-foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(2rem, 6vw, 6rem);
+    align-items: end;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .page-head .lead {
+    margin-top: 1.5rem;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  /* The award, set like the data plate riveted to a machine. */
+  .plate {
+    margin: 0;
+    border-top: var(--rule) solid var(--text);
+  }
+
+  .plate div {
+    display: grid;
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line-2);
+  }
+
+  .plate dt {
+    margin: 0;
+    color: var(--text-2);
+  }
+
+  .plate dd {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .plate-note {
+    margin-top: 0.7rem;
+    font-size: 0.85rem;
+    color: var(--text-2);
+  }
+
+  /* --- How it works --------------------------------------------------------- */
+
+  .how,
+  #watch,
+  .sources {
+    scroll-margin-top: var(--header-h);
+  }
+
+  .note {
+    max-width: 52rem;
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--text-3);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps li {
+    padding: 0 clamp(1rem, 2vw, 1.75rem) 0.25rem;
+    border-left: var(--rule) solid var(--maize);
+  }
+
+  .step-name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--maize);
+  }
+
+  .step-index {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .steps .h3 {
+    margin-top: 0.7rem;
+  }
+
+  .step-body {
+    margin-top: 0.7rem;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* --- Why ------------------------------------------------------------------ */
+
+  .why {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 3rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .why .prose {
+    font-size: 1.08rem;
+    line-height: 1.6;
+  }
+
+  .figures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+  }
+
+  .figures div {
+    padding: 0 clamp(1rem, 2vw, 1.75rem);
+    border-left: var(--rule) solid var(--text);
+  }
+
+  .figures dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: 66%;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.82;
+    letter-spacing: -0.01em;
+  }
+
+  .figures dt {
+    max-width: 13rem;
+    margin-top: 0.8rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    color: var(--text-2);
+  }
+
+  .quote {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding: 1.5rem clamp(1.25rem, 2.5vw, 2rem);
+    background: var(--blue);
+    color: #f6f3ea;
+  }
+
+  .quote blockquote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: 80%;
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    font-weight: 700;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .quote blockquote p::before {
+    content: '\201C';
+    color: var(--maize);
+  }
+
+  .quote blockquote p::after {
+    content: '\201D';
+    color: var(--maize);
+  }
+
+  .quote figcaption {
+    --line-2: rgb(255 255 255 / 0.42);
+    --text-2: #bccadb;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #bccadb;
+  }
+
+  /* --- The room ------------------------------------------------------------- */
+
+  .room-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 2.5rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .room .label {
+    margin-bottom: 0.9rem;
+    color: var(--text);
+  }
+
+  .reasons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 2.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .reasons li {
+    padding: 0 1.1rem 0.25rem;
+    border-left: var(--rule) solid var(--text);
+  }
+
+  .reasons p {
+    margin-top: 0.6rem;
+    font-size: 0.98rem;
+    line-height: 1.45;
+    color: var(--text-2);
+  }
+
+  .credit {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+  }
+
+  /* --- Scope ---------------------------------------------------------------- */
+
+  .scope {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(1.5rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .scope .label {
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid var(--text);
+    color: var(--text);
+  }
+
+  .services,
+  .plain {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .services li {
+    display: grid;
+    gap: 0.3rem;
+    padding-block: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .service-name {
+    font-family: var(--font-display);
+    font-stretch: 80%;
+    font-size: clamp(1.3rem, 2vw, 1.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .service-note {
+    font-size: 0.85rem;
+    color: var(--text-3);
+  }
+
+  .plain li {
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+    line-height: 1.35;
+    color: var(--text-2);
+  }
+
+  /* --- Timeline ------------------------------------------------------------- */
+
+  .progress {
+    padding-top: 0;
+  }
+
+  .timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 2px solid var(--text);
+  }
+
+  .timeline li {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr);
+    gap: 0.4rem 2rem;
+    align-items: baseline;
+    padding-block: 1.2rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .when {
+    font-family: var(--font-display);
+    font-stretch: 80%;
+    font-size: clamp(1.25rem, 1.9vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .timeline li:last-child .when {
+    color: var(--text-3);
+  }
+
+  .what {
+    max-width: 44rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* --- Watch and read ------------------------------------------------------- */
+
+  .record {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  /* The talk stays in view while the longer list of coverage scrolls past. */
+  .record > :global(.video) {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+  }
+
+  .record-list :global(.row) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .record-list :global(.where) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .record-list :global(.chip) {
+    justify-self: start;
+  }
+
+  /* --- Team ----------------------------------------------------------------- */
+
+  .team {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(1.5rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .subteam {
+    padding-top: 0.9rem;
+    border-top: var(--rule) solid var(--text);
+  }
+
+  .subteam-note {
+    margin-top: 0.4rem;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: var(--text-2);
+  }
+
+  /* Padding, not a margin, so that a group at the top of a column keeps its space. */
+  .place {
+    padding-top: 1.4rem;
+  }
+
+  .place ul {
+    margin: 0.4rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .place li {
+    padding-block: 0.3rem;
+    line-height: 1.35;
+    color: var(--text-2);
+  }
+
+  /* The technical sub-team is the largest, so its institutions sit in two columns. */
+  .subteam:first-child {
+    column-count: 2;
+    column-gap: 2rem;
+  }
+
+  .subteam:first-child .h3,
+  .subteam:first-child .subteam-note {
+    column-span: all;
+  }
+
+  .subteam:first-child .place {
+    break-inside: avoid;
+  }
+
+  .papers {
+    padding-top: 0;
+  }
+
+  /* --- Sources -------------------------------------------------------------- */
+
+  .sources {
+    background: var(--bg-2);
+  }
+
+  .sources-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .sources .label {
+    margin-bottom: 0.7rem;
+  }
+
+  .sources-note {
+    max-width: 22rem;
+    margin-top: 0.8rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+  }
+
+  .sources ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 2px solid var(--text);
+  }
+
+  .sources li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: baseline;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+  }
+
+  .sources li:target {
+    background: color-mix(in srgb, var(--maize) 40%, transparent);
+  }
+
+  .source-index {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-3);
+  }
+
+  /* --- Narrow screens ------------------------------------------------------- */
+
+  @media (max-width: 62rem) {
+    .head-foot,
+    .why,
+    .room-grid,
+    .record,
+    .sources-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 2.25rem;
+    }
+
+    .scope,
+    .team {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .steps,
+    .reasons {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 1.75rem;
+    }
+
+    .plate div,
+    .timeline li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+
+    .subteam:first-child {
+      column-count: 1;
+    }
+
+    .cta .btn {
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+  }
+</style>

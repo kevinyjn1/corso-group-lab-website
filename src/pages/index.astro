@@ -7,6 +7,7 @@ import Logo from '../components/Logo.astro';
 import MediaRow from '../components/MediaRow.astro';
 import ResearchFigure from '../components/ResearchFigure.astro';
 import VideoCard from '../components/VideoCard.astro';
+import VigilBand from '../components/VigilBand.astro';
 import {
   approx,
   getAreas,
@@ -132,6 +133,8 @@ const placements = [
 
   <VenueTicker />
 
+  <VigilBand figure={2} />
+
   <section class="section">
     <div class="container">
       <div class="section-head" data-reveal>
@@ -155,7 +158,7 @@ const placements = [
           <li>
             <a class="area" href={href(`/research/#${area.id}`)} data-topic={area.id}>
               <div class="area-figure">
-                <ResearchFigure topic={area.id as FigureName} number={i + 2} />
+                <ResearchFigure topic={area.id as FigureName} number={i + 3} />
               </div>
               <div class="area-text">
                 <h3 class="h3">{area.data.title}</h3>

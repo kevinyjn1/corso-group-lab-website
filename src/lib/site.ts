@@ -31,6 +31,7 @@ export const site = {
 
 export const nav = [
   { label: 'Research', path: '/research/' },
+  { label: 'VIGIL', path: '/vigil/' },
   { label: 'Publications', path: '/publications/' },
   { label: 'People', path: '/people/' },
   { label: 'Code & Data', path: '/resources/' },

@@ -354,6 +354,13 @@ const current = Astro.url.pathname;
     }
   }
 
+  /* Where the full navigation only just fits, the mark stands in for the group's name. */
+  @media (min-width: 66.01rem) and (max-width: 77rem) {
+    .brand-name {
+      display: none;
+    }
+  }
+
   @media (max-width: 30rem) {
     .brand-name {
       display: none;

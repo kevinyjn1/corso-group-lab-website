@@ -2,6 +2,81 @@
 # kind: video | podcast | press | essay      date: YYYY, YYYY-MM, or YYYY-MM-DD (optional)
 # Every link was checked in November 2026. A YouTube video with a thumbnail needs an image
 # named after its id in src/assets/media/.
+# project: vigil puts an item on the VIGIL page as well. A LinkedIn post has no title of its own,
+# so those titles say what the post is about.
+
+- id: vigil-system-architecture-talk
+  title: 'VIGIL: Vectors of Intelligent Guidance in Long-Reach Rural Healthcare'
+  kind: video
+  outlet: 'Voxel51, Visual AI in Healthcare'
+  date: '2026-05-09'
+  url: 'https://www.youtube.com/watch?v=G77AdX2qapg'
+  youtubeId: 'G77AdX2qapg'
+  summary: 'Andrew Krikorian, a Ph.D. student in the group, on how VIGIL is put together: how its visual models and medical reasoning agents produce one coherent stream of guidance, and what latency and robustness demand of them. 22 minutes.'
+  project: vigil
+
+- id: vigil-at-eighteen-months
+  title: 'VIGIL at eighteen months: four clinical services, and generalists learning fast'
+  kind: video
+  outlet: 'Jason Corso on LinkedIn'
+  date: '2026-08-18'
+  url: 'https://www.linkedin.com/posts/jason-corso_delivering-effective-healthcare-anywhere-ugcPost-7495463545971597312-wGDo/'
+  summary: 'Prof. Corso on where the project stands, with a short video that introduces VIGIL as an AI medical assistant.'
+  project: vigil
+
+- id: vigil-detroit-news
+  title: 'AI-equipped rigs bring hospital-level care to rural Mich. patients'
+  kind: press
+  outlet: 'The Detroit News, via EMS1'
+  date: '2026-05-18'
+  url: 'https://www.ems1.com/artificial-intelligence/ai-equipped-rigs-bring-hospital-level-care-to-rural-mich-patients'
+  summary: 'A visit to the lab, where a nurse practitioner performs a cardiac ultrasound with VIGIL guiding her by projected light, a screen, and an earpiece.'
+  project: vigil
+
+- id: vigil-no-goggles
+  title: 'Is the dream of head-mounted displays a dead end for enterprise?'
+  kind: essay
+  outlet: 'Jason Corso on LinkedIn'
+  date: '2026-01-12'
+  url: 'https://www.linkedin.com/posts/jason-corso_is-the-dream-of-head-mounted-displays-ugcPost-7416532581472591872-ztyO/'
+  summary: 'Why VIGIL gave up the headset in the clinic and projects its guidance into the room instead.'
+  project: vigil
+
+- id: vigil-colorado-state
+  title: 'CSU leads AI development for use in mobile, rural health clinic'
+  kind: press
+  outlet: 'Colorado State University'
+  date: '2025-12-04'
+  url: 'https://elements.colostate.edu/csu-leads-ai-development-for-use-in-mobile-rural-health-clinic/'
+  summary: "Colorado State's part in VIGIL: an AI system that can partner with nurses and doctors in the tight space of a mobile clinic."
+  project: vigil
+
+- id: vigil-cardiac-demo
+  title: 'The VIGIL agent guiding a cardiac ultrasound'
+  kind: video
+  outlet: 'Jason Corso on LinkedIn'
+  date: '2025-11-25'
+  url: 'https://www.linkedin.com/posts/jason-corso_arpah-paradigm-aiinhealthcare-ugcPost-7399133694583529472-7GUC/'
+  summary: 'A clip of the demonstration: cameras, depth sensors, and microphones give clinician, patient, and AI a shared view, and a network guides the probe to a good image of the heart.'
+  project: vigil
+
+- id: vigil-michigan-engineering-news
+  title: 'Bridging gaps in rural health care with AI-powered mobile clinics'
+  kind: press
+  outlet: 'Michigan Engineering News'
+  date: '2025-02-12'
+  url: 'https://news.engin.umich.edu/2025/02/bridging-gaps-in-rural-health-care-with-ai-powered-mobile-clinics'
+  summary: "The announcement of VIGIL: eight universities and RTX BBN, led from Michigan, building the AI agent for ARPA-H's mobile clinic."
+  project: vigil
+
+- id: vigil-arpa-h-announcement
+  title: 'ARPA-H works to deliver advanced hospital-level care to rural areas'
+  kind: press
+  outlet: 'ARPA-H'
+  date: '2025-02-12'
+  url: 'https://arpa-h.gov/news-and-events/arpa-h-works-deliver-advanced-hospital-level-care-rural-areas'
+  summary: 'ARPA-H names the twelve PARADIGM teams. Michigan, with VIGIL, is one of two building intelligent task guidance.'
+  project: vigil
 
 - id: creating-better-datasets-for-training-more-robus
   title: '"Creating Better Datasets for Training More Robust Models in FiftyOne," a Presentation from Voxel51'

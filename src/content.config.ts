@@ -144,6 +144,8 @@ const media = defineCollection({
     summary: z.string(),
     /** Featured items lead the Media page and the home page, lowest number first. */
     featured: z.number().int().positive().optional(),
+    /** The project an item is about. Its own page lists these items. */
+    project: z.enum(['vigil']).optional(),
   }),
 });
 

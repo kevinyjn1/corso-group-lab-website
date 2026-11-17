@@ -4,6 +4,7 @@ import { at } from './base-path';
 const pages = [
   '/',
   '/research/',
+  '/vigil/',
   '/publications/',
   '/people/',
   '/resources/',
@@ -198,6 +199,7 @@ test('navigation reaches every page', async ({ page, isMobile }) => {
   await page.goto(at('/'));
   const targets = [
     ['Research', '/research/'],
+    ['VIGIL', '/vigil/'],
     ['Publications', '/publications/'],
     ['People', '/people/'],
     ['Code & Data', '/resources/'],
@@ -287,27 +289,115 @@ test("the mark's eye follows the pointer and its gear turns with the page", asyn
 
 test('every research figure draws its own picture', async ({ page }) => {
   await page.goto(at('/research/'));
+  // One figure for each of the six areas, and one for the flagship project above them.
   const figures = page.locator('[data-figure]');
-  await expect(figures).toHaveCount(6);
+  await expect(figures).toHaveCount(7);
   const names = new Set<string>();
   for (const figure of await figures.all()) {
     await figure.scrollIntoViewIfNeeded();
     await expect(figure).toHaveAttribute('data-painted', '');
     const name = (await figure.getAttribute('data-figure'))!;
     names.add(name);
-    // More than the resting dot grid has been drawn: several distinct colors are on the canvas.
-    const colors = await figure.locator('canvas').evaluate((canvas: HTMLCanvasElement) => {
-      const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
-      const seen = new Set<number>();
-      for (let i = 0; i < data.length; i += 4 * 53) {
-        if (data[i + 3] > 200) seen.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]);
-      }
-      return seen.size;
-    });
-    expect(colors, name).toBeGreaterThan(1);
+    // A figure starts from the beginning of its story, so give it a moment. Then more than the
+    // resting dot grid has been drawn: several distinct colors are on the canvas.
+    const colors = () =>
+      figure.locator('canvas').evaluate((canvas: HTMLCanvasElement) => {
+        const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
+        const seen = new Set<number>();
+        for (let i = 0; i < data.length; i += 4 * 53) {
+          if (data[i + 3] > 200) seen.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]);
+        }
+        return seen.size;
+      });
+    await expect.poll(colors, { message: name, timeout: 8_000 }).toBeGreaterThan(1);
     await expect(figure.locator('figcaption')).not.toBeEmpty();
   }
-  expect(names.size).toBe(6);
+  expect(names.size).toBe(7);
+});
+
+test('the flagship project is introduced on the home page and leads to its own page', async ({
+  page,
+}) => {
+  await page.goto(at('/'));
+  const band = page.locator('section.vigil');
+  await expect(band.getByRole('heading', { name: 'VIGIL' })).toBeVisible();
+  await expect(band).toContainText(
+    'Vectors of Intelligent Guidance in Long-Reach Rural Healthcare',
+  );
+  const figure = band.locator('[data-figure="vigil"]');
+  await figure.scrollIntoViewIfNeeded();
+  await expect(figure).toHaveAttribute('data-painted', '');
+
+  await band.getByRole('link', { name: /Inside VIGIL/ }).click();
+  await expect(page).toHaveURL(/\/vigil\/$/);
+  await expect(page.locator('h1')).toContainText('VIGIL');
+  await expect(page.locator('h1')).toContainText('Long-Reach Rural Healthcare');
+});
+
+test('every claim on the VIGIL page points at a source that is listed', async ({ page }) => {
+  await page.goto(at('/vigil/'));
+  const listed = await page
+    .locator('#sources li')
+    .evaluateAll((items) => items.map((item) => item.id));
+  expect(listed.length).toBeGreaterThanOrEqual(6);
+  for (const link of await page.locator('#sources li a').all()) {
+    await expect(link).toHaveAttribute('href', /^https:\/\//);
+  }
+
+  const cited = await page
+    .locator('.cite a')
+    .evaluateAll((links) => links.map((link) => link.getAttribute('href')!.slice(1)));
+  expect(cited.length).toBeGreaterThan(15);
+  for (const id of cited) expect(listed, id).toContain(id);
+  // And every listed source is used.
+  for (const id of listed) expect(cited, id).toContain(id);
+
+  // A citation takes the reader to its source.
+  await page.locator('.cite a').first().click();
+  await expect(page.locator('#sources li:target')).toBeVisible();
+});
+
+test('the VIGIL page has the talk, the coverage, and the papers', async ({ page }) => {
+  const requested: string[] = [];
+  await page.route(/youtube/, (route) => {
+    requested.push(route.request().url());
+    return route.fulfill({ status: 200, contentType: 'text/html', body: '<title>player</title>' });
+  });
+  await page.goto(at('/vigil/'));
+  const watch = page.locator('#watch');
+  await watch.scrollIntoViewIfNeeded();
+  expect(await watch.locator('.record-list > li').count()).toBeGreaterThanOrEqual(6);
+  expect(requested).toEqual([]);
+  await watch.getByRole('button', { name: /^Play video: VIGIL/ }).click();
+  await expect(watch.locator('iframe')).toHaveAttribute('src', /\/embed\/G77AdX2qapg\?/);
+
+  await expect(page.locator('.papers .rows > li')).toHaveCount(3);
+  await expect(page.locator('.team .subteam')).toHaveCount(3);
+});
+
+test('the header fits at every width where the full navigation shows', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'Small screens use the menu button instead.');
+  for (const width of [1057, 1120, 1232, 1233, 1440]) {
+    await page.setViewportSize({ width, height: 700 });
+    await page.goto(at('/'));
+    await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
+    const spill = await page.locator('.site-header .bar').evaluate((bar) => {
+      const last = bar.querySelector('.actions')!.getBoundingClientRect();
+      const nav = bar.querySelector('.nav')!.getBoundingClientRect();
+      const brand = bar.querySelector('.brand')!.getBoundingClientRect();
+      return {
+        overflow: bar.scrollWidth - bar.clientWidth,
+        pastEdge: last.right - bar.getBoundingClientRect().right,
+        overlap: Math.max(brand.right - nav.left, nav.right - last.left),
+      };
+    });
+    expect(spill.overflow, `${width}px`).toBeLessThanOrEqual(0);
+    expect(spill.pastEdge, `${width}px`).toBeLessThanOrEqual(0.5);
+    expect(spill.overlap, `${width}px`).toBeLessThanOrEqual(0);
+  }
 });
 
 test('a video plays in place only after the visitor asks for it', async ({ page }) => {

@@ -160,6 +160,22 @@ Scores are sent by the browser, so a determined visitor can post a made-up score
 checks that initials are one to three letters or digits and that scores are in a believable
 range, and nothing else can be written through it.
 
+## VIGIL, the flagship project
+
+VIGIL has a band on the home page and the Research page, an entry in the navigation, and its own
+page at `/vigil/`.
+
+- **The facts** are in `src/lib/vigil.ts`: the award, the four numbers, how it works, what it
+  guides, the timeline, and the team. Every fact names its sources, and the page prints them as
+  numbered references with the list at the foot. When something changes, change it there, with
+  its date and its source.
+- **Videos and press** are ordinary entries in `src/data/media.yaml` marked `project: vigil`, so
+  they appear on the Media page and on the VIGIL page.
+- **Related papers** are the publication ids listed under `papers` in `src/lib/vigil.ts`.
+- **The figure** (`vigil` in `src/scripts/figures.ts`) is an illustration of a guided heart
+  ultrasound, drawn from the team's public descriptions. It is labeled as an illustration
+  wherever it appears, and the spoken lines in it are examples.
+
 ## Design notes
 
 - **Identity** - built from the group's own mark and its university: maize and Michigan blue in

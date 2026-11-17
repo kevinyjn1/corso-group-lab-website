@@ -24,6 +24,10 @@ export const FIGURES = {
     title: 'Coreset selection',
     alt: 'Animation: data points gather into clusters, and a small, evenly spread subset of them is selected.',
   },
+  vigil: {
+    title: 'Guided ultrasound',
+    alt: 'Animation: a patient lies on an exam table, seen from above. Light projected onto the chest marks where an ultrasound probe should go. A clinician brings the probe in, a voice says which way to tilt it, and the ultrasound image beside the table sharpens into a four-chamber view of the heart as the probe reaches the mark.',
+  },
 } as const;
 
 export type FigureName = keyof typeof FIGURES;

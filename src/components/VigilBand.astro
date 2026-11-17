@@ -1,0 +1,182 @@
+---
+/**
+ * The group's flagship project, introduced on the home page and the Research page: its name, what
+ * it is, a live figure of it at work, and four numbers. The project's own page has the rest.
+ */
+import ResearchFigure from './ResearchFigure.astro';
+import VigilName from './VigilName.astro';
+import { href } from '../lib/site';
+import { vigil } from '../lib/vigil';
+
+interface Props {
+  /** Number shown in the figure's label. */
+  figure?: number;
+  /** Heading level of the project's name. */
+  level?: 'h2' | 'h3';
+}
+const { figure, level: Heading = 'h2' } = Astro.props;
+const { award } = vigil;
+---
+
+<section class="vigil band--blue" aria-labelledby="vigil-band-title">
+  <div class="container">
+    <div class="vigil-head" data-reveal>
+      <p class="label label--accent">Flagship project</p>
+      <p class="label">
+        {award.funder} &middot; {award.program} &middot; {award.amount}
+      </p>
+    </div>
+
+    <div class="vigil-grid" data-reveal="stagger">
+      <div class="vigil-text">
+        <Heading class="wordmark" id="vigil-band-title">
+          {vigil.name}
+        </Heading>
+        <VigilName />
+        <p class="lead">{vigil.summary}</p>
+        <div class="cta">
+          <a class="btn btn--primary" href={href(vigil.path)}>
+            Inside VIGIL{' '}
+            <span class="arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+          <a class="btn" href={href(`${vigil.path}#watch`)}>
+            Watch the talk
+          </a>
+        </div>
+      </div>
+      <div class="vigil-figure">
+        <ResearchFigure topic="vigil" number={figure} wide />
+        <p class="note">
+          Live: one guided heart exam, start to finish. An illustration, not footage of the system.
+        </p>
+      </div>
+    </div>
+
+    <dl class="vigil-facts" data-reveal="stagger">
+      {vigil.facts.map((fact) => (
+        <div>
+          <dd>{fact.value}</dd>
+          <dt>{fact.label}</dt>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+<style>
+  .vigil {
+    padding-block: clamp(3rem, 7vw, 6rem);
+  }
+
+  /* The band opens on a maize rule, with the project's standing on the left and its funder on
+     the right. */
+  .vigil-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-top: 1rem;
+    border-top: var(--rule) solid var(--maize);
+  }
+
+  .vigil-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: end;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  /* The name is set like a title on a poster: as large as the column allows. */
+  .wordmark {
+    font-family: var(--font-display);
+    font-stretch: 62%;
+    font-weight: 900;
+    font-size: clamp(6rem, 15.5vw, 14.5rem);
+    line-height: 0.78;
+    letter-spacing: -0.012em;
+    text-transform: uppercase;
+    color: var(--maize);
+  }
+
+  .vigil-text :global(.vigil-name) {
+    margin-top: 1.4rem;
+  }
+
+  .lead {
+    max-width: 34rem;
+    margin-top: 1.5rem;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .note {
+    margin-top: 0.7rem;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: var(--text-3);
+  }
+
+  .vigil-facts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+  }
+
+  .vigil-facts div {
+    padding: 0 clamp(0.9rem, 2vw, 2rem);
+    border-left: var(--rule) solid var(--maize);
+  }
+
+  .vigil-facts dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: 66%;
+    font-size: clamp(2.6rem, 6vw, 5.25rem);
+    font-weight: 800;
+    line-height: 0.85;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .vigil-facts dt {
+    max-width: 15rem;
+    margin-top: 0.8rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    color: var(--text-2);
+  }
+
+  @media (max-width: 62rem) {
+    .vigil-grid {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+    }
+
+    /* In one column the name has the whole width to itself. */
+    .wordmark {
+      font-size: clamp(6rem, 30vw, 14rem);
+    }
+
+    .vigil-facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 2rem;
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .cta .btn {
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+  }
+</style>

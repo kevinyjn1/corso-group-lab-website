@@ -9,6 +9,10 @@
  *   health    an echocardiogram with tracked landmarks and a view-quality score
  *   learning  an embedding space from which a small, well-spread coreset is chosen
  *
+ * One more illustrates the group's flagship project:
+ *
+ *   vigil     a heart ultrasound guided by light projected onto the patient and a voice
+ *
  * Figures only run while they are on screen, and draw a single still frame for visitors who
  * ask for reduced motion.
  */
@@ -28,6 +32,7 @@ const TINTS: Record<string, string> = {
   human: PINK,
   health: '#ff9466',
   learning: '#b79cff',
+  vigil: MAIZE,
 };
 
 interface Stage {
@@ -596,7 +601,362 @@ const learning: Figure = (() => {
   };
 })();
 
-const FIGURES: Record<string, Figure> = { video, language, robotics, human, health, learning };
+// --- VIGIL: a guided heart ultrasound ----------------------------------------
+
+/**
+ * An illustration of the exam the VIGIL team has described in public: light projected onto the
+ * patient shows where the probe goes, the system judges the probe as far from the view it wants,
+ * close, or on target, and a voice in an earpiece says how to correct it. The room is drawn from
+ * above on the left, and the ultrasound screen is on the right. The spoken lines are examples.
+ */
+const vigil: Figure = (() => {
+  const LOOP = 15;
+  /** When each part of the exam begins, in seconds. */
+  const AT = {
+    light: 0.3,
+    mark: 2,
+    approach: 3,
+    contact: 4.3,
+    close: 5.2,
+    correct: 6.4,
+    onTarget: 8.2,
+    capture: 8.8,
+    done: 11.2,
+    reset: 13.8,
+  };
+  const SPOKEN: readonly (readonly [number, string])[] = [
+    [AT.light, 'line the patient up with the light'],
+    [AT.mark, 'place the probe on the mark'],
+    [AT.close + 0.3, 'close. tilt toward the left shoulder'],
+    [AT.capture, 'on target. hold still'],
+    [AT.done, 'four-chamber view captured. report ready'],
+  ];
+  /** The four chambers as an apical view shows them, in units of the fan's radius. */
+  const CHAMBERS = [
+    { name: 'LV', x: 0.15, y: 0.45, rx: 0.13, ry: 0.2, color: PINK, beats: true },
+    { name: 'RV', x: -0.14, y: 0.48, rx: 0.11, ry: 0.17, color: BLUE, beats: true },
+    { name: 'LA', x: 0.16, y: 0.8, rx: 0.12, ry: 0.1, color: MAIZE, beats: false },
+    { name: 'RA', x: -0.15, y: 0.8, rx: 0.11, ry: 0.1, color: GREEN, beats: false },
+  ];
+  /**
+   * Arms and legs on one side of the body, each a line from (x0, y0) to (x1, y1) that is r0 thick
+   * at its start and r1 at its end, in the same units as the body.
+   */
+  const LIMBS: readonly (readonly number[])[] = [
+    [2.35, 1.42, 3.9, 1.74, 0.24, 0.2],
+    [3.9, 1.74, 5.35, 1.62, 0.2, 0.17],
+    [5.35, 1.62, 5.7, 1.58, 0.22, 0.22],
+    [5.5, 0.55, 7.6, 0.6, 0.47, 0.33],
+    [7.6, 0.6, 9.5, 0.66, 0.33, 0.24],
+    [9.5, 0.66, 9.95, 0.92, 0.22, 0.2],
+  ];
+  const POSES = [
+    { name: 'far', color: PINK },
+    { name: 'close', color: MAIZE },
+    { name: 'on target', color: GREEN },
+  ];
+  const span = (from: number, to: number, at: number) => clamp((at - from) / (to - from), 0, 1);
+
+  return (s) => {
+    const { ctx, step } = s;
+    const now = s.t % LOOP;
+    // Everything the exam lit up fades before the loop starts again.
+    const fade = 1 - span(AT.reset, LOOP - 0.4, now);
+    const snap = (v: number) => (Math.round(v / step - 0.5) + 0.5) * step;
+
+    // The figure's title bar is the same height at every size, so the top margin has a floor.
+    const top = Math.max(step * 3.4, 38);
+    const bottom = s.h - step * 2.8;
+    const split = Math.round((s.w * 0.6) / step) * step;
+    const roomy = s.w >= 460;
+
+    // --- The room, from above: a patient on a table, head to the left -------
+    const u = Math.min((split - step * 2) / 11.6, (bottom - top) / 4.8);
+    const bx = (split - 10.3 * u) / 2;
+    const cy = snap((top + bottom) / 2 + step * 0.3);
+    const shoulders = snap(bx + 2.35 * u);
+    // The body, in units of `u` from the top of the head. It is the same on both sides.
+    const inBody = (x: number, y: number) => {
+      const px = (x - bx) / u;
+      const py = Math.abs(y - cy) / u;
+      if (Math.hypot(px - 0.85, py) < 0.74) return true;
+      if (px > 1.4 && px < 2.05 && py < 0.3) return true;
+      // Shoulders, narrowing to the waist and widening again at the hips.
+      const waist = lerp(1.3, 0.9, span(2.2, 4.3, px)) + 0.16 * span(4.5, 5.4, px);
+      if (px >= 2 && px < 5.6 && py < waist) return true;
+      return LIMBS.some(([x0, y0, x1, y1, r0, r1]) => {
+        const along = clamp(
+          ((px - x0) * (x1 - x0) + (py - y0) * (y1 - y0)) / ((x1 - x0) ** 2 + (y1 - y0) ** 2),
+          0,
+          1,
+        );
+        return Math.hypot(px - lerp(x0, x1, along), py - lerp(y0, y1, along)) < lerp(r0, r1, along);
+      });
+    };
+    // The mark sits over the heart: the patient's left is toward the top of the figure.
+    const tx = bx + 3.75 * u;
+    const ty = cy - 0.5 * u;
+    const ring = 0.62 * u;
+
+    const sweep = span(AT.light, AT.light + 1.3, now);
+    const lightEdge = bx + lerp(0, 5.7, sweep) * u;
+    const mark = span(AT.mark, AT.mark + 0.4, now) * fade;
+    const onTarget = now >= AT.onTarget && fade > 0.5;
+    const markColor = onTarget ? GREEN : MAIZE;
+
+    ctx.strokeStyle = PAPER;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.2;
+    ctx.strokeRect(bx - 0.6 * u, cy - 2.3 * u, 11.5 * u, 4.6 * u);
+    ctx.globalAlpha = 1;
+
+    for (let row = Math.floor(top / step); row < Math.ceil(bottom / step); row++) {
+      for (let col = 0; col < split / step; col++) {
+        const x = (col + 0.5) * step;
+        const y = (row + 0.5) * step;
+        const inside = inBody(x, y);
+        const onAxis = Math.abs(y - cy) < step * 0.5 && x > bx + 0.1 * u && x < bx + 5.7 * u;
+        const onShoulders = Math.abs(x - shoulders) < step * 0.5 && Math.abs(y - cy) < 2 * u;
+        if (mark > 0 && Math.hypot(x - tx, y - ty) < ring) {
+          s.cell(col, row, markColor, 0.95 * mark, 0.8);
+        } else if ((onAxis || onShoulders) && x < lightEdge && fade > 0) {
+          s.cell(col, row, MAIZE, (inside ? 0.9 : 0.42) * fade, inside ? 0.62 : 0.4);
+        } else if (inside) {
+          s.cell(col, row, PAPER, 0.36, 0.5);
+        }
+      }
+    }
+
+    // The projector, and the beam that paints the mark.
+    const projector = { x: snap(split * 0.44), y: top - step * 0.2 };
+    if (mark > 0) {
+      ctx.fillStyle = markColor;
+      ctx.globalAlpha = 0.09 * mark;
+      ctx.beginPath();
+      ctx.moveTo(projector.x, projector.y);
+      ctx.lineTo(tx - ring, ty);
+      ctx.lineTo(tx + ring, ty);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = MAIZE;
+    ctx.globalAlpha = sweep > 0 && fade > 0 ? 1 : 0.35;
+    ctx.fillRect(projector.x - step * 0.4, projector.y - step * 0.4, step * 0.8, step * 0.8);
+    ctx.globalAlpha = 1;
+    if (s.w >= 500) s.text('projector', projector.x + step * 0.9, projector.y, MUTED);
+
+    // The probe: brought in from the cart, set down near the mark, then corrected onto it.
+    const rest = { x: split - Math.max(1.15 * u, step * 1.8) - step * 1.6, y: bottom - step };
+    const near = { x: tx + 1.05 * u, y: ty + 0.8 * u };
+    const approach = smooth(span(AT.approach, AT.close, now));
+    const correct = smooth(span(AT.correct, AT.onTarget, now));
+    const back = smooth(span(AT.reset, LOOP - 0.3, now));
+    const searching = approach >= 1 && correct < 1 ? 1 : 0.2;
+    const px =
+      lerp(lerp(lerp(rest.x, near.x, approach), tx, correct), rest.x, back) +
+      Math.sin(s.t * 5.1) * step * 0.12 * searching;
+    const py =
+      lerp(lerp(lerp(rest.y, near.y, approach), ty, correct), rest.y, back) +
+      Math.cos(s.t * 4.3) * step * 0.12 * searching;
+    const heading = lerp(lerp(lerp(0, 1.05, approach), 0.4, correct), 0, back);
+
+    // Two cameras keep the probe in sight.
+    const cameras = [
+      { x: step * 1.4, y: bottom - step * 0.3 },
+      { x: split - step * 1.6, y: top + step * 0.2 },
+    ];
+    ctx.strokeStyle = BLUE;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([step * 0.3, step * 0.5]);
+    ctx.lineDashOffset = -s.t * step * 1.4;
+    ctx.globalAlpha = 0.5;
+    for (const camera of cameras) {
+      ctx.beginPath();
+      ctx.moveTo(camera.x, camera.y);
+      ctx.lineTo(px, py);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    for (const camera of cameras) {
+      ctx.fillStyle = BLUE;
+      ctx.fillRect(camera.x - step * 0.4, camera.y - step * 0.4, step * 0.8, step * 0.8);
+    }
+    if (roomy) {
+      s.text('rgb-d', cameras[0].x + step * 0.9, cameras[0].y, MUTED);
+      s.text('rgb-d', cameras[1].x - step * 0.9, cameras[1].y, MUTED, 'right');
+    }
+
+    // The ring around the mark: it pulses while it waits and fills while the view is captured.
+    if (mark > 0) {
+      const waiting = now < AT.close ? 0.5 + 0.5 * Math.sin(s.t * 5) : 0;
+      ctx.strokeStyle = markColor;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = mark * (onTarget ? 0.45 : 1);
+      ctx.beginPath();
+      ctx.arc(tx, ty, ring + step * (0.7 + 0.35 * waiting), 0, Math.PI * 2);
+      ctx.stroke();
+      const captured = span(AT.capture, AT.done, now);
+      if (captured > 0) {
+        ctx.lineWidth = 3;
+        ctx.globalAlpha = mark;
+        ctx.beginPath();
+        ctx.arc(tx, ty, ring + step * 0.7, -Math.PI / 2, -Math.PI / 2 + captured * Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // The correction: an arrow from the probe to the mark while the voice asks for it.
+    if (now > AT.close + 0.3 && correct < 1) {
+      const angle = Math.atan2(ty - py, tx - px);
+      const head = step * 0.7;
+      ctx.strokeStyle = MAIZE;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.55 + 0.45 * Math.sin(s.t * 9);
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(tx, ty);
+      ctx.moveTo(tx - Math.cos(angle - 0.5) * head, ty - Math.sin(angle - 0.5) * head);
+      ctx.lineTo(tx, ty);
+      ctx.lineTo(tx - Math.cos(angle + 0.5) * head, ty - Math.sin(angle + 0.5) * head);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    // The probe and its cable to the cart.
+    const long = Math.max(1.15 * u, step * 1.8);
+    const wide = Math.max(0.5 * u, step * 0.8);
+    const tail = { x: px + Math.cos(heading) * long, y: py + Math.sin(heading) * long };
+    ctx.strokeStyle = MUTED;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(tail.x, tail.y);
+    ctx.quadraticCurveTo(tail.x + step * 2, bottom + step * 0.4, split, bottom - step * 0.2);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(heading);
+    ctx.fillStyle = PAPER;
+    ctx.fillRect(0, -wide / 2, long, wide);
+    ctx.fillStyle = onTarget ? GREEN : MAIZE;
+    ctx.fillRect(0, -wide * 0.62, long * 0.2, wide * 1.24);
+    ctx.restore();
+
+    // --- The ultrasound screen ----------------------------------------------
+    ctx.strokeStyle = PAPER;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.16;
+    ctx.beginPath();
+    ctx.moveTo(split, top - step);
+    ctx.lineTo(split, bottom + step * 0.4);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    const left = split + step * 0.5;
+    const right = s.w - step;
+    const ax = (left + right) / 2;
+    const R = Math.min(bottom - top - step * 3.6, (right - left) * 0.98);
+    const ay = top + (bottom - top - R - step * 3.2) / 2;
+    const half = Math.min(0.66, Math.atan2((right - left) / 2, R));
+    // An image appears when the probe touches the skin, and sharpens as it reaches the mark.
+    const contact = span(AT.contact, AT.close, now) * (1 - back);
+    const quality = (0.4 * contact + 0.6 * correct) * (1 - back);
+    const drift = (1 - correct) * 0.2;
+    const beat = (s.t * 1.1) % 1;
+    const squeeze = Math.exp(-Math.pow((beat - 0.2) / 0.1, 2));
+    const chambers = CHAMBERS.map((c) => ({
+      ...c,
+      cx: ax + (c.x - drift) * R,
+      cy: ay + (c.y + drift * 0.3) * R,
+      rx: c.rx * R * (c.beats ? 1 - 0.18 * squeeze : 1 + 0.08 * squeeze),
+      ry: c.ry * R * lerp(0.7, 1, correct) * (c.beats ? 1 - 0.1 * squeeze : 1 + 0.05 * squeeze),
+    }));
+
+    for (let row = Math.floor(ay / step); row <= (ay + R) / step; row++) {
+      for (let col = Math.floor(left / step); col < s.cols; col++) {
+        const x = (col + 0.5) * step;
+        const y = (row + 0.5) * step;
+        const r = Math.hypot(x - ax, y - ay);
+        if (r < R * 0.06 || r > R || Math.abs(Math.atan2(x - ax, y - ay)) > half) continue;
+        let wall = 0;
+        let color = PAPER;
+        for (const c of chambers) {
+          const d = Math.hypot((x - c.cx) / c.rx, (y - c.cy) / c.ry);
+          const w = Math.exp(-Math.pow((d - 1) / 0.24, 2));
+          if (w > wall) {
+            wall = w;
+            color = c.color;
+          }
+        }
+        const speckle = hash(col, row, Math.floor(s.t * 9));
+        const level = clamp(
+          0.05 + contact * 0.12 * speckle + quality * wall * (0.45 + 0.45 * speckle),
+          0,
+          1,
+        );
+        s.cell(col, row, onTarget && wall > 0.4 ? color : PAPER, level, 0.3 + 0.5 * level);
+      }
+    }
+    if (now >= AT.done && fade > 0.5) {
+      for (const c of chambers) s.text(c.name, c.cx, c.cy, PAPER, 'center');
+    }
+    s.text(
+      contact > 0 ? 'apical 4-chamber' : 'no contact',
+      right,
+      top - step * 0.9,
+      MUTED,
+      'right',
+    );
+
+    // Where the probe is, as the system judges it: far from the view, close, or on target.
+    const pose = contact <= 0 ? -1 : approach < 1 ? 0 : correct < 1 ? 1 : 2;
+    const barRow = Math.round((ay + R + step * 1.2) / step);
+    const col0 = Math.floor(left / step);
+    const each = Math.floor((s.cols - col0) / 3);
+    POSES.forEach(({ color }, k) => {
+      for (let i = 0; i < each - 1; i++) {
+        const on = pose === k;
+        s.cell(col0 + k * each + i, barRow, on ? color : PAPER, on ? 0.95 : 0.16, on ? 0.8 : 0.34);
+      }
+    });
+    const below = (barRow + 2) * step;
+    s.text('probe', left, below, MUTED);
+    if (pose >= 0) s.text(POSES[pose].name, right, below, POSES[pose].color, 'right');
+
+    // --- The voice in the earpiece ------------------------------------------
+    const line = [...SPOKEN].reverse().find(([at]) => now >= at);
+    if (line && fade > 0.1) {
+      const [at, words] = line;
+      const said = typed(words, now - at, 26);
+      const y = s.h - step * 1.3;
+      const speaking = said.length < words.length;
+      ctx.fillStyle = MAIZE;
+      for (let k = 0; k < 3; k++) {
+        const level = speaking ? 0.3 + 0.7 * Math.abs(Math.sin(s.t * 9 + k * 1.3)) : 0.25;
+        ctx.fillRect(
+          step * (1 + k * 0.5),
+          y - level * step * 0.55,
+          step * 0.28,
+          level * step * 1.1,
+        );
+      }
+      s.text(said, step * 3, y, PAPER);
+      if (s.w >= 560) s.text('earpiece', right, y, MUTED, 'right');
+    }
+  };
+})();
+
+const FIGURES: Record<string, Figure> = {
+  video,
+  language,
+  robotics,
+  human,
+  health,
+  learning,
+  vigil,
+};
 
 /** A moment at which each figure makes a good still, for reduced motion. */
 const STILL: Record<string, number> = {
@@ -606,6 +966,7 @@ const STILL: Record<string, number> = {
   human: 6.4,
   health: 0.5,
   learning: 9.5,
+  vigil: 9.9,
 };
 
 function mount(root: HTMLElement) {
@@ -623,7 +984,8 @@ function mount(root: HTMLElement) {
     step: 10,
     cols: 0,
     rows: 0,
-    t: STILL[name] ?? 0,
+    // A figure tells its story from the start. Without motion, it shows one telling moment.
+    t: reduceMotion ? (STILL[name] ?? 0) : 0,
     tint: TINTS[name] ?? MAIZE,
     cell(col, row, color, alpha = 1, size = 0.8) {
       if (col < 0 || row < 0 || col >= stage.cols || row >= stage.rows) return;

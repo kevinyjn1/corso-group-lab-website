@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import PubItem from '../components/PubItem.astro';
 import ResearchFigure from '../components/ResearchFigure.astro';
+import VigilBand from '../components/VigilBand.astro';
 import type { FigureName } from '../lib/figures';
 import { getAreas, getPublications, getResources } from '../lib/content';
 import { href, sponsors } from '../lib/site';
@@ -41,6 +42,8 @@ const sections = areas.map((area) => {
       connected areas.
     </p>
   </PageHead>
+
+  <VigilBand />
 
   <nav class="toc" aria-label="Research areas">
     <div class="container">

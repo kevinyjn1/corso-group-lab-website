@@ -1,17 +1,19 @@
 ---
-/** A live illustration of one research area. See src/scripts/figures.ts. */
+/** A live illustration of one research area or project. See src/scripts/figures.ts. */
 import { FIGURES, type FigureName } from '../lib/figures';
 
 interface Props {
   topic: FigureName;
   /** Number shown in the figure's label, as in a paper. */
   number?: number;
+  /** A wide figure is shown as a 16:10 screen where there is room for one. */
+  wide?: boolean;
 }
-const { topic, number } = Astro.props;
+const { topic, number, wide = false } = Astro.props;
 const figure = FIGURES[topic];
 ---
 
-<figure class="figure" data-figure={topic} data-topic={topic}>
+<figure class="figure" data-figure={topic} data-topic={topic} data-wide={wide ? '' : undefined}>
   <canvas aria-hidden="true"></canvas>
   <figcaption>
     {number !== undefined && <span class="num">Fig. {number}</span>}
@@ -40,6 +42,12 @@ const figure = FIGURES[topic];
     overflow: hidden;
     background: var(--screen);
     color: var(--screen-text);
+  }
+
+  @media (min-width: 40rem) {
+    .figure[data-wide] {
+      aspect-ratio: 16 / 10;
+    }
   }
 
   canvas {
