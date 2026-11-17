@@ -358,6 +358,8 @@ export function mountGroundTruth(root: GameElement): void {
     part('results-panel')?.setAttribute('hidden', '');
     set('announce', 'Round started. Drag a box around each moving figure.');
     setRunning(true);
+    // Bring the whole screen into view, so nothing has to be scrolled in the middle of a round.
+    root.scrollIntoView({ block: 'nearest' });
   }
 
   function finish() {

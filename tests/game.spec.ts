@@ -89,6 +89,29 @@ test.describe('Ground Truth', () => {
     await expect(results).toBeHidden();
   });
 
+  test('starting a round brings the whole game screen into view', async ({ page }) => {
+    await page.goto(at('/play/'));
+    const game = page.locator('[data-game]');
+    await expect(game).toHaveAttribute('data-ready', '');
+    // Leave the game partly scrolled away, as it is for a visitor who has read on past it.
+    await game.evaluate((element) =>
+      window.scrollTo({
+        top: element.getBoundingClientRect().top + window.scrollY + 180,
+        behavior: 'instant',
+      }),
+    );
+    expect((await game.boundingBox())!.y).toBeLessThan(0);
+
+    await page.getByRole('button', { name: 'Start labeling' }).click();
+    const header = (await page.locator('header.site-header').boundingBox())!;
+    const viewport = page.viewportSize()!;
+    await expect(async () => {
+      const screen = (await game.boundingBox())!;
+      expect(screen.y).toBeGreaterThanOrEqual(header.y + header.height);
+      expect(screen.y + screen.height).toBeLessThanOrEqual(viewport.height);
+    }).toPass({ timeout: 5_000 });
+  });
+
   test('the start card fits inside the game screen', async ({ page }) => {
     await page.goto(at('/play/'));
     const game = page.locator('[data-game]');
