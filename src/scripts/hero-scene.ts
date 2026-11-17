@@ -19,6 +19,7 @@ import {
   walkingAdult,
 } from './scene/figures';
 import { type Box, type Vec, circle, clamp, easeInOut, easeOut, lerp } from './scene/geometry';
+import { FOUND_EVENT, FOUND_KEY } from './easter-egg';
 import { INK, drawChip, drawCorners, sample } from './scene/raster';
 
 type Mode = 'detect' | 'segment' | 'pose' | 'depth';
@@ -85,7 +86,6 @@ const WIPE_DURATION = 0.95;
 /** Height of the controls strip along the top of the viewport, which labels must not cover. */
 const HUD_HEIGHT = 46;
 const TIMELINE_STRIP = 58;
-const UNLOCKED_KEY = 'ground-truth-unlocked';
 const COMPACT_STRIP = 98;
 
 function depthColor(meters: number, alpha = 1): string {
@@ -596,11 +596,7 @@ export function mountHeroScene(root: HTMLElement): void {
   /** Trying all four views by hand reveals the way into the hidden game, and it stays revealed. */
   function unlockPlay() {
     playLink?.removeAttribute('hidden');
-    try {
-      localStorage.setItem(UNLOCKED_KEY, '1');
-    } catch {
-      // Without storage the link simply has to be earned again next visit.
-    }
+    document.dispatchEvent(new CustomEvent(FOUND_EVENT));
   }
 
   function setMode(next: Mode, byUser: boolean) {
@@ -681,7 +677,7 @@ export function mountHeroScene(root: HTMLElement): void {
     tab.addEventListener('click', () => setMode(tab.dataset.mode as Mode, true));
   }
   try {
-    if (localStorage.getItem(UNLOCKED_KEY)) playLink?.removeAttribute('hidden');
+    if (localStorage.getItem(FOUND_KEY)) playLink?.removeAttribute('hidden');
   } catch {
     // No storage: the link stays hidden until it is earned.
   }

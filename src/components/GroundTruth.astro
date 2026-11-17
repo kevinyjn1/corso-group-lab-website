@@ -1,145 +1,209 @@
 ---
 /** Ground Truth, the hidden annotation game. See src/scripts/game/ground-truth.ts. */
-import { href } from '../lib/site';
 ---
 
-<div class="game" data-game>
-  <canvas aria-hidden="true"></canvas>
+<div class="arcade">
+  <div class="game" data-game>
+    <canvas aria-hidden="true"></canvas>
 
-  <div class="timebar" data-timebar aria-hidden="true"></div>
-  <div class="hud">
-    <p class="readout" aria-hidden="true">
-      <span class="key">Score</span>
-      <span class="value" data-score>
-        0
-      </span>
-    </p>
-    <p class="readout" aria-hidden="true">
-      <span class="key">Streak</span>
-      <span class="value" data-streak>
-        &times;1.0
-      </span>
-    </p>
-    <p class="readout health" aria-hidden="true">
-      <span class="key">Model accuracy</span>
-      <span class="meter" data-meter></span>
-      <span class="value" data-accuracy>
-        100%
-      </span>
-    </p>
-    <p class="readout" aria-hidden="true">
-      <span class="key">Wave</span>
-      <span class="value" data-wave>
-        1
-      </span>
-    </p>
-    <button class="sound" type="button" data-sound aria-pressed="true" aria-label="Turn sound off">
-      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
-        <path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"></path>
-        <path
-          class="waves"
-          d="M13 7c1.2 1 1.2 5 0 6M15.2 4.8c2.6 2.4 2.6 8 0 10.4"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="square"
-        ></path>
-      </svg>
-      <span class="sr-only" data-sound-state>
-        Sound on
-      </span>
-    </button>
-  </div>
+    <div class="timebar" data-timebar aria-hidden="true"></div>
+    <div class="hud">
+      <p class="readout" aria-hidden="true">
+        <span class="key">Score</span>
+        <span class="value" data-score>
+          0
+        </span>
+      </p>
+      <p class="readout" aria-hidden="true">
+        <span class="key">Streak</span>
+        <span class="value" data-streak>
+          &times;1.0
+        </span>
+      </p>
+      <p class="readout health" aria-hidden="true">
+        <span class="key">Model accuracy</span>
+        <span class="meter" data-meter></span>
+        <span class="value" data-accuracy>
+          100%
+        </span>
+      </p>
+      <p class="readout" aria-hidden="true">
+        <span class="key">Wave</span>
+        <span class="value" data-wave>
+          1
+        </span>
+      </p>
+      <button
+        class="sound"
+        type="button"
+        data-sound
+        aria-pressed="true"
+        aria-label="Turn sound off"
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+          <path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"></path>
+          <path
+            class="waves"
+            d="M13 7c1.2 1 1.2 5 0 6M15.2 4.8c2.6 2.4 2.6 8 0 10.4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="square"
+          ></path>
+        </svg>
+        <span class="sr-only" data-sound-state>
+          Sound on
+        </span>
+      </button>
+    </div>
 
-  <div class="panel" data-start-panel>
-    <div class="card ticks">
-      <p class="label label--accent">Annotation task 001</p>
-      <h2>
-        The model needs <em>labels</em>.
-      </h2>
-      <ol class="how">
-        <li>Drag a box around everything that moves. Tighter boxes score higher.</li>
-        <li>Misses and stray boxes cost model accuracy. At zero, the round is over.</li>
-        <li>Flickering figures are hallucinations: leave them. Box the crates for power-ups.</li>
-      </ol>
-      <div class="actions">
-        <button class="btn btn--primary" type="button" data-start>
-          Start labeling{' '}
-          <span class="arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </button>
-        <p class="best" data-best hidden>
-          Your best <span data-best-value>0</span>
+    <div class="panel" data-start-panel>
+      <div class="card ticks">
+        <p class="label label--accent">Annotation task 001</p>
+        <h2>
+          The model needs <em>labels</em>.
+        </h2>
+        <ol class="how">
+          <li>Drag a box around everything that moves. Tighter boxes score higher.</li>
+          <li>Misses and stray boxes cost model accuracy. At zero, the round is over.</li>
+          <li>Flickering figures are hallucinations: leave them. Box the crates for power-ups.</li>
+        </ol>
+        <div class="actions">
+          <button class="btn btn--primary" type="button" data-start>
+            Start labeling{' '}
+            <span class="arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </button>
+          <p class="best" data-best hidden>
+            Your best <span data-best-value>0</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-results-panel hidden>
+      <div class="card ticks">
+        <p class="label label--accent" data-verdict>
+          The model collapsed
         </p>
+        <p class="score">
+          <span data-final-score>0</span>
+          <span class="unit">points</span>
+          <span class="best" data-record></span>
+        </p>
+        <h2 tabindex="-1" data-rank>
+          Random initialization
+        </h2>
+        <p class="rank-line" data-rank-line></p>
+        <dl class="results">
+          <div>
+            <dt>Labeled</dt>
+            <dd data-stat-labeled>0 of 0</dd>
+            <dd class="sub" data-stat-recall>
+              0% recall
+            </dd>
+          </div>
+          <div>
+            <dt>Mean IoU</dt>
+            <dd data-stat-iou>0.00</dd>
+          </div>
+          <div>
+            <dt>Waves</dt>
+            <dd data-stat-waves>1</dd>
+          </div>
+          <div>
+            <dt>Best streak</dt>
+            <dd data-stat-streak>0</dd>
+          </div>
+        </dl>
+        <div class="actions">
+          <button class="btn btn--primary" type="button" data-start>
+            Label again
+          </button>
+          <a class="btn" href="#leaderboard">
+            Leaderboard
+          </a>
+        </div>
       </div>
     </div>
+
+    <p class="sr-only" role="status" data-announce></p>
+    <p class="sr-only">
+      This game is played by dragging with a mouse, trackpad, or finger. Figures cross a scene in
+      waves and you draw a box around each one; boxes are scored by how closely they match the true
+      outline. Missing figures lowers the model's accuracy, and the round ends when it reaches zero.
+    </p>
   </div>
 
-  <div class="panel" data-results-panel hidden>
-    <div class="card ticks">
-      <p class="label label--accent" data-verdict>
-        The model collapsed
+  <aside class="board" id="leaderboard" data-board aria-labelledby="board-title">
+    <header>
+      <h2 id="board-title">Leaderboard</h2>
+      <p class="scope" data-board-scope>
+        This device
       </p>
-      <p class="score">
-        <span data-final-score>0</span>
-        <span class="unit">points</span>
-        <span class="best" data-record></span>
-      </p>
-      <h2 tabindex="-1" data-rank>
-        Random initialization
-      </h2>
-      <p class="rank-line" data-rank-line></p>
-      <dl class="results">
-        <div>
-          <dt>Labeled</dt>
-          <dd data-stat-labeled>0 of 0</dd>
-          <dd class="sub" data-stat-recall>
-            0% recall
-          </dd>
-        </div>
-        <div>
-          <dt>Mean IoU</dt>
-          <dd data-stat-iou>0.00</dd>
-        </div>
-        <div>
-          <dt>Waves</dt>
-          <dd data-stat-waves>1</dd>
-        </div>
-        <div>
-          <dt>Best streak</dt>
-          <dd data-stat-streak>0</dd>
-        </div>
-      </dl>
-      <div class="actions">
-        <button class="btn btn--primary" type="button" data-start>
-          Label again
-        </button>
-        <a class="btn" href={href('/research/')}>
-          See the research
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <p class="sr-only" role="status" data-announce></p>
-  <p class="sr-only">
-    This game is played by dragging with a mouse, trackpad, or finger. Figures cross a scene in
-    waves and you draw a box around each one; boxes are scored by how closely they match the true
-    outline. Missing figures lowers the model's accuracy, and the round ends when it reaches zero.
-  </p>
+    </header>
+    <ol data-board-list aria-label="Top ten scores"></ol>
+    <p class="empty" data-board-empty>
+      No scores yet. Be the first.
+    </p>
+    <form data-board-form novalidate>
+      <label for="board-initials">Your initials</label>
+      <input
+        id="board-initials"
+        data-board-initials
+        maxlength="3"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        placeholder="AAA"
+      />
+      <button class="btn btn--primary" type="submit" data-board-post disabled>
+        Post
+      </button>
+    </form>
+    <p class="status" role="status" data-board-status></p>
+  </aside>
 </div>
 
 <script>
+  import { mountBoard } from '../scripts/game/board-view';
   import { mountGroundTruth } from '../scripts/game/ground-truth';
+  import { createBoard } from '../scripts/game/leaderboard';
 
   const game = document.querySelector<HTMLElement>('[data-game]');
-  if (game) mountGroundTruth(game);
+  const panel = document.querySelector<HTMLElement>('[data-board]');
+  let storage: Storage | null = null;
+  try {
+    storage = window.localStorage;
+  } catch {
+    storage = null;
+  }
+  // Scores are shared when the site was built with a database to keep them in.
+  const board = createBoard(
+    { url: import.meta.env.PUBLIC_LEADERBOARD_URL, key: import.meta.env.PUBLIC_LEADERBOARD_KEY },
+    storage,
+  );
+  const view = panel ? mountBoard(panel, board) : null;
+  if (game) mountGroundTruth(game, { onRoundOver: (run) => view?.offer(run) });
 </script>
 
 <style>
+  /* The game with its leaderboard beside it on wide screens, and below it on narrow ones. */
+  .arcade {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 68rem) {
+    .arcade {
+      grid-template-columns: minmax(0, 1fr) 19rem;
+    }
+  }
+
   /* The game screen stays dark in both themes, like the scene on the home page. */
-  .game {
+  .game,
+  .board {
     --text: #eef1f6;
     --text-2: #a9b3c6;
     --text-3: #76829a;
@@ -148,7 +212,9 @@ import { href } from '../lib/site';
     --accent: var(--maize);
     --solid: var(--maize);
     --on-solid: var(--blue);
+  }
 
+  .game {
     position: relative;
     /* Sized so the whole screen fits under the page title on a laptop. */
     height: clamp(30rem, 100svh - 17.5rem, 40rem);
@@ -511,5 +577,143 @@ import { href } from '../lib/site';
     .meter[data-low]::after {
       animation: none;
     }
+  }
+
+  /* --- Leaderboard ---------------------------------------------------------- */
+
+  .board {
+    display: flex;
+    flex-direction: column;
+    padding: 0.9rem 1rem 1rem;
+    background: var(--screen);
+    border: 1px solid var(--screen-line);
+    color: var(--screen-text);
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+  }
+
+  .board header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--maize);
+  }
+
+  .board h2 {
+    font-size: 1.7rem;
+    color: var(--maize);
+  }
+
+  .scope,
+  .board label {
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--screen-text-2);
+  }
+
+  .board ol {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Rows are built by script, so they are styled from the panel down. */
+  .board :global(li) {
+    display: grid;
+    grid-template-columns: 1.6rem 2.9rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.42rem 0.4rem;
+    margin-inline: -0.4rem;
+    border-bottom: 1px solid var(--screen-line);
+  }
+
+  .board :global(.place),
+  .board :global(.wave) {
+    color: var(--screen-text-2);
+  }
+
+  .board :global(.name) {
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  .board :global(.wave) {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+  }
+
+  .board :global(li:first-child .name),
+  .board :global(li:first-child .score) {
+    color: var(--maize);
+  }
+
+  /* The score this visitor just posted. */
+  .board :global(li[data-mine]),
+  .board :global(li[data-mine] span) {
+    background: var(--maize);
+    color: var(--blue);
+  }
+
+  .empty {
+    padding-block: 1rem;
+    font-size: 0.9rem;
+    color: var(--screen-text-2);
+  }
+
+  .board form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 0.5rem;
+    margin-top: 0.9rem;
+  }
+
+  .board label {
+    grid-column: 1 / -1;
+  }
+
+  .board input {
+    width: 100%;
+    height: 2.6rem;
+    padding-inline: 0.75rem;
+    background: transparent;
+    border: 2px solid var(--screen-text);
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--screen-text);
+  }
+
+  .board input::placeholder {
+    color: var(--screen-text-2);
+    opacity: 0.6;
+  }
+
+  .board .btn {
+    height: 2.6rem;
+  }
+
+  .board .btn:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .status {
+    min-height: 2.5em;
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    line-height: 1.25;
+    color: var(--screen-text-2);
   }
 </style>

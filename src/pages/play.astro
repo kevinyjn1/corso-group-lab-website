@@ -28,7 +28,7 @@ const notes = [
 >
   <header class="play-head">
     <div class="container">
-      <p class="label">You found the hidden level</p>
+      <p class="label egg-label">Easter egg unlocked</p>
       <h1 class="page-title">
         Ground <em>truth</em>.
       </h1>
@@ -103,6 +103,36 @@ const notes = [
     width: 0.5rem;
     height: 0.5rem;
     background: var(--maize);
+  }
+
+  /* The label is only as wide as its words, so it can be stamped without widening the page. */
+  .play-head .egg-label {
+    width: fit-content;
+  }
+
+  .play-head {
+    overflow-x: clip;
+  }
+
+  /* The first time the game is found, the label lands like a stamp. */
+  :global([data-egg-found='new']) .egg-label {
+    animation: stamp 0.9s var(--ease-out) 0.3s both;
+  }
+
+  @keyframes stamp {
+    0% {
+      opacity: 0;
+      transform: scale(2.2) rotate(-6deg);
+      transform-origin: left center;
+    }
+    55% {
+      opacity: 1;
+      transform: scale(0.94) rotate(1deg);
+      transform-origin: left center;
+    }
+    100% {
+      transform: none;
+    }
   }
 
   .play-head .page-title {

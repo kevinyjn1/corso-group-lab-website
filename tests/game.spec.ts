@@ -146,12 +146,94 @@ test.describe('Ground Truth', () => {
   });
 });
 
+test('a round that makes the board can be posted with initials', async ({ page }) => {
+  await page.clock.install();
+  const game = await startRound(page);
+  const board = page.locator('[data-board]');
+  await expect(board).toHaveAttribute('data-shared', 'false');
+  await expect(board.locator('[data-board-scope]')).toHaveText('This device');
+  await expect(board.locator('[data-board-empty]')).toBeVisible();
+  await expect(board.getByRole('button', { name: 'Post' })).toBeDisabled();
+
+  // Score at least once, then let the round run out.
+  await expect(async () => {
+    const width = (await game.boundingBox())!.width;
+    const inFrame = (await targets(game)).filter(({ box }) => box.x0 > 8 && box.x1 < width - 8);
+    expect(inFrame.length).toBeGreaterThan(0);
+    await drawBox(page, game, inFrame[0].box);
+    expect(await count(game, 'hits')).toBeGreaterThan(0);
+  }).toPass({ timeout: 20_000 });
+  await page.clock.runFor(90_000);
+  await expect(game).toHaveAttribute('data-phase', 'over');
+  const score = await count(game, 'score');
+  expect(score).toBeGreaterThan(0);
+
+  await expect(board.locator('[data-board-status]')).toContainText('makes the board');
+  const initials = board.getByLabel('Your initials');
+  await initials.pressSequentially('k-n!7x');
+  await expect(initials).toHaveValue('KN7');
+  await board.getByRole('button', { name: 'Post' }).click();
+
+  const rows = board.locator('[data-board-list] li');
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText('KN7');
+  await expect(rows.first()).toContainText(score.toLocaleString('en-US'));
+  await expect(rows.first()).toHaveAttribute('data-mine', '');
+  await expect(board.locator('[data-board-status]')).toContainText('number 1');
+  await expect(board.locator('[data-board-empty]')).toBeHidden();
+
+  // The board and the initials are still there on the next visit.
+  await page.reload();
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText('KN7');
+  await expect(initials).toHaveValue('KN7');
+});
+
+test.describe('finding the hidden game', () => {
+  test('the first find is announced once, with a way to play', async ({ page }) => {
+    await page.goto(at('/'));
+    const toast = page.locator('[data-egg-toast]');
+    await expect(toast).toBeHidden();
+    const scene = page.locator('[data-hero-scene]');
+    await scene.scrollIntoViewIfNeeded();
+    for (const mode of ['segment', 'pose', 'depth', 'detect']) {
+      await scene.locator(`[data-mode="${mode}"]`).click();
+    }
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText('Easter egg unlocked');
+    await expect(toast.getByRole('link', { name: 'Play' })).toHaveAttribute('href', at('/play/'));
+    await toast.getByRole('button', { name: 'Dismiss' }).click();
+    await expect(toast).toBeHidden();
+
+    // It is said once: coming back does not announce it again.
+    await page.reload();
+    await scene.scrollIntoViewIfNeeded();
+    await scene.locator('[data-mode="pose"]').click();
+    await expect(toast).toBeHidden();
+  });
+
+  test('arriving at the game marks it found without covering it', async ({ page }) => {
+    await page.goto(at('/play/'));
+    await expect(page.locator('.egg-label')).toHaveText('Easter egg unlocked');
+    await expect(page.locator('html')).toHaveAttribute('data-egg-found', 'new');
+    await expect(page.locator('[data-egg-toast]')).toBeHidden();
+    await page.reload();
+    await expect(page.locator('html')).not.toHaveAttribute('data-egg-found', 'new');
+    // Having found it, the way in from the home page scene is already open.
+    await page.goto(at('/'));
+    await expect(page.locator('[data-hero-scene] [data-play]')).toBeVisible();
+    await expect(page.locator('[data-egg-toast]')).toBeHidden();
+  });
+});
+
 test.describe('ways into the hidden game', () => {
   test('the Konami code opens it from any page', async ({ page }) => {
     await page.goto(at('/people/'));
     const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown'];
     code.push('ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a');
     for (const key of code) await page.keyboard.press(key);
+    // A first find is announced where the visitor is, then the game opens.
+    await expect(page.locator('[data-egg-toast]')).toBeVisible();
     await expect(page).toHaveURL(/\/play\/$/);
     await expect(page.locator('h1')).toContainText('Ground truth');
   });

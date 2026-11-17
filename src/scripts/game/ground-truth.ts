@@ -152,7 +152,12 @@ const noise = (a: number, b: number) => {
   return v - Math.floor(v);
 };
 
-export function mountGroundTruth(root: GameElement): void {
+export interface GameOptions {
+  /** Called when a round ends, with its score and the wave it ended in. */
+  onRoundOver?: (run: { score: number; wave: number }) => void;
+}
+
+export function mountGroundTruth(root: GameElement, options: GameOptions = {}): void {
   const canvas = root.querySelector<HTMLCanvasElement>('canvas');
   const ctx = canvas?.getContext('2d');
   if (!canvas || !ctx) return;
@@ -644,6 +649,7 @@ export function mountGroundTruth(root: GameElement): void {
         `Labeled ${tally.hits} of ${tally.seen} targets.`,
     );
     syncReadout();
+    options.onRoundOver?.({ score: tally.score, wave: tally.wave });
     if (reduceMotion) setRunning(false);
   }
 

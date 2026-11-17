@@ -130,6 +130,30 @@ There are four ways in:
 Scoring, waves, power-ups, and ranks are plain data and functions in
 [src/scripts/game/rules.ts](src/scripts/game/rules.ts), so they can be tuned in one place.
 
+A visitor who finds the game for the first time is told so: an "Easter egg unlocked" pop-up on
+the page where they found it, or the stamped label on the game's own page.
+
+### The leaderboard
+
+The game keeps a top ten, shown beside it, with three-character initials. Out of the box each
+visitor's device keeps its own board. To share one board between all visitors:
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. In the project's SQL editor, run [supabase/leaderboard.sql](supabase/leaderboard.sql).
+3. In this repository on GitHub, open Settings, then Secrets and variables, then Actions, then
+   the Variables tab, and add two variables: `LEADERBOARD_URL` (the project URL) and
+   `LEADERBOARD_KEY` (the project's public key, called "anon" or "publishable"). Never use the
+   service role key: it is a secret, and this value ends up in the public site.
+4. Push a commit or re-run the CI workflow. The board's label changes from "This device" to
+   "All visitors".
+
+To try it locally, put `PUBLIC_LEADERBOARD_URL` and `PUBLIC_LEADERBOARD_KEY` in a `.env` file.
+If the database cannot be reached, the game quietly falls back to the device's own board.
+
+The table only lets visitors read scores and add one; nothing can be changed or deleted from the
+website. Scores are sent by the browser, so a determined visitor can post a made-up score. The SQL
+file ends with the two statements for clearing the board or removing an entry.
+
 ## Design notes
 
 - **Identity** - built from the group's own mark and its university: maize and Michigan blue in

@@ -1,6 +1,7 @@
 ---
 import { Font } from 'astro:assets';
 import Header from '../components/Header.astro';
+import EggToast from '../components/EggToast.astro';
 import Footer from '../components/Footer.astro';
 import { site, href } from '../lib/site';
 import '@fontsource-variable/archivo/wdth.css';
@@ -64,6 +65,7 @@ const noindex = process.env.SITE_NOINDEX === 'true';
       <slot />
     </main>
     <Footer />
+    <EggToast />
     <script>
       import '../scripts/motion';
       import '../scripts/logo';
