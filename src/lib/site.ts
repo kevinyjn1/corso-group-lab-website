@@ -24,6 +24,8 @@ export const site = {
   scholar: { citations: '24K+', hIndex: 53, asOf: 'November 2026' },
   /** Date of the public curriculum vitae that the alumni and course lists were taken from. */
   cv: { asOf: 'April 2025' },
+  /** When the list of current members was last checked against the group's own list. */
+  roster: { asOf: 'November 2026' },
 } as const;
 
 export const nav = [

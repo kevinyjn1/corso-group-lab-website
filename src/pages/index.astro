@@ -30,7 +30,16 @@ const people = await getPeople();
 
 const latest = publications.slice(0, 6);
 const featuredResources = resources.filter((r) => r.data.featured);
-const students = people.filter((p) => p.data.status === 'current' && p.data.role !== 'pi');
+const current = (role: string) =>
+  people.filter((p) => p.data.status === 'current' && p.data.role === role);
+const students = current('phd');
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+/** The rest of the group, as counts: the People page has the names. */
+const others = [
+  plural(current('undergrad').length, 'undergraduate researcher', 'undergraduate researchers'),
+  plural(current('researcher').length + current('staff').length, 'staff member', 'staff'),
+  plural(current('collaborator').length, 'collaborator', 'collaborators'),
+].filter((line) => !line.startsWith('0 '));
 const phdAlumni = people.filter((p) => p.data.status === 'alumni' && p.data.role === 'phd');
 const countByTopic = (topic: string) =>
   publications.filter((p) => (p.data.topics as string[]).includes(topic)).length;
@@ -217,7 +226,7 @@ const placements = [
     <div class="container people" data-reveal="stagger">
       <div>
         <p class="label people-label">People</p>
-        <h2 class="h2">A small group with a long reach.</h2>
+        <h2 class="h2">A group with a long reach.</h2>
         <p class="lead">
           The group is led by {pi.name} and has graduated {phdAlumni.length} Ph.D. students since
           2009. Alumni have gone on to research and faculty positions across industry and academia.
@@ -241,6 +250,14 @@ const placements = [
               <dd>{s.data.name}</dd>
             ))}
           </div>
+          {others.length > 0 && (
+            <div>
+              <dt class="label">Also in the group</dt>
+              {others.map((line) => (
+                <dd>{line}</dd>
+              ))}
+            </div>
+          )}
         </dl>
         <div>
           <p class="label">Where alumni have worked</p>
@@ -516,6 +533,11 @@ const placements = [
     margin: 0;
     padding-bottom: 2.5rem;
     border-bottom: 1px solid var(--line);
+  }
+
+  /* The student list is the tall column; the shorter blocks stack beside it. */
+  .roster div:nth-child(2) {
+    grid-row: span 2;
   }
 
   .roster dt {

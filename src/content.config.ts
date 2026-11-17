@@ -52,7 +52,7 @@ const people = defineCollection({
   loader: file('src/data/people.yaml'),
   schema: z.object({
     name: z.string(),
-    role: z.enum(['pi', 'phd', 'ms', 'undergrad']),
+    role: z.enum(['pi', 'phd', 'ms', 'undergrad', 'researcher', 'staff', 'collaborator']),
     status: z.enum(['current', 'alumni']),
     institution: z.enum(['michigan', 'buffalo']).default('michigan'),
     /** Degree program, for example "ROB", "ECE" or "CSE". */
@@ -60,6 +60,8 @@ const people = defineCollection({
     /** Graduation year, or expected graduation year for current students. */
     year: z.number().int().optional(),
     focus: z.string().optional(),
+    /** Where a collaborator is based, for example "Porsche". */
+    affiliation: z.string().optional(),
     thesis: z.string().optional(),
     firstPosition: z.string().optional(),
     currentPosition: z.string().optional(),

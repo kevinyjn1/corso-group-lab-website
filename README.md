@@ -68,8 +68,11 @@ update from this one file.
 
 ### Adding a person
 
-Add an entry to `src/data/people.yaml` with `role` (`phd`, `ms`, `undergrad`) and `status`
-(`current` or `alumni`). Alumni can carry `thesis`, `firstPosition`, and `currentPosition`.
+Add an entry to `src/data/people.yaml` with `role` (`phd`, `ms`, `undergrad`, `researcher`,
+`staff`, or `collaborator`) and `status` (`current` or `alumni`). Current Ph.D. students can carry
+a `focus` and an expected graduation `year`, collaborators an `affiliation`, and alumni a
+`thesis`, `firstPosition`, and `currentPosition`. When the member list changes, update
+`roster.asOf` in `src/lib/site.ts`.
 
 To add a portrait, drop an image named after the person's `id` into `src/assets/people/`, for
 example `src/assets/people/yayuan-li.jpg`. It is resized and compressed at build time. People
@@ -152,6 +155,6 @@ Upload the contents of `dist/` to the host. CI runs the end-to-end tests against
 The publication list, alumni, courses, and honors were compiled from the previous website and from
 Prof. Corso's public curriculum vitae (April 2025). Papers from 2025 onward, their venues, and the
 citation figures were checked against his Google Scholar profile and arXiv in November 2026. Alumni
-positions and the member list are as stated in that CV, which is the newest public source for
-them. Before launch, the group should review the current member list, the research descriptions,
-and anything dated.
+positions are as stated in that CV, which is the newest public source for them. Current members
+were taken from the group's own member list in November 2026. Before launch, the group should
+review the research descriptions and anything dated.

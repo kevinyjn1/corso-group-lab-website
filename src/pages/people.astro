@@ -5,10 +5,30 @@ import Portrait from '../components/Portrait.astro';
 import { getPeople, type Person } from '../lib/content';
 import { href, pi, site } from '../lib/site';
 
+type Role = Person['data']['role'];
+
 const people = await getPeople();
-const current = people.filter((p) => p.data.status === 'current' && p.data.role !== 'pi');
-const alumni = (role: Person['data']['role']) =>
+const current = (role: Role) =>
+  people.filter((p) => p.data.status === 'current' && p.data.role === role);
+const alumni = (role: Role) =>
   people.filter((p) => p.data.status === 'alumni' && p.data.role === role);
+
+const students = current('phd');
+const researchers = current('researcher');
+/** Everyone in the group besides the Ph.D. students, as short lists with an optional note. */
+const groups = [
+  { title: 'Undergraduate researchers', list: current('undergrad'), note: () => undefined },
+  {
+    title: researchers.length > 0 ? 'Researchers and staff' : 'Staff',
+    list: [...researchers, ...current('staff')],
+    note: (p: Person) => (p.data.role === 'researcher' ? 'Research scientist' : undefined),
+  },
+  {
+    title: 'Collaborators',
+    list: current('collaborator'),
+    note: (p: Person) => p.data.affiliation,
+  },
+].filter((group) => group.list.length > 0);
 const phd = alumni('phd');
 const ms = alumni('ms');
 const undergrad = alumni('undergrad');
@@ -31,8 +51,9 @@ const profileLinks = [
       The <em>group</em>.
     </Fragment>
     <p class="lead">
-      One principal investigator, a small team of graduate students, and {phd.length} Ph.D. alumni
-      now working across industry research labs and university faculties.
+      One principal investigator, {students.length} Ph.D. students, a team of undergraduate
+      researchers, staff, and collaborators, and {phd.length} Ph.D. alumni now working across
+      industry research labs and university faculties.
     </p>
   </PageHead>
 
@@ -91,7 +112,7 @@ const profileLinks = [
         </div>
       </div>
       <ul class="members" data-reveal="stagger">
-        {current.map((person) => (
+        {students.map((person) => (
           <li class="member">
             <Portrait id={person.id} name={person.data.name} />
             <div>
@@ -109,7 +130,7 @@ const profileLinks = [
             <h3 class="h3">This could be you</h3>
             <p class="label">Prospective students</p>
             <p class="focus">
-              The group typically adds one new Ph.D. student per year.
+              Students join through the University of Michigan graduate programs.
               <a class="link" href={href('/join/')}>
                 How to join
               </a>
@@ -117,6 +138,23 @@ const profileLinks = [
           </div>
         </li>
       </ul>
+
+      <div class="groups" data-reveal="stagger">
+        {groups.map(({ title, list, note }) => (
+          <div>
+            <h2 class="h3">{title}</h2>
+            <ul class="names rows">
+              {list.map((person) => (
+                <li>
+                  <span>{person.data.name}</span>
+                  {note(person) && <span class="label">{note(person)}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p class="footnote">Current members as of {site.roster.asOf}.</p>
     </div>
   </section>
 
@@ -292,6 +330,13 @@ const profileLinks = [
     text-wrap: pretty;
   }
 
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3rem clamp(2rem, 4vw, 4rem);
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+  }
+
   /* --- Ph.D. alumni --------------------------------------------------------- */
 
   .thesis {
@@ -380,7 +425,8 @@ const profileLinks = [
   /* --- Responsive ----------------------------------------------------------- */
 
   @media (max-width: 60rem) {
-    .members {
+    .members,
+    .groups {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -413,7 +459,8 @@ const profileLinks = [
   }
 
   @media (max-width: 38rem) {
-    .members {
+    .members,
+    .groups {
       grid-template-columns: minmax(0, 1fr);
     }
 

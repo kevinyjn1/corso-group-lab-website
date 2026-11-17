@@ -235,6 +235,27 @@ test('portraits load, and people without a photo fall back to initials', async (
   await expect(page.locator('.members .initials').first()).toBeVisible();
 });
 
+test('current members are grouped, and nobody is listed twice', async ({ page }) => {
+  await page.goto(at('/people/'));
+  const students = await page.locator('.members .member:not(.member--open) h3').allInnerTexts();
+  expect(students.length).toBeGreaterThan(0);
+
+  const groups = page.locator('.groups > div');
+  expect(await groups.count()).toBeGreaterThan(0);
+  const names = [...students];
+  for (const group of await groups.all()) {
+    await expect(group.getByRole('heading')).toBeVisible();
+    const listed = await group.locator('li > span:first-child').allInnerTexts();
+    expect(listed.length).toBeGreaterThan(0);
+    names.push(...listed);
+  }
+  expect(new Set(names).size).toBe(names.length);
+
+  // The home page names the same students.
+  await page.goto(at('/'));
+  await expect(page.locator('.roster > div').nth(1).locator('dd')).toHaveText(students);
+});
+
 test('unknown pages show the 404 page', async ({ page }) => {
   const response = await page.goto(at('/no-such-page/'));
   expect(response?.status()).toBe(404);

@@ -1,5 +1,7 @@
 # People of the Corso Group.
-# role: pi | phd | ms | undergrad        status: current | alumni
+# role: pi | phd | ms | undergrad | researcher | staff | collaborator
+# status: current | alumni
+# Current members are as of November 2026, from the group's own member list.
 # Alumni positions are as listed in Prof. Corso's CV (April 2025).
 
 - id: jason-corso
@@ -22,6 +24,62 @@
   status: current
   year: 2027
   focus: Assistive AI agents, goal-oriented reasoning in language models, and surgical and clinical video-language understanding.
+
+- { id: aidan-dempster, name: Aidan Dempster, role: phd, status: current }
+- { id: andrew-krikorian, name: Andrew Krikorian, role: phd, status: current }
+- { id: audrey-douglas, name: Audrey Douglas, role: phd, status: current }
+- { id: colin-fuelberth, name: Colin Fuelberth, role: phd, status: current }
+- { id: simon-jaimes, name: Simon Jaimes, role: phd, status: current }
+
+# --- Current undergraduate researchers --------------------------------------
+
+- { id: gabe-sanborn, name: Gabe Sanborn, role: undergrad, status: current }
+- { id: igor-bassi-borracini, name: Igor Bassi Borracini, role: undergrad, status: current }
+- { id: kane-weng, name: Kane Weng, role: undergrad, status: current }
+- { id: kevin-na, name: Kevin Na, role: undergrad, status: current }
+- { id: vaman-rajagopal, name: Vaman Rajagopal, role: undergrad, status: current }
+- { id: wei-liu, name: Wei Liu, role: undergrad, status: current }
+
+# --- Staff ------------------------------------------------------------------
+
+- { id: ethan-ho, name: Ethan Ho, role: staff, status: current }
+- { id: mike-oelke, name: Mike Oelke, role: staff, status: current }
+- { id: shaw-sun, name: Shaw Sun, role: staff, status: current }
+
+# --- Collaborators ----------------------------------------------------------
+
+- {
+    id: anhong-guo,
+    name: Anhong Guo,
+    role: collaborator,
+    status: current,
+    affiliation: Michigan CSE,
+  }
+- { id: chenglin-li, name: Chenglin Li, role: collaborator, status: current }
+- { id: jingying-wang, name: Jingying Wang, role: collaborator, status: current }
+- {
+    id: maximilian-dillitzer,
+    name: Maximilian Dillitzer,
+    role: collaborator,
+    status: current,
+    affiliation: Porsche,
+  }
+- { id: miaowei-wang, name: Miaowei Wang, role: collaborator, status: current }
+- {
+    id: solomon-song,
+    name: Solomon Song,
+    role: collaborator,
+    status: current,
+    affiliation: Central Michigan University,
+  }
+- {
+    id: tin-stribor-sohn,
+    name: Tin Stribor Sohn,
+    role: collaborator,
+    status: current,
+    affiliation: Porsche,
+  }
+- { id: zhi-cao, name: Zhi Cao, role: collaborator, status: current }
 
 # --- Ph.D. alumni, University of Michigan -----------------------------------
 
