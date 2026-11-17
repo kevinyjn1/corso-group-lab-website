@@ -37,6 +37,7 @@ const school = (p: Person) => (p.data.institution === 'buffalo' ? 'Buffalo' : 'M
 const profileLinks = [
   { label: 'Curriculum vitae', href: site.links.cv },
   { label: 'Google Scholar', href: site.links.scholar },
+  { label: 'LinkedIn', href: site.links.linkedin },
   { label: 'Essays', href: site.links.essays },
   { label: 'Voxel51', href: site.links.voxel51 },
 ];
@@ -95,7 +96,13 @@ const profileLinks = [
           {pi.honors.map((honor) => (
             <li>
               <span class="label">{honor.year}</span>
-              <span>{honor.name}</span>
+              {'href' in honor ? (
+                <a class="link" href={honor.href} rel="noopener">
+                  {honor.name}
+                </a>
+              ) : (
+                <span>{honor.name}</span>
+              )}
             </li>
           ))}
         </ul>
@@ -354,8 +361,10 @@ const profileLinks = [
   }
 
   .thesis-year {
-    font-family: var(--font-serif);
-    font-size: 1.9rem;
+    font-family: var(--font-display);
+    font-stretch: 70%;
+    font-weight: 800;
+    font-size: 2.4rem;
     line-height: 1;
   }
 

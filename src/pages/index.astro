@@ -3,30 +3,33 @@ import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
 import PubItem from '../components/PubItem.astro';
 import VenueTicker from '../components/VenueTicker.astro';
-import AreaGlyph from '../components/AreaGlyph.astro';
+import Logo from '../components/Logo.astro';
+import MediaRow from '../components/MediaRow.astro';
+import ResearchFigure from '../components/ResearchFigure.astro';
+import VideoCard from '../components/VideoCard.astro';
 import {
   approx,
   getAreas,
+  getMedia,
   getPeople,
   getPublications,
   getResources,
   isPeerReviewed,
 } from '../lib/content';
+import type { FigureName } from '../lib/figures';
 import { href, pi, site } from '../lib/site';
 
-const headline = [
-  { text: 'From' },
-  { text: 'pixels' },
-  { text: 'to' },
-  { text: 'language', accent: true },
-  { text: 'to' },
-  { text: 'action.' },
-];
+/** The headline, one line per stage of the group's work. The middle stage is marked. */
+const headline = [['From pixels'], ['to ', { mark: 'language' }], ['to action.']];
 
 const publications = await getPublications();
 const areas = await getAreas();
 const resources = await getResources();
 const people = await getPeople();
+const featuredMedia = (await getMedia())
+  .filter((item) => item.data.featured)
+  .sort((a, b) => a.data.featured! - b.data.featured!);
+const leadVideo = featuredMedia.find((item) => item.data.youtubeId);
 
 const latest = publications.slice(0, 6);
 const featuredResources = resources.filter((r) => r.data.featured);
@@ -68,55 +71,65 @@ const placements = [
 <Base>
   <section class="hero">
     <div class="container">
-      <p class="label eyebrow">
-        <span class="square"></span>
-        {site.name}
-        <span class="sep">/</span>
-        {site.university}
-      </p>
-      <div class="hero-grid">
+      <div class="hero-top">
         <h1 class="display">
-          {headline.flatMap((word, i) => [
-            i > 0 ? ' ' : '',
-            <span class="word" style={`--i: ${i}`}>
-              <span>{word.accent ? <em>{word.text}</em> : word.text}</span>
-            </span>,
-          ])}
-        </h1>
-        <div class="hero-side">
-          <p class="lead">
-            We build AI that sees, describes, and works alongside people in the physical world -
-            computer vision, language, and robotics, with applications in health, autonomy, and
-            everyday life.
-          </p>
-          <div class="cta">
-            <a class="btn btn--primary" href={href('/research/')}>
-              Explore the research{' '}
-              <span class="arrow" aria-hidden="true">
-                &rarr;
+          {headline.map((line, i) => (
+            <span class="line" style={`--i: ${i}`}>
+              <span>
+                {line.map((part) => (typeof part === 'string' ? part : <em>{part.mark}</em>))}
               </span>
-            </a>
-            <a class="btn" href={href('/publications/')}>
-              Publications
-            </a>
-          </div>
+            </span>
+          ))}
+        </h1>
+        <div class="hero-mark">
+          <Logo size="100%" />
         </div>
       </div>
+      <div class="hero-foot">
+        <p class="lead">
+          The {site.name} at the {site.university} builds AI that sees, describes, and works
+          alongside people in the physical world: computer vision, language, and robotics, with
+          applications in health, autonomy, and everyday life.
+        </p>
+        <div class="cta">
+          <a class="btn btn--primary" href={href('/research/')}>
+            Explore the research{' '}
+            <span class="arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+          <a class="btn" href={href('/publications/')}>
+            Publications
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <section class="stage band--blue">
+    <div class="container">
+      <p class="stage-label">
+        <span class="num">Fig. 1</span>
+        Live: one synthetic video, read four ways. Pick a view, or move over the scene.
+      </p>
       <HeroScene />
+    </div>
+  </section>
 
+  <section class="numbers">
+    <div class="container">
       <dl class="stats" data-reveal="stagger">
         {stats.map((stat) => (
           <div>
-            <dt>{stat.label}</dt>
             <dd data-count>{stat.value}</dd>
+            <dt>{stat.label}</dt>
           </div>
         ))}
       </dl>
-
-      <VenueTicker />
     </div>
   </section>
+
+  <VenueTicker />
 
   <section class="section">
     <div class="container">
@@ -139,22 +152,21 @@ const placements = [
       <ul class="areas" data-reveal="stagger">
         {areas.map((area, i) => (
           <li>
-            <a
-              data-spotlight
-              class="area ticks"
-              href={href(`/research/#${area.id}`)}
-              data-topic={area.id}
-            >
-              <div class="area-top">
-                <span class="label">{String(i + 1).padStart(2, '0')}</span>
-                <AreaGlyph topic={area.id} size={72} />
+            <a class="area" href={href(`/research/#${area.id}`)} data-topic={area.id}>
+              <div class="area-figure">
+                <ResearchFigure topic={area.id as FigureName} number={i + 2} />
               </div>
-              <h3 class="h3">{area.data.title}</h3>
-              <p>{area.data.summary}</p>
-              <span class="area-count">
-                <span class="dot" />
-                {countByTopic(area.id)} papers
-              </span>
+              <div class="area-text">
+                <h3 class="h3">{area.data.title}</h3>
+                <p>{area.data.summary}</p>
+                <span class="area-count">
+                  <span class="dot" />
+                  {countByTopic(area.id)} papers{' '}
+                  <span class="arrow" aria-hidden="true">
+                    &rarr;
+                  </span>
+                </span>
+              </div>
             </a>
           </li>
         ))}
@@ -184,6 +196,35 @@ const placements = [
     </div>
   </section>
 
+  {leadVideo && (
+    <section class="section band--blue">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="label">Media</p>
+            <h2 class="h2">On the record</h2>
+          </div>
+          <a class="more" href={href('/media/')}>
+            All talks, press, and essays{' '}
+            <span class="arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+        </div>
+        <div class="record" data-reveal="stagger">
+          <VideoCard item={leadVideo} sizes="(min-width: 62rem) 55vw, 92vw" />
+          <ul class="rows record-list">
+            {featuredMedia
+              .filter((item) => item !== leadVideo)
+              .map((item) => (
+                <MediaRow item={item} showKind />
+              ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  )}
+
   <section class="section">
     <div class="container">
       <div class="section-head" data-reveal>
@@ -191,7 +232,7 @@ const placements = [
           <p class="label">Code &amp; data</p>
           <h2 class="h2">Built in the open</h2>
           <p>
-            Datasets, benchmarks, and software released by the group - from instructional video to
+            Datasets, benchmarks, and software released by the group, from instructional video to
             surgical video, and the tools to look closely at your own data.
           </p>
         </div>
@@ -223,14 +264,12 @@ const placements = [
   </section>
 
   <section class="section">
-    <div class="container people" data-reveal="stagger">
-      <div>
-        <p class="label people-label">People</p>
-        <h2 class="h2">A group with a long reach.</h2>
-        <p class="lead">
-          The group is led by {pi.name} and has graduated {phdAlumni.length} Ph.D. students since
-          2009. Alumni have gone on to research and faculty positions across industry and academia.
-        </p>
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">People</p>
+          <h2 class="h2">A group with a long reach.</h2>
+        </div>
         <a class="more" href={href('/people/')}>
           Meet the group{' '}
           <span class="arrow" aria-hidden="true">
@@ -238,47 +277,57 @@ const placements = [
           </span>
         </a>
       </div>
-      <div class="people-side">
-        <dl class="roster">
-          <div>
-            <dt class="label">Principal investigator</dt>
-            <dd>{pi.name}</dd>
-          </div>
-          <div>
-            <dt class="label">Ph.D. students</dt>
-            {students.map((s) => (
-              <dd>{s.data.name}</dd>
-            ))}
-          </div>
-          {others.length > 0 && (
+      <div class="people" data-reveal="stagger">
+        <p class="lead">
+          The group is led by {pi.name} and has graduated {phdAlumni.length} Ph.D. students since
+          2009. Alumni have gone on to research and faculty positions across industry and academia.
+        </p>
+        <div class="people-side">
+          <dl class="roster">
             <div>
-              <dt class="label">Also in the group</dt>
-              {others.map((line) => (
-                <dd>{line}</dd>
+              <dt class="label">Principal investigator</dt>
+              <dd>{pi.name}</dd>
+              <dd class="roster-note">{pi.titles[0]}</dd>
+            </div>
+            <div>
+              <dt class="label">Ph.D. students</dt>
+              {students.map((s) => (
+                <dd>{s.data.name}</dd>
               ))}
             </div>
-          )}
-        </dl>
-        <div>
-          <p class="label">Where alumni have worked</p>
-          <ul class="placements">
-            {placements.map((place) => (
-              <li class="chip">{place}</li>
-            ))}
-          </ul>
+            {others.length > 0 && (
+              <div>
+                <dt class="label">Also in the group</dt>
+                {others.map((line) => (
+                  <dd>{line}</dd>
+                ))}
+              </div>
+            )}
+          </dl>
+          <div>
+            <p class="label">Where alumni have worked</p>
+            <ul class="placements">
+              {placements.map((place) => (
+                <li class="chip">{place}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section join">
-    <div class="container">
-      <div class="join-card ticks" data-reveal data-spotlight>
-        <p class="label label--accent">Join the group</p>
-        <h2 class="h2">Interested in a Ph.D. in vision, language, and robotics?</h2>
+  <section class="join band--maize">
+    <div class="container" data-reveal>
+      <p class="label">Join the group</p>
+      <h2 class="display">
+        Work <em>with</em> us.
+      </h2>
+      <div class="join-foot">
         <p class="lead">
-          Prospective students apply through the University of Michigan graduate programs. Here is
-          how to indicate your interest in the group.
+          Interested in a Ph.D. in vision, language, and robotics? Prospective students apply
+          through the University of Michigan graduate programs. Here is how to indicate your
+          interest in the group.
         </p>
         <a class="btn btn--primary" href={href('/join/')}>
           How to join{' '}
@@ -295,107 +344,132 @@ const placements = [
   /* --- Hero ----------------------------------------------------------------- */
 
   .hero {
-    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(3rem, 5vw, 4.5rem);
-    border-bottom: 1px solid var(--line);
+    padding-block: clamp(1.25rem, 2.6vw, 2.25rem) clamp(1.5rem, 3vw, 2.5rem);
   }
 
-  .eyebrow {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
+  .hero-top {
+    position: relative;
   }
 
-  .eyebrow .square {
-    width: 0.5rem;
-    height: 0.5rem;
-    background: var(--maize);
+  /* Each line of the headline rises from behind its own baseline. */
+  .display .line {
+    display: block;
+    overflow: clip;
+    overflow-clip-margin: 0.12em;
   }
 
-  .eyebrow .sep {
-    color: var(--line-2);
+  .display .line > span {
+    display: block;
+    animation: line-in 0.95s var(--ease-out) both;
+    animation-delay: calc(var(--i) * 110ms + 80ms);
   }
 
-  .hero-grid {
+  /* The mark sits in the space the short first line leaves, and watches the pointer. */
+  .hero-mark {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: clamp(4.75rem, 15.5vw, 14.5rem);
+    animation: mark-in 1.1s var(--ease-out) 0.35s both;
+  }
+
+  .hero-foot {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: 2rem clamp(2rem, 5vw, 5rem);
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
-    margin-bottom: clamp(2rem, 4vw, 3rem);
+    gap: 1.5rem clamp(2rem, 5vw, 5rem);
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    padding-top: 1.25rem;
+    border-top: var(--rule) solid var(--text);
   }
 
-  /* Page-load intro: the headline rises word by word, then the rest settles in. */
-  .word {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: top;
-    margin: 0 -0.06em -0.16em;
-    padding: 0 0.06em 0.16em;
-  }
-
-  .word > span {
-    display: inline-block;
-    animation: word-up 0.95s var(--ease) both;
-    animation-delay: calc(var(--i) * 75ms + 0.05s);
-  }
-
-  @keyframes word-up {
-    from {
-      transform: translateY(110%);
-    }
-  }
-
-  .eyebrow,
-  .hero-side {
-    animation: rise-in 0.8s var(--ease) both;
-  }
-
-  .hero-side {
-    animation-delay: 0.4s;
-  }
-
-  .hero-side .lead {
-    max-width: 30rem;
+  .hero-foot .lead {
+    max-width: 46rem;
+    animation: rise-in 0.9s var(--ease) 0.5s both;
   }
 
   .cta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 1.75rem;
+    animation: rise-in 0.9s var(--ease) 0.6s both;
+  }
+
+  @keyframes line-in {
+    from {
+      transform: translateY(105%);
+    }
+  }
+
+  @keyframes mark-in {
+    from {
+      opacity: 0;
+      transform: rotate(-90deg) scale(0.6);
+    }
+  }
+
+  /* --- The live scene ------------------------------------------------------- */
+
+  .stage {
+    padding-block: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3.5vw, 3rem);
+  }
+
+  .stage-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-2);
+  }
+
+  .num {
+    padding: 0.3rem 0.55rem;
+    background: var(--maize);
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  /* --- Numbers -------------------------------------------------------------- */
+
+  .numbers {
+    padding-block: clamp(2rem, 4vw, 3.5rem);
   }
 
   .stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     margin: 0;
-    margin-top: clamp(2rem, 4vw, 3rem);
-    border-top: 1px solid var(--line);
   }
 
-  .stats > div {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 0.5rem;
-    padding: 1.5rem 1.5rem 0 0;
-  }
-
-  .stats > div + div {
-    padding-left: 1.5rem;
-    border-left: 1px solid var(--line);
+  .stats div {
+    padding: 0 clamp(1rem, 2vw, 2rem);
+    border-left: var(--rule) solid var(--text);
   }
 
   .stats dd {
-    font-family: var(--font-serif);
-    font-size: clamp(2.25rem, 4.6vw, 3.75rem);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: 66%;
+    font-size: clamp(3.5rem, 9vw, 8.5rem);
+    font-weight: 800;
+    line-height: 0.82;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
   }
 
   .stats dt {
-    font-size: 0.875rem;
-    line-height: 1.4;
+    max-width: 14rem;
+    margin-top: 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
     color: var(--text-2);
   }
 
@@ -404,43 +478,37 @@ const placements = [
   .areas {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
-  }
-
-  .areas > li {
-    display: flex;
-    background: var(--bg);
+    gap: clamp(2rem, 3.5vw, 3rem) clamp(1.25rem, 2.5vw, 2rem);
   }
 
   .area {
-    --tick-color: transparent;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    padding: clamp(1.5rem, 2.6vw, 2.25rem);
+    height: 100%;
+  }
+
+  /* The screen lifts off a hard shadow in the area's own color. */
+  .area-figure {
     transition:
-      background-color 0.25s var(--ease),
-      --tick-color 0.25s var(--ease);
+      transform 0.25s var(--ease),
+      box-shadow 0.25s var(--ease);
   }
 
-  .area:hover {
-    --tick-color: var(--topic);
-    background-color: var(--bg-2);
+  .area:hover .area-figure,
+  .area:focus-visible .area-figure {
+    transform: translate(-6px, -6px);
+    box-shadow: 6px 6px 0 var(--topic);
   }
 
-  .area-top {
+  .area-text {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    flex: 1;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-top: 1rem;
   }
 
-  .area p {
-    margin-top: 0.75rem;
-    margin-bottom: 1.75rem;
-    font-size: 0.95rem;
+  .area-text p {
     color: var(--text-2);
     text-wrap: pretty;
   }
@@ -448,13 +516,46 @@ const placements = [
   .area-count {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     margin-top: auto;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
+    padding-top: 0.5rem;
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-3);
+  }
+
+  .area-count .arrow {
+    transition: transform 0.25s var(--ease);
+  }
+
+  .area:hover .area-count .arrow {
+    transform: translateX(5px);
+  }
+
+  /* --- Media ---------------------------------------------------------------- */
+
+  .record {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .record-list :global(.row) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .record-list :global(.where) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .record-list :global(.chip) {
+    justify-self: start;
   }
 
   /* --- Releases ------------------------------------------------------------- */
@@ -462,33 +563,35 @@ const placements = [
   .releases {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.5rem clamp(1.5rem, 3vw, 3rem);
+    gap: 2.5rem clamp(1.5rem, 3vw, 2.5rem);
   }
 
   .release {
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--line-2);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--text);
   }
 
   .release-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.25rem;
+    gap: 1rem;
   }
 
   .release h3 a {
-    background: linear-gradient(var(--maize), var(--maize)) left bottom / 0 2px no-repeat;
-    transition: background-size 0.3s var(--ease);
+    background: linear-gradient(var(--maize), var(--maize)) left / 0 100% no-repeat;
+    transition: background-size 0.3s var(--ease-out);
   }
 
   .release h3 a:hover {
-    background-size: 100% 2px;
+    background-size: 100% 100%;
+    color: var(--blue);
   }
 
   .release p {
-    margin-top: 0.75rem;
-    font-size: 0.95rem;
     color: var(--text-2);
     text-wrap: pretty;
   }
@@ -497,41 +600,17 @@ const placements = [
 
   .people {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    gap: 3rem clamp(2rem, 6vw, 6rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 2.5rem clamp(2rem, 6vw, 6rem);
     align-items: start;
-  }
-
-  .people-label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .people-label::before {
-    content: '';
-    width: 0.5rem;
-    height: 0.5rem;
-    background: var(--maize);
-  }
-
-  .people .lead {
-    max-width: 34rem;
-    margin-block: 1.5rem 2rem;
-  }
-
-  .people-side {
-    display: grid;
-    gap: 2.5rem;
   }
 
   .roster {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
+    gap: 1.75rem 1.5rem;
     margin: 0;
-    padding-bottom: 2.5rem;
+    padding-bottom: 2rem;
     border-bottom: 1px solid var(--line);
   }
 
@@ -541,68 +620,87 @@ const placements = [
   }
 
   .roster dt {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
   }
 
   .roster dd {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    line-height: 1.25;
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: 80%;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.22;
+  }
+
+  .roster .roster-note {
+    margin-top: 0.35rem;
+    font-family: var(--font-sans);
+    font-stretch: 100%;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text-2);
+  }
+
+  .people-side > div {
+    padding-top: 1.5rem;
   }
 
   .placements {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 0.9rem;
   }
 
   /* --- Join ----------------------------------------------------------------- */
 
-  .join-card {
-    --tick: 1.25rem;
-    --tick-color: var(--accent);
-    padding: clamp(2rem, 6vw, 5rem);
-    background-color: var(--bg-2);
+  .join {
+    padding-block: clamp(3rem, 7vw, 6rem);
   }
 
-  .join-card .h2 {
-    max-width: 22ch;
-    margin-top: 1.25rem;
+  .join .label {
+    margin-bottom: 1rem;
+    color: var(--text);
   }
 
-  .join-card .lead {
-    max-width: 36rem;
-    margin-block: 1.5rem 2rem;
+  .join-foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 1.5rem clamp(2rem, 5vw, 5rem);
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    padding-top: 1.25rem;
+    border-top: var(--rule) solid var(--text);
+  }
+
+  .join-foot .lead {
+    max-width: 44rem;
   }
 
   /* --- Responsive ----------------------------------------------------------- */
 
-  @media (max-width: 60rem) {
-    .hero-grid,
-    .people {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
+  @media (max-width: 62rem) {
     .areas,
     .releases {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 2rem;
+    }
+
+    .people,
+    .record {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   @media (max-width: 44rem) {
-    .stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .stats > div:nth-child(3) {
-      padding-left: 0;
-      border-left: 0;
-    }
-
-    .stats > div:nth-child(n + 3) {
-      margin-top: 1.5rem;
-      border-top: 1px solid var(--line);
+    .hero-foot,
+    .join-foot {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
@@ -612,12 +710,29 @@ const placements = [
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .cta {
-      gap: 0.5rem;
+    /* On a phone the first two lines fill the width, so the mark moves beside the last. */
+    .hero-mark {
+      top: auto;
+      bottom: 0.15rem;
+      width: clamp(3.5rem, 19vw, 5.25rem);
+    }
+
+    .stats div {
+      padding-inline: 0.9rem 0.25rem;
     }
 
     .cta .btn {
-      padding-inline: 1rem;
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .display .line > span,
+    .hero-mark,
+    .hero-foot .lead,
+    .cta {
+      animation: none;
     }
   }
 </style>

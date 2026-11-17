@@ -8,9 +8,12 @@ const current = Astro.url.pathname;
 <header class="site-header" data-header>
   <div class="container bar">
     <a class="brand" href={href('/')} aria-label={`${site.name} home`}>
-      <Logo />
+      <Logo size={44} tile />
       <span class="brand-mark">{site.mark}</span>
-      <span class="brand-name">{site.name}</span>
+      <span class="brand-name">
+        {site.name}
+        <span>{site.university}</span>
+      </span>
     </a>
 
     <nav class="nav" aria-label="Primary">
@@ -72,8 +75,9 @@ const current = Astro.url.pathname;
       </button>
     </div>
   </div>
+  <div class="progress" aria-hidden="true"></div>
 
-  <div class="mobile-menu" id="mobile-menu" hidden>
+  <div class="mobile-menu band--maize" id="mobile-menu" hidden>
     <nav class="container" aria-label="Mobile">
       <ul>
         {nav.map((item, i) => (
@@ -82,8 +86,8 @@ const current = Astro.url.pathname;
               href={href(item.path)}
               aria-current={isActive(current, item.path) ? 'page' : undefined}
             >
-              <span class="index">{String(i + 1).padStart(2, '0')}</span>
               {item.label}
+              <span class="index">{String(i + 1).padStart(2, '0')}</span>
             </a>
           </li>
         ))}
@@ -130,8 +134,17 @@ const current = Astro.url.pathname;
       toggle.focus();
     }
   });
+  // A maize bar along the bottom of the header shows how far down the page the visitor is.
+  const progress = () => {
+    const range = root.scrollHeight - window.innerHeight;
+    root.style.setProperty('--read', range > 0 ? (window.scrollY / range).toFixed(4) : '0');
+  };
+  window.addEventListener('scroll', progress, { passive: true });
+  window.addEventListener('resize', progress, { passive: true });
+  progress();
+
   // Leaving the mobile layout closes the menu so the page is never left scroll-locked.
-  window.matchMedia('(min-width: 60rem)').addEventListener('change', (event) => {
+  window.matchMedia('(min-width: 66.01rem)').addEventListener('change', (event) => {
     if (event.matches) setMenu(false);
   });
 </script>
@@ -142,14 +155,8 @@ const current = Astro.url.pathname;
     position: sticky;
     top: 0;
     z-index: 50;
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
-    backdrop-filter: blur(14px) saturate(1.4);
-    -webkit-backdrop-filter: blur(14px) saturate(1.4);
-    border-bottom: 1px solid var(--line);
-  }
-
-  .site-header[data-open] {
     background: var(--bg);
+    border-bottom: var(--rule) solid var(--text);
   }
 
   .bar {
@@ -158,6 +165,18 @@ const current = Astro.url.pathname;
     justify-content: space-between;
     gap: 1.5rem;
     height: var(--header-h);
+  }
+
+  /* Reading progress, drawn over the header's own rule. */
+  .progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--rule) * -1);
+    height: var(--rule);
+    background: var(--maize);
+    transform: scaleX(var(--read, 0));
+    transform-origin: left;
   }
 
   .brand {
@@ -169,52 +188,63 @@ const current = Astro.url.pathname;
   }
 
   .brand-mark {
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
+    font-family: var(--font-display);
+    font-stretch: 66%;
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
     line-height: 1;
   }
 
   .brand-name {
-    padding-left: 0.7rem;
-    border-left: 1px solid var(--line-2);
-    font-size: 0.875rem;
-    line-height: 1.2;
-    color: var(--text-2);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--text);
+    font-family: var(--font-display);
+    font-stretch: 88%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    text-transform: uppercase;
     white-space: nowrap;
+  }
+
+  .brand-name span {
+    font-weight: 500;
+    color: var(--text-3);
   }
 
   .nav ul {
     display: flex;
     align-items: center;
-    gap: clamp(1rem, 2.2vw, 2rem);
+    gap: clamp(0.15rem, 0.8vw, 0.6rem);
   }
 
   .nav a {
-    position: relative;
     display: block;
-    padding-block: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    font-family: var(--font-display);
+    font-stretch: 88%;
     font-size: 0.9rem;
-    line-height: 1.2;
-    color: var(--text-2);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    text-transform: uppercase;
     white-space: nowrap;
-    transition: color 0.2s var(--ease);
+    /* The highlight wipes in from the left on hover. */
+    background: linear-gradient(var(--maize), var(--maize)) left / 0 100% no-repeat;
+    transition:
+      background-size 0.25s var(--ease-out),
+      color 0.2s var(--ease);
   }
 
   .nav a:hover,
   .nav a[aria-current='page'] {
-    color: var(--text);
-  }
-
-  .nav a[aria-current='page']::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -0.05rem;
-    height: 2px;
-    background: var(--maize);
+    background-size: 100% 100%;
+    color: var(--blue);
   }
 
   .actions {
@@ -227,19 +257,18 @@ const current = Astro.url.pathname;
   .icon-btn {
     display: grid;
     place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    color: var(--text-2);
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 2px solid var(--text);
+    color: var(--text);
     transition:
       color 0.2s var(--ease),
-      border-color 0.2s var(--ease);
+      background-color 0.2s var(--ease);
   }
 
   .icon-btn:hover {
-    color: var(--text);
-    border-color: var(--line-2);
+    background: var(--text);
+    color: var(--bg);
   }
 
   .moon,
@@ -268,43 +297,48 @@ const current = Astro.url.pathname;
     transform: translateY(-3.5px) rotate(-45deg);
   }
 
+  /* On small screens the menu is a full field of maize with poster-sized links. */
   .mobile-menu {
-    height: calc(100dvh - var(--header-h));
+    height: calc(100dvh - var(--header-h) - var(--rule));
     overflow-y: auto;
-    border-top: 1px solid var(--line);
-    background: var(--bg);
   }
 
   .mobile-menu ul {
-    padding-block: 1rem 3rem;
+    padding-block: 0.5rem 3rem;
   }
 
   .mobile-menu li {
-    border-bottom: 1px solid var(--line);
+    border-bottom: 2px solid var(--blue);
   }
 
   .mobile-menu a {
     display: flex;
     align-items: baseline;
+    justify-content: space-between;
     gap: 1.25rem;
-    padding-block: 1.1rem;
-    font-family: var(--font-serif);
-    font-size: 2rem;
-    line-height: 1.1;
+    padding-block: 0.7rem 0.5rem;
+    font-family: var(--font-display);
+    font-stretch: 66%;
+    font-size: clamp(2.6rem, 13vw, 4rem);
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
   .mobile-menu a[aria-current='page'] {
-    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.08em;
   }
 
   .mobile-menu .index {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    color: var(--text-3);
+    font-stretch: 92%;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
   }
 
-  @media (max-width: 59.99rem) {
+  @media (max-width: 66rem) {
     .nav {
       display: none;
     }
@@ -314,13 +348,13 @@ const current = Astro.url.pathname;
     }
   }
 
-  @media (min-width: 60rem) {
+  @media (min-width: 66.01rem) {
     .mobile-menu {
       display: none;
     }
   }
 
-  @media (max-width: 24rem) {
+  @media (max-width: 30rem) {
     .brand-name {
       display: none;
     }

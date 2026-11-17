@@ -1,24 +1,105 @@
 ---
-/** The group mark: a detection box locked onto a maize target. */
+/**
+ * The group's mark. The eye follows the pointer, blinks now and then, and the gear turns as the
+ * page scrolls; see src/scripts/logo.ts. Colors are the brand's own and do not change with theme.
+ */
+import { LOGO } from '../lib/logo';
+
 interface Props {
-  size?: number;
+  size?: number | string;
+  /** Draw the mark on its Michigan blue tile, as on the group's GitHub. */
+  tile?: boolean;
+  /** A text alternative. Leave empty when the mark sits next to the group's name. */
+  label?: string;
 }
-const { size = 26 } = Astro.props;
+const { size = 40, tile = false, label } = Astro.props;
+// Each mark needs its own clip path id, since several can share a page.
+const clip = `eye-${crypto.randomUUID().slice(0, 8)}`;
 ---
 
 <svg
   class="logo"
-  viewBox="0 0 28 28"
+  viewBox={LOGO.viewBox}
   width={size}
   height={size}
-  aria-hidden="true"
+  data-logo
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
   focusable="false"
 >
-  <path
-    d="M1.75 8.5V1.75H8.5M19.5 1.75h6.75V8.5M26.25 19.5v6.75H19.5M8.5 26.25H1.75V19.5"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="1.5"
-  ></path>
-  <rect x="9.5" y="9.5" width="9" height="9" fill="var(--maize)"></rect>
+  <defs>
+    <clipPath id={clip}>
+      <path d={LOGO.sclera}></path>
+    </clipPath>
+  </defs>
+  {tile && <rect x="-163" y="-163" width="326" height="326" fill={LOGO.blue} />}
+  <g class="gear">
+    <path
+      d={LOGO.gear}
+      fill={LOGO.maize}
+      stroke={LOGO.maize}
+      stroke-width="3"
+      stroke-linejoin="round"
+    ></path>
+  </g>
+  <circle r="81.25" fill="none" stroke={LOGO.blue} stroke-width="5.5"></circle>
+  <path d={LOGO.lids} fill={LOGO.blue} fill-rule="evenodd"></path>
+  <g clip-path={`url(#${clip})`}>
+    <path class="marks" d={LOGO.marks} fill={LOGO.blue}></path>
+    <g class="iris">
+      <path d={LOGO.iris} fill={LOGO.blue}></path>
+      <circle r="18.25" fill="none" stroke={LOGO.maize} stroke-width="8.5"></circle>
+    </g>
+    <path class="lid" d={LOGO.sclera} fill={LOGO.blue}></path>
+  </g>
 </svg>
+
+<style>
+  .logo {
+    flex: none;
+    overflow: visible;
+  }
+
+  /* The gear turns with the page; the eye looks toward the pointer. Both are set by script. */
+  .gear {
+    transform: rotate(var(--cog-turn, 0turn));
+  }
+
+  .iris {
+    transform: translate(calc(var(--look-x, 0) * 1px), calc(var(--look-y, 0) * 1px));
+    transition: transform 0.18s ease-out;
+  }
+
+  .marks {
+    transform: translate(calc(var(--look-x, 0) * 0.4px), calc(var(--look-y, 0) * 0.4px));
+    transition: transform 0.18s ease-out;
+  }
+
+  .lid {
+    transform: scaleY(0);
+    animation: blink 6.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%,
+    95.5%,
+    100% {
+      transform: scaleY(0);
+    }
+    97.5% {
+      transform: scaleY(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lid {
+      animation: none;
+    }
+
+    .iris,
+    .marks {
+      transition: none;
+    }
+  }
+</style>

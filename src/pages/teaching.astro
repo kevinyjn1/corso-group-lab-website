@@ -4,6 +4,7 @@ import PageHead from '../components/PageHead.astro';
 import { getCourses } from '../lib/content';
 
 const courses = await getCourses();
+const teachingNow = courses.filter((course) => course.data.current);
 const schools = [
   { id: 'michigan' as const, title: 'University of Michigan', years: '2014 to present' },
   { id: 'buffalo' as const, title: 'SUNY at Buffalo', years: '2007 to 2014' },
@@ -59,9 +60,46 @@ const outreach: Event[] = [
     </Fragment>
     <p class="lead">
       Graduate and undergraduate courses taught by Prof. Corso, from the foundations of computer
-      vision to 3D robot perception, plus tutorials and outreach.
+      vision to 3D robot perception and physical AI agents, plus tutorials and outreach.
     </p>
   </PageHead>
+
+  {teachingNow.length > 0 && (
+    <section class="section now">
+      <div class="container">
+        {teachingNow.map((course) => (
+          <article class="now-card ticks" data-reveal data-spotlight>
+            <div class="now-head">
+              <p class="label label--accent">
+                <span class="now-dot" />
+                Teaching now &middot; {course.data.terms[0]}
+              </p>
+              <p class="code">{course.data.code}</p>
+            </div>
+            <h2 class="h2">{course.data.title}</h2>
+            {course.data.with && <p class="now-with">Taught with {course.data.with}</p>}
+            {course.data.summary && <p class="lead">{course.data.summary}</p>}
+            <ul class="now-links">
+              {course.data.url && (
+                <li>
+                  <a class="btn btn--primary" href={course.data.url} rel="noopener">
+                    Course materials <span aria-hidden="true">&nearr;</span>
+                  </a>
+                </li>
+              )}
+              {course.data.links.map((link) => (
+                <li>
+                  <a class="more" href={link.href} rel="noopener">
+                    {link.label} <span aria-hidden="true">&nearr;</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
 
   {schools.map((school) => (
     <section class="section">
@@ -88,7 +126,10 @@ const outreach: Event[] = [
                       course.data.title
                     )}
                   </h3>
-                  {course.data.summary && <p class="course-summary">{course.data.summary}</p>}
+                  {/* A current course is described in full at the top of the page. */}
+                  {course.data.summary && !course.data.current && (
+                    <p class="course-summary">{course.data.summary}</p>
+                  )}
                 </div>
                 <ul class="terms" aria-label="Terms taught">
                   {course.data.terms.map((term) => (
@@ -136,6 +177,81 @@ const outreach: Event[] = [
 </Base>
 
 <style>
+  /* --- Teaching now --------------------------------------------------------- */
+
+  .now {
+    padding-bottom: 0;
+  }
+
+  .now-card {
+    --tick: 1.25rem;
+    --tick-color: var(--accent);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1.75rem, 5vw, 3.5rem);
+    background-color: var(--bg-2);
+  }
+
+  .now-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .now-head .label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .now-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #ff5d5d;
+    animation: now-pulse 1.6s ease-in-out infinite;
+  }
+
+  .now-card .code {
+    padding-top: 0;
+  }
+
+  .now-with {
+    margin-top: -0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .now-card .lead {
+    max-width: 48rem;
+  }
+
+  .now-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+    margin-top: 0.75rem;
+  }
+
+  @keyframes now-pulse {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .now-dot {
+      animation: none;
+    }
+  }
+
   .course {
     display: grid;
     grid-template-columns: 9rem minmax(0, 1.2fr) minmax(0, 1fr);
@@ -154,11 +270,11 @@ const outreach: Event[] = [
   }
 
   .course-title {
-    font-family: var(--font-serif);
-    font-weight: 400;
+    font-family: var(--font-display);
+    font-stretch: 80%;
+    font-weight: 700;
     font-size: 1.6rem;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    line-height: 1.12;
   }
 
   .course-title a span {

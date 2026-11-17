@@ -34,6 +34,33 @@ export async function getCourses(): Promise<Course[]> {
   return (await getCollection('courses')).sort((a, b) => a.data.order - b.data.order);
 }
 
+export type MediaItem = CollectionEntry<'media'>;
+
+/** Media, newest first; items with no stated date come last. */
+export async function getMedia(): Promise<MediaItem[]> {
+  return (await getCollection('media')).sort(
+    (a, b) =>
+      (b.data.date ?? '').localeCompare(a.data.date ?? '') ||
+      a.data.title.localeCompare(b.data.title),
+  );
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "2026-08-26" as "Aug 2026"; a bare year stays a year. */
+export function formatDate(date: string | undefined): string {
+  if (!date) return '';
+  const [year, month] = date.split('-');
+  return month ? `${MONTHS[Number(month) - 1]} ${year}` : year;
+}
+
+export const MEDIA_KINDS = {
+  video: { one: 'Video', many: 'Talks and video' },
+  podcast: { one: 'Podcast', many: 'Podcasts and interviews' },
+  press: { one: 'Press', many: 'In the press' },
+  essay: { one: 'Essay', many: 'Essays and op-eds' },
+} as const;
+
 export async function getPeople(): Promise<Person[]> {
   return (await getCollection('people')).sort(
     (a, b) => (b.data.year ?? 0) - (a.data.year ?? 0) || a.data.name.localeCompare(b.data.name),

@@ -16,6 +16,7 @@ export const site = {
     cv: 'https://web.eecs.umich.edu/~jjcorso/jcorso-cv.pdf',
     essays: 'https://medium.com/@jasoncorso',
     x: 'https://x.com/_JasonCorso_',
+    linkedin: 'https://www.linkedin.com/in/jason-corso/',
     robotics: 'https://robotics.umich.edu/',
     eecs: 'https://eecs.engin.umich.edu/',
     legacy: 'https://web.eecs.umich.edu/~jjcorso/',
@@ -34,22 +35,29 @@ export const nav = [
   { label: 'People', path: '/people/' },
   { label: 'Code & Data', path: '/resources/' },
   { label: 'Teaching', path: '/teaching/' },
+  { label: 'Media', path: '/media/' },
   { label: 'Join', path: '/join/' },
 ] as const;
 
 export const pi = {
   name: 'Jason J. Corso',
   titles: [
+    'Toyota Professor of Artificial Intelligence',
     'Professor of Robotics',
     'Professor of Electrical Engineering and Computer Science',
     'Co-Founder and Chief Science Officer, Voxel51',
   ],
   bio: [
-    'Jason Corso is a Professor of Robotics and of Electrical Engineering and Computer Science at the University of Michigan, where he was a founding faculty member of the Department of Robotics. He is also Co-Founder and Chief Science Officer of Voxel51, the company behind the open-source FiftyOne toolkit for visual AI.',
+    'Jason Corso is the Toyota Professor of Artificial Intelligence at the University of Michigan, where he is a Professor of Robotics and of Electrical Engineering and Computer Science and was a founding faculty member of the Department of Robotics. He is also Co-Founder and Chief Science Officer of Voxel51, the company behind the open-source FiftyOne toolkit for visual AI.',
     'His research focuses on cognitive systems and their entangled challenges in vision, language, robotics, and the physical world. Much of his work is on video understanding - video segmentation, activity recognition, and connecting video to natural language.',
     'He received his Ph.D. in Computer Science from The Johns Hopkins University, was a postdoctoral fellow at UCLA, and served on the faculty at SUNY Buffalo from 2007 to 2014 before joining Michigan.',
   ],
   honors: [
+    {
+      year: 2025,
+      name: 'Toyota Professor of Artificial Intelligence, an endowed professorship of the Michigan College of Engineering',
+      href: 'https://ece.engin.umich.edu/stories/jason-corso-named-toyota-professor-of-artificial-intelligence',
+    },
     { year: 2018, name: 'EECS Outstanding Achievement Award, University of Michigan' },
     { year: 2016, name: 'Best Associate Editor Award, ICRA' },
     { year: 2015, name: 'Google Faculty Research Award' },

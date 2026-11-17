@@ -9,6 +9,7 @@ const pages = [
   '/resources/',
   '/teaching/',
   '/join/',
+  '/media/',
   '/play/',
 ];
 
@@ -135,6 +136,8 @@ test.describe('home page scene', () => {
   test('draws, captions, and switches modes', async ({ page }) => {
     await page.goto(at('/'));
     const scene = page.locator('[data-hero-scene]');
+    // The scene only runs while it is on screen.
+    await scene.scrollIntoViewIfNeeded();
     await expect(scene.locator('[data-caption]')).not.toBeEmpty({ timeout: 10_000 });
 
     // The canvas has been painted: it is not a single flat color.
@@ -177,14 +180,17 @@ test('scrolling reveals content that starts hidden', async ({ page }) => {
   await expect(card).toHaveCSS('opacity', '1');
 });
 
-test('theme choice persists across pages', async ({ page }) => {
+test('the page is light by default, and a chosen theme persists across pages', async ({ page }) => {
+  // The light page is the design's default, whatever the system setting.
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto(at('/'));
   const html = page.locator('html');
+  await expect(html).toHaveAttribute('data-theme', 'light');
+  await page.getByRole('button', { name: 'Switch color theme' }).click();
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  await page.goto(at('/people/'));
   await expect(html).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: 'Switch color theme' }).click();
-  await expect(html).toHaveAttribute('data-theme', 'light');
-  await page.goto(at('/people/'));
   await expect(html).toHaveAttribute('data-theme', 'light');
 });
 
@@ -196,6 +202,7 @@ test('navigation reaches every page', async ({ page, isMobile }) => {
     ['People', '/people/'],
     ['Code & Data', '/resources/'],
     ['Teaching', '/teaching/'],
+    ['Media', '/media/'],
     ['Join', '/join/'],
   ];
   for (const [label, path] of targets) {
@@ -254,6 +261,86 @@ test('current members are grouped, and nobody is listed twice', async ({ page })
   // The home page names the same students.
   await page.goto(at('/'));
   await expect(page.locator('.roster > div').nth(1).locator('dd')).toHaveText(students);
+});
+
+test("the mark's eye follows the pointer and its gear turns with the page", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'There is no pointer to follow on a touch screen.');
+  await page.goto(at('/'));
+  const logo = page.locator('header [data-logo]');
+  await expect(logo).toBeVisible();
+
+  const look = () => logo.evaluate((el) => (el as SVGElement).style.getPropertyValue('--look-x'));
+  await page.mouse.move(900, 500);
+  await expect.poll(look).not.toBe('');
+  expect(Number(await look())).toBeGreaterThan(0);
+  await page.mouse.move(0, 30);
+  await expect.poll(async () => Number(await look())).toBeLessThan(0);
+
+  await page.mouse.wheel(0, 1300);
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--cog-turn')))
+    .toMatch(/^0\.[1-9]\d*turn$/);
+});
+
+test('every research figure draws its own picture', async ({ page }) => {
+  await page.goto(at('/research/'));
+  const figures = page.locator('[data-figure]');
+  await expect(figures).toHaveCount(6);
+  const names = new Set<string>();
+  for (const figure of await figures.all()) {
+    await figure.scrollIntoViewIfNeeded();
+    await expect(figure).toHaveAttribute('data-painted', '');
+    const name = (await figure.getAttribute('data-figure'))!;
+    names.add(name);
+    // More than the resting dot grid has been drawn: several distinct colors are on the canvas.
+    const colors = await figure.locator('canvas').evaluate((canvas: HTMLCanvasElement) => {
+      const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
+      const seen = new Set<number>();
+      for (let i = 0; i < data.length; i += 4 * 53) {
+        if (data[i + 3] > 200) seen.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]);
+      }
+      return seen.size;
+    });
+    expect(colors, name).toBeGreaterThan(1);
+    await expect(figure.locator('figcaption')).not.toBeEmpty();
+  }
+  expect(names.size).toBe(6);
+});
+
+test('a video plays in place only after the visitor asks for it', async ({ page }) => {
+  // The player itself is not needed to check that it is requested.
+  const requested: string[] = [];
+  await page.route(/youtube/, (route) => {
+    requested.push(route.request().url());
+    return route.fulfill({ status: 200, contentType: 'text/html', body: '<title>player</title>' });
+  });
+  await page.goto(at('/media/'));
+  const video = page.locator('[data-video]').first();
+  await expect(video.locator('img')).toBeVisible();
+  expect(requested).toEqual([]);
+
+  await video.getByRole('button', { name: /^Play video/ }).click();
+  const player = video.locator('iframe');
+  await expect(player).toHaveAttribute(
+    'src',
+    /^https:\/\/www\.youtube-nocookie\.com\/embed\/[\w-]{11}\?/,
+  );
+  await expect(player).toHaveAttribute('title', /\S/);
+  await expect.poll(() => requested.length).toBeGreaterThan(0);
+});
+
+test('the course being taught now leads the teaching page', async ({ page }) => {
+  await page.goto(at('/teaching/'));
+  const now = page.locator('.now-card');
+  await expect(now).toContainText('Teaching now');
+  await expect(now.getByRole('heading')).toBeVisible();
+  await expect(now.getByRole('link', { name: /Course materials/ })).toHaveAttribute(
+    'href',
+    /^https:/,
+  );
 });
 
 test('unknown pages show the 404 page', async ({ page }) => {

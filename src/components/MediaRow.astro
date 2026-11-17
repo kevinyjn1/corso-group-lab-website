@@ -1,0 +1,111 @@
+---
+/** One line of the media list: where and when, the title, and a sentence about it. */
+import { MEDIA_KINDS, formatDate, type MediaItem } from '../lib/content';
+
+interface Props {
+  item: MediaItem;
+  /** Show what kind of item this is, for lists that mix kinds. */
+  showKind?: boolean;
+}
+const { item, showKind = false } = Astro.props;
+const { title, outlet, date, url, summary, kind } = item.data;
+---
+
+<li class="row">
+  <p class="where">
+    <span class="outlet">{outlet}</span>
+    {date && <span class="when">{formatDate(date)}</span>}
+  </p>
+  <div>
+    <h3>
+      <a href={url} rel="noopener">
+        {title} <span aria-hidden="true">&nearr;</span>
+      </a>
+    </h3>
+    <p class="summary">{summary}</p>
+  </div>
+  {showKind && <span class="chip">{MEDIA_KINDS[kind].one}</span>}
+</li>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr) auto;
+    gap: 0.5rem 2rem;
+    align-items: start;
+    padding-block: 1.35rem;
+  }
+
+  .where {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-top: 0.2rem;
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .when {
+    font-weight: 500;
+    color: var(--text-3);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-stretch: 84%;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.18;
+  }
+
+  h3 a {
+    background: linear-gradient(var(--maize), var(--maize)) left / 0 100% no-repeat;
+    transition:
+      background-size 0.3s var(--ease-out),
+      color 0.2s var(--ease);
+  }
+
+  h3 a:hover {
+    background-size: 100% 100%;
+    color: var(--blue);
+  }
+
+  h3 span {
+    font-size: 0.75em;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+
+  h3 a:hover span {
+    color: inherit;
+  }
+
+  .summary {
+    max-width: 44rem;
+    margin-top: 0.4rem;
+    font-size: 0.975rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 48rem) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .where {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.25rem 0.75rem;
+    }
+
+    .chip {
+      justify-self: start;
+    }
+  }
+</style>

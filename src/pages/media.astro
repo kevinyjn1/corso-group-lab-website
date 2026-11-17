@@ -1,0 +1,211 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import MediaRow from '../components/MediaRow.astro';
+import VideoCard from '../components/VideoCard.astro';
+import { MEDIA_KINDS, getMedia } from '../lib/content';
+import { site } from '../lib/site';
+
+const items = await getMedia();
+const featured = items
+  .filter((item) => item.data.featured)
+  .sort((a, b) => a.data.featured! - b.data.featured!);
+const lead = featured.find((item) => item.data.youtubeId);
+const alsoFeatured = featured.filter((item) => item !== lead);
+
+const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((kind) => {
+  const list = items.filter((item) => item.data.kind === kind);
+  return {
+    kind,
+    title: MEDIA_KINDS[kind].many,
+    // Videos with a thumbnail are shown as cards; everything else is a line in a list.
+    cards: list.filter((item) => item.data.youtubeId),
+    rows: list.filter((item) => !item.data.youtubeId),
+    count: list.length,
+  };
+});
+---
+
+<Base
+  title="Media"
+  description="Talks, podcasts, press coverage, and essays featuring or written by Professor Jason J. Corso and the Corso Group at the University of Michigan."
+>
+  <PageHead label="Media">
+    <Fragment slot="title">
+      Talks, press, and <em>essays</em>.
+    </Fragment>
+    <p class="lead">
+      Lectures and interviews with Prof. Corso, coverage of the group's work, and his own writing:
+      {items.length} items in all. He also posts regularly on
+      <a class="link" href={site.links.linkedin} rel="noopener">
+        LinkedIn
+      </a>
+      .
+    </p>
+  </PageHead>
+
+  {lead && (
+    <section class="section feature band--blue">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="label">Start here</p>
+            <h2 class="h2">Featured</h2>
+          </div>
+        </div>
+        <div class="feature-grid" data-reveal="stagger">
+          <VideoCard item={lead} sizes="(min-width: 62rem) 55vw, 92vw" />
+          <ul class="rows feature-list">
+            {alsoFeatured.map((item) => (
+              <MediaRow item={item} showKind />
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <nav class="jump" aria-label="Kinds of media">
+    <div class="container">
+      <ul>
+        {kinds.map(({ kind, title, count }) => (
+          <li>
+            <a href={`#${kind}`}>
+              {title} <span>{count}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
+  {kinds.map(({ kind, title, cards, rows, count }) => (
+    <section class="section" id={kind}>
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="label">
+              {count} {count === 1 ? 'item' : 'items'}
+            </p>
+            <h2 class="h2">{title}</h2>
+          </div>
+        </div>
+        {cards.length > 0 && (
+          <ul class="cards" data-reveal="stagger">
+            {cards.map((item) => (
+              <li>
+                <VideoCard
+                  item={item}
+                  sizes="(min-width: 62rem) 30vw, (min-width: 40rem) 46vw, 92vw"
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+        {rows.length > 0 && (
+          <ul class="rows" data-reveal="stagger">
+            {rows.map((item) => (
+              <MediaRow item={item} />
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  ))}
+</Base>
+
+<style>
+  .feature-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  /* In the narrow column a row stacks, whatever the screen width. */
+  .feature-list :global(.row) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feature-list :global(.where) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .feature-list :global(.chip) {
+    justify-self: start;
+  }
+
+  .jump {
+    position: sticky;
+    top: calc(var(--header-h) + var(--rule));
+    z-index: 5;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line-2);
+  }
+
+  .jump ul {
+    display: flex;
+    gap: 0.25rem clamp(1rem, 3vw, 2.5rem);
+    overflow-x: auto;
+    padding-block: 0.85rem;
+    scrollbar-width: none;
+  }
+
+  .jump a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    font-family: var(--font-display);
+    font-stretch: 88%;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .jump a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.25em;
+  }
+
+  .jump span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-3);
+  }
+
+  .section {
+    scroll-margin-top: 3rem;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.75rem clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .cards + .rows {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  @media (max-width: 62rem) {
+    .feature-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

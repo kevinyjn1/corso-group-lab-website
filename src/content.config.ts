@@ -114,7 +114,37 @@ const courses = defineCollection({
     terms: z.array(z.string()).min(1),
     summary: z.string().optional(),
     url: url.optional(),
+    /** True for a course being taught this term: it is featured at the top of the page. */
+    current: z.boolean().default(false),
+    /** Who the course is taught with, for example "Yayuan Li". */
+    with: z.string().optional(),
+    /** Extra links for a current course, such as readings or related writing. */
+    links: z.array(z.object({ label: z.string(), href: url })).default([]),
   }),
 });
 
-export const collections = { publications, people, areas, resources, courses };
+const media = defineCollection({
+  loader: file('src/data/media.yaml'),
+  schema: z.object({
+    title: z.string(),
+    kind: z.enum(['video', 'podcast', 'press', 'essay']),
+    /** The channel, show, or publication. */
+    outlet: z.string(),
+    /** "YYYY", "YYYY-MM", or "YYYY-MM-DD", when the source states a date. */
+    date: z
+      .string()
+      .regex(/^\d{4}(-\d{2}){0,2}$/)
+      .optional(),
+    url,
+    /** For YouTube videos: the 11 character id, which also names the thumbnail image. */
+    youtubeId: z
+      .string()
+      .regex(/^[\w-]{11}$/)
+      .optional(),
+    summary: z.string(),
+    /** Featured items lead the Media page and the home page, lowest number first. */
+    featured: z.number().int().positive().optional(),
+  }),
+});
+
+export const collections = { publications, people, areas, resources, courses, media };

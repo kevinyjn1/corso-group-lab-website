@@ -7,6 +7,7 @@ const [user, domain] = site.email.split('@');
 const external = [
   { label: 'GitHub', href: site.links.github },
   { label: 'Google Scholar', href: site.links.scholar },
+  { label: 'LinkedIn', href: site.links.linkedin },
   { label: 'Voxel51', href: site.links.voxel51 },
   { label: 'Essays', href: site.links.essays },
 ];
@@ -17,13 +18,12 @@ const michigan = [
 ];
 ---
 
-<footer class="site-footer">
+<footer class="site-footer band--blue">
   <div class="container">
     <div class="top">
       <div class="about">
         <a class="brand" href={href('/')} aria-label={`${site.name} home`}>
-          <Logo size={30} />
-          <span class="brand-mark">{site.mark}</span>
+          <Logo size={88} />
         </a>
         <p>
           The {site.name} at the {site.university}. Computer vision, language, and robotics for the
@@ -76,7 +76,13 @@ const michigan = [
         </ul>
       </div>
     </div>
+  </div>
 
+  <p class="wordmark" aria-hidden="true">
+    {site.name}
+  </p>
+
+  <div class="container">
     <div class="bottom">
       <p>
         &copy; {year} {site.name}, {site.university}
@@ -93,51 +99,44 @@ const michigan = [
 
 <style>
   .site-footer {
-    border-top: 1px solid var(--line);
-    background: var(--bg-2);
-    font-size: 0.925rem;
+    overflow: hidden;
+    font-size: 0.975rem;
   }
 
   .top {
     display: grid;
     grid-template-columns: minmax(0, 2.2fr) repeat(3, minmax(0, 1fr));
     gap: 3rem 2rem;
-    padding-block: clamp(3rem, 6vw, 5rem);
+    padding-block: clamp(3rem, 6vw, 5rem) clamp(2rem, 4vw, 3rem);
   }
 
   .brand {
     display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .brand-mark {
-    font-family: var(--font-mono);
-    font-size: 1.05rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    line-height: 1;
   }
 
   .about p {
     max-width: 24rem;
     margin-top: 1.25rem;
     color: var(--text-2);
-    text-wrap: pretty;
   }
 
-  .about .contact {
+  .contact {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
   }
 
-  .about .contact .link {
-    align-self: flex-start;
+  .contact span {
+    color: var(--text-3);
   }
 
-  h2 {
-    margin-bottom: 1.1rem;
+  [data-email] span {
+    color: inherit;
+  }
+
+  .label {
+    margin-bottom: 1rem;
+    color: var(--maize);
   }
 
   li + li {
@@ -146,11 +145,31 @@ const michigan = [
 
   li a {
     color: var(--text-2);
-    transition: color 0.2s var(--ease);
+    background: linear-gradient(var(--maize), var(--maize)) left bottom / 0 2px no-repeat;
+    transition:
+      color 0.2s var(--ease),
+      background-size 0.25s var(--ease-out);
   }
 
   li a:hover {
     color: var(--text);
+    background-size: 100% 2px;
+  }
+
+  /* The group's name, set as wide as the page, closes every page like a poster. */
+  .wordmark {
+    font-family: var(--font-display);
+    font-stretch: 62%;
+    /* The name is 5.07em wide in this face: size it so it always spans the page. */
+    font-size: min(calc((100vw - 2 * var(--gutter)) / 5.07), 26rem);
+    font-weight: 800;
+    line-height: 0.74;
+    letter-spacing: -0.012em;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--maize);
+    user-select: none;
   }
 
   .bottom {
@@ -158,7 +177,8 @@ const michigan = [
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.5rem 2rem;
-    padding-block: 1.5rem;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    padding-block: 1.25rem;
     border-top: 1px solid var(--line);
     font-size: 0.8125rem;
     color: var(--text-3);
@@ -174,7 +194,7 @@ const michigan = [
   }
 
   .egg:hover {
-    color: var(--accent);
+    color: var(--maize);
   }
 
   @media (max-width: 52rem) {

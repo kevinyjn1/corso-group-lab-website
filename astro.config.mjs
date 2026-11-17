@@ -16,24 +16,6 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.fontsource(),
-      name: 'Instrument Serif',
-      cssVariable: '--font-instrument-serif',
-      weights: [400],
-      styles: ['normal', 'italic'],
-      subsets: ['latin'],
-      fallbacks: ['Georgia', 'serif'],
-    },
-    {
-      provider: fontProviders.fontsource(),
-      name: 'Geist',
-      cssVariable: '--font-geist',
-      weights: ['100 900'],
-      styles: ['normal'],
-      subsets: ['latin'],
-      fallbacks: ['system-ui', 'sans-serif'],
-    },
-    {
-      provider: fontProviders.fontsource(),
       name: 'Geist Mono',
       cssVariable: '--font-geist-mono',
       weights: ['100 900'],

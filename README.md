@@ -40,6 +40,7 @@ message that names the entry, instead of silently producing a broken page.
 | `areas.yaml`        | The six research areas and their descriptions                |
 | `resources.yaml`    | Datasets and software releases                               |
 | `courses.yaml`      | Courses taught                                               |
+| `media.yaml`        | Talks, podcasts, press, and essays                           |
 | `src/lib/site.ts`   | Site name, navigation, links, the PI's bio, honors, sponsors |
 
 ### Adding a publication
@@ -77,6 +78,16 @@ a `focus` and an expected graduation `year`, collaborators an `affiliation`, and
 To add a portrait, drop an image named after the person's `id` into `src/assets/people/`, for
 example `src/assets/people/yayuan-li.jpg`. It is resized and compressed at build time. People
 without a photo are shown by their initials.
+
+### Adding media
+
+Add an entry to `src/data/media.yaml` with a `kind` (`video`, `podcast`, `press`, or `essay`), the
+`outlet`, a `url`, and a one sentence `summary`. For a YouTube video, also give its `youtubeId`
+and save a thumbnail named after that id in `src/assets/media/`; it then plays in place on the
+Media page. Give an item a `featured` number to show it at the top of the Media page and on the
+home page.
+
+To feature a course as being taught now, set `current: true` on it in `courses.yaml`.
 
 ## Structure
 
@@ -116,14 +127,25 @@ Scoring, ranks, and the pace of a round are plain functions in
 
 ## Design notes
 
+- **Identity** - built from the group's own mark and its university: maize and Michigan blue in
+  large flat fields, heavy condensed headlines set like a poster (Archivo, using its width axis),
+  square corners, and solid rules. The page is light by default with a dark theme behind the
+  toggle; the tokens are at the top of `src/styles/global.css`.
+- **Logo** (`src/components/Logo.astro`, `src/lib/logo.ts`) - a vector redraw of the gear-and-eye
+  mark on the group's GitHub organization, measured from the original so it is sharp at any size.
+  Its eye follows the pointer, it blinks, and the gear turns as the page scrolls.
 - **Hero scene** (`src/scripts/hero-scene.ts`) - a procedural "video" drawn as a dot matrix and read
   four ways: detection and tracking, segmentation, pose, and depth, with a generated caption and an
   activity timeline. It is drawn on a canvas with no dependencies and pauses when off screen.
-- **Motion** - page-load intro, scroll reveals, count-up stats, and cross-page transitions. All of
-  it is switched off for visitors who ask their system for reduced motion, and the page is fully
-  readable without JavaScript.
-- **Themes** - dark and light, following the system setting, with a toggle that remembers the choice.
-- **Fonts** - Instrument Serif, Geist, and Geist Mono, self-hosted at build time by Astro.
+- **Research figures** (`src/scripts/figures.ts`) - one live figure per research area, each
+  illustrating work the group is known for: a supervoxel hierarchy, dense captioning of a cooking
+  video, a robot following directions, an assistant catching a mistake, an echocardiogram with
+  tracked landmarks, and coreset selection in an embedding space.
+- **Motion** - headline and page-load intros, scroll reveals, rules that draw themselves, count-up
+  stats, a reading-progress bar, and cross-page transitions. All of it is switched off for visitors
+  who ask their system for reduced motion, and the page is fully readable without JavaScript.
+- **Fonts** - Archivo (variable, from `@fontsource-variable/archivo`) and Geist Mono for readouts
+  inside the scenes, both self-hosted.
 
 ## Deploying
 

@@ -2,7 +2,8 @@
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import PubItem from '../components/PubItem.astro';
-import AreaGlyph from '../components/AreaGlyph.astro';
+import ResearchFigure from '../components/ResearchFigure.astro';
+import type { FigureName } from '../lib/figures';
 import { getAreas, getPublications, getResources } from '../lib/content';
 import { href, sponsors } from '../lib/site';
 
@@ -62,12 +63,10 @@ const sections = areas.map((area) => {
       <div class="container">
         <div class="area-grid" data-reveal="stagger">
           <div class="area-intro">
-            <div class="area-mark">
-              <AreaGlyph topic={area.id} size={64} />
-              <span class="label">
-                {String(i + 1).padStart(2, '0')} / {String(sections.length).padStart(2, '0')}
-              </span>
-            </div>
+            <ResearchFigure topic={area.id as FigureName} number={i + 1} />
+            <p class="label area-index">
+              {String(i + 1).padStart(2, '0')} / {String(sections.length).padStart(2, '0')}
+            </p>
             <h2 class="h2">{area.data.title}</h2>
             <p class="lead">{area.data.summary}</p>
           </div>
@@ -198,11 +197,13 @@ const sections = areas.map((area) => {
     top: calc(var(--header-h) + 5.5rem);
   }
 
-  .area-mark {
-    display: flex;
-    align-items: flex-end;
-    gap: 1.25rem;
-    margin-bottom: 2rem;
+  /* Each area opens on its own live figure, a little wider than it is tall. */
+  .area-intro :global(.figure) {
+    aspect-ratio: 16 / 11;
+  }
+
+  .area-index {
+    margin-block: 1.25rem 0.75rem;
   }
 
   .area-intro .lead {

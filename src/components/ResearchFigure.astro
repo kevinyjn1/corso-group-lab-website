@@ -1,0 +1,77 @@
+---
+/** A live illustration of one research area. See src/scripts/figures.ts. */
+import { FIGURES, type FigureName } from '../lib/figures';
+
+interface Props {
+  topic: FigureName;
+  /** Number shown in the figure's label, as in a paper. */
+  number?: number;
+}
+const { topic, number } = Astro.props;
+const figure = FIGURES[topic];
+---
+
+<figure class="figure" data-figure={topic} data-topic={topic}>
+  <canvas aria-hidden="true"></canvas>
+  <figcaption>
+    {number !== undefined && <span class="num">Fig. {number}</span>}
+    <span>{figure.title}</span>
+    <span class="sr-only">{figure.alt}</span>
+  </figcaption>
+</figure>
+
+<script>
+  import { mountFigures } from '../scripts/figures';
+
+  mountFigures();
+</script>
+
+<style>
+  .figure {
+    /* Screens are dark in both themes, so they always use the bright set of area colors. */
+    --topic-video: #ffcb05;
+    --topic-language: #5cc8ff;
+    --topic-robotics: #7be495;
+    --topic-human: #ff7ab6;
+    --topic-health: #ff9466;
+    --topic-learning: #b79cff;
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--screen);
+    color: var(--screen-text);
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-mono);
+  }
+
+  /* The label sits on the screen like the title bar of an instrument. */
+  figcaption {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.65rem;
+    background: var(--topic, var(--maize));
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--screen);
+  }
+
+  .num {
+    padding-right: 0.6rem;
+    border-right: 1.5px solid currentColor;
+  }
+</style>
