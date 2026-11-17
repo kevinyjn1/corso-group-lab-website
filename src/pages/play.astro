@@ -15,16 +15,16 @@ const notes = [
     body: 'Object detectors have long been graded the same way: a detection counts as correct when its IoU with the truth is at least 0.5. Here, so does yours.',
   },
   {
-    term: '×2.0',
-    title: 'Why speed matters',
-    body: 'Models learn from millions of boxes like these, so labeling has to be fast and accurate at once. Ten correct boxes in a row doubles every score.',
+    term: '?',
+    title: 'Hallucinations',
+    body: 'Models that label data on their own sometimes report things that are not there. The flickering figures are those, and recent work in the group is about catching them. Leave them alone.',
   },
 ];
 ---
 
 <Base
   title="Ground Truth"
-  description="A hidden game on the Corso Group website: label a moving scene with bounding boxes and get graded on IoU, the way a detector is."
+  description="A hidden game on the Corso Group website: label a moving scene with bounding boxes, wave after wave, and keep a model's accuracy from collapsing."
 >
   <header class="play-head">
     <div class="container">
@@ -33,8 +33,9 @@ const notes = [
         Ground <em>truth</em>.
       </h1>
       <p class="lead">
-        Every model the group trains starts with labels like the ones you are about to draw. You are
-        the annotator: box what moves, and get graded the way a detector is.
+        Every model the group trains starts with labels like the ones you are about to draw. Box
+        what moves, ignore what is not really there, and keep the model alive for as many waves as
+        you can.
       </p>
     </div>
   </header>

@@ -109,10 +109,15 @@ tests/                End-to-end tests, plus tests of the game rules
 ## The hidden game
 
 `/play/` is Ground Truth, an easter egg that is deliberately left out of the navigation. The
-visitor is the annotator: figures from the home page scene cross the frame, the visitor drags a
-box around each one, and every box is graded on IoU against the true box. A box counts at 0.5
-IoU or better, small and distant targets are worth more, and streaks multiply the score. A round
-lasts 30 seconds and moves from clear footage to occlusion to low light.
+visitor is the annotator: figures from the home page scene cross the frame in waves, the visitor
+drags a box around each one, and every box is graded on IoU against the true box. A box counts at
+0.5 IoU or better, small and distant targets are worth more, and streaks multiply the score.
+
+Correct boxes keep the model's accuracy up. Targets that get away, stray boxes, and boxed
+hallucinations (flickering figures that are not really there) bring it down, and the round ends
+when it reaches zero. Waves add speed, occlusion, low light, and more hallucinations. Crates that
+drift past give power-ups when boxed: auto-label, slow motion, double points, and clean data. Now
+and then a rare class appears, worth three times as much. The game has sound, with a mute button.
 
 There are four ways in:
 
@@ -122,7 +127,7 @@ There are four ways in:
 - Follow the small "IoU >= 0.5?" link at the bottom of the footer.
 - Land on the 404 page and choose to label some data instead.
 
-Scoring, ranks, and the pace of a round are plain functions in
+Scoring, waves, power-ups, and ranks are plain data and functions in
 [src/scripts/game/rules.ts](src/scripts/game/rules.ts), so they can be tuned in one place.
 
 ## Design notes

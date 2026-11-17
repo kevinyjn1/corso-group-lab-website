@@ -1,5 +1,4 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { ROUND_SECONDS } from '../src/scripts/game/rules';
 import { at } from './base-path';
 
 interface Box {
@@ -53,31 +52,41 @@ test.describe('Ground Truth', () => {
     expect(await count(game, 'score')).toBeGreaterThan(0);
     await expect(game.locator('[data-score]')).not.toHaveText('0');
 
-    // A small box in the corner of the floor surrounds nothing: an attempt, but not a hit.
+    // A small box in the corner of the floor surrounds nothing: it is an attempt, not a hit,
+    // and it costs the model some accuracy.
     const { height } = (await game.boundingBox())!;
-    const [hits, attempts] = [await count(game, 'hits'), await count(game, 'attempts')];
+    const [hits, attempts, accuracy] = [
+      await count(game, 'hits'),
+      await count(game, 'attempts'),
+      await count(game, 'accuracy'),
+    ];
     await drawBox(page, game, { x0: 2, y0: height - 16, x1: 14, y1: height - 4 });
     await expect(game).toHaveAttribute('data-attempts', String(attempts + 1));
     await expect(game).toHaveAttribute('data-hits', String(hits));
+    expect(await count(game, 'accuracy')).toBeLessThan(accuracy);
 
     // A stray click is not a box at all.
     await drawBox(page, game, { x0: 40, y0: height - 10, x1: 42, y1: height - 9 });
     await expect(game).toHaveAttribute('data-attempts', String(attempts + 1));
   });
 
-  test('a round ends with a graded result and can be played again', async ({ page }) => {
+  test('the round ends when the model collapses, and can be played again', async ({ page }) => {
     await page.clock.install();
     const game = await startRound(page);
     const results = game.locator('[data-results-panel]');
     await expect(results).toBeHidden();
+    await expect(game).toHaveAttribute('data-accuracy', '100');
+    await expect(game.locator('[data-wave]')).toHaveText('1');
 
-    // Let the round run out without waiting for it.
-    await page.clock.runFor((ROUND_SECONDS + 2) * 1000);
+    // With nobody labeling, targets get away and the model's accuracy drains to nothing.
+    await page.clock.runFor(60_000);
     await expect(game).toHaveAttribute('data-phase', 'over');
+    await expect(game).toHaveAttribute('data-accuracy', '0');
     await expect(results).toBeVisible();
+    await expect(results.locator('[data-verdict]')).toContainText(/collapsed in wave \d+/);
     await expect(results.getByRole('heading')).toHaveText('Random initialization');
-    await expect(results.locator('[data-final-score]')).toHaveText('0');
-    await expect(results.locator('[data-stat-precision]')).toHaveText('0%');
+    await expect(results.locator('[data-final-score]')).toHaveText(/^\d+$/);
+    await expect(results.locator('[data-stat-labeled]')).toHaveText(/^0 of \d+$/);
     await expect(game.getByRole('status')).toContainText('Round over');
 
     // The whole result card has to fit inside the game screen.
@@ -87,7 +96,19 @@ test.describe('Ground Truth', () => {
 
     await results.getByRole('button', { name: 'Label again' }).click();
     await expect(game).toHaveAttribute('data-phase', 'playing');
+    await expect(game).toHaveAttribute('data-accuracy', '100');
     await expect(results).toBeHidden();
+  });
+
+  test('sound can be turned off, and the choice is remembered', async ({ page }) => {
+    await page.goto(at('/play/'));
+    const sound = page.locator('[data-game] [data-sound]');
+    await expect(sound).toHaveAttribute('aria-pressed', 'true');
+    await sound.click();
+    await expect(sound).toHaveAttribute('aria-pressed', 'false');
+    await expect(sound).toHaveAccessibleName('Turn sound on');
+    await page.reload();
+    await expect(sound).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('starting a round brings the whole game screen into view', async ({ page }) => {

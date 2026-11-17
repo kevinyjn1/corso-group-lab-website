@@ -1,36 +1,54 @@
 ---
 /** Ground Truth, the hidden annotation game. See src/scripts/game/ground-truth.ts. */
 import { href } from '../lib/site';
-import { ROUND_SECONDS, clock } from '../scripts/game/rules';
 ---
 
 <div class="game" data-game>
   <canvas aria-hidden="true"></canvas>
 
   <div class="timebar" data-timebar aria-hidden="true"></div>
-  <div class="hud" aria-hidden="true">
-    <p class="readout">
+  <div class="hud">
+    <p class="readout" aria-hidden="true">
       <span class="key">Score</span>
       <span class="value" data-score>
         0
       </span>
     </p>
-    <p class="readout">
+    <p class="readout" aria-hidden="true">
       <span class="key">Streak</span>
       <span class="value" data-streak>
-        x1.0
+        &times;1.0
       </span>
     </p>
-    <p class="status">
-      <span class="live"></span>
-      <span data-condition>Standby</span>
-    </p>
-    <p class="readout">
-      <span class="key">Time</span>
-      <span class="value" data-time>
-        {clock(ROUND_SECONDS)}
+    <p class="readout health" aria-hidden="true">
+      <span class="key">Model accuracy</span>
+      <span class="meter" data-meter></span>
+      <span class="value" data-accuracy>
+        100%
       </span>
     </p>
+    <p class="readout" aria-hidden="true">
+      <span class="key">Wave</span>
+      <span class="value" data-wave>
+        1
+      </span>
+    </p>
+    <button class="sound" type="button" data-sound aria-pressed="true" aria-label="Turn sound off">
+      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+        <path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"></path>
+        <path
+          class="waves"
+          d="M13 7c1.2 1 1.2 5 0 6M15.2 4.8c2.6 2.4 2.6 8 0 10.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="square"
+        ></path>
+      </svg>
+      <span class="sr-only" data-sound-state>
+        Sound on
+      </span>
+    </button>
   </div>
 
   <div class="panel" data-start-panel>
@@ -40,9 +58,9 @@ import { ROUND_SECONDS, clock } from '../scripts/game/rules';
         The model needs <em>labels</em>.
       </h2>
       <ol class="how">
-        <li>Drag a box around everything that moves.</li>
-        <li>Tight boxes score higher. Under 0.5 IoU does not count.</li>
-        <li>Small, fast targets are worth more, and streaks multiply.</li>
+        <li>Drag a box around everything that moves. Tighter boxes score higher.</li>
+        <li>Misses and stray boxes cost model accuracy. At zero, the round is over.</li>
+        <li>Flickering figures are hallucinations: leave them. Box the crates for power-ups.</li>
       </ol>
       <div class="actions">
         <button class="btn btn--primary" type="button" data-start>
@@ -60,7 +78,9 @@ import { ROUND_SECONDS, clock } from '../scripts/game/rules';
 
   <div class="panel" data-results-panel hidden>
     <div class="card ticks">
-      <p class="label label--accent">Round complete</p>
+      <p class="label label--accent" data-verdict>
+        The model collapsed
+      </p>
       <p class="score">
         <span data-final-score>0</span>
         <span class="unit">points</span>
@@ -83,8 +103,8 @@ import { ROUND_SECONDS, clock } from '../scripts/game/rules';
           <dd data-stat-iou>0.00</dd>
         </div>
         <div>
-          <dt>Precision</dt>
-          <dd data-stat-precision>0%</dd>
+          <dt>Waves</dt>
+          <dd data-stat-waves>1</dd>
         </div>
         <div>
           <dt>Best streak</dt>
@@ -104,8 +124,9 @@ import { ROUND_SECONDS, clock } from '../scripts/game/rules';
 
   <p class="sr-only" role="status" data-announce></p>
   <p class="sr-only">
-    This game is played by dragging with a mouse, trackpad, or finger. Figures cross a scene and you
-    draw a box around each one; boxes are scored by how closely they match the true outline.
+    This game is played by dragging with a mouse, trackpad, or finger. Figures cross a scene in
+    waves and you draw a box around each one; boxes are scored by how closely they match the true
+    outline. Missing figures lowers the model's accuracy, and the round ends when it reaches zero.
   </p>
 </div>
 
@@ -200,24 +221,60 @@ import { ROUND_SECONDS, clock } from '../scripts/game/rules';
     color: var(--screen-text);
   }
 
-  .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
+  .health {
     margin-left: auto;
-    white-space: nowrap;
   }
 
-  .live {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background: var(--screen-text-2);
+  /* The model's accuracy, as a bar that drains with every mistake. */
+  .meter {
+    position: relative;
+    align-self: center;
+    width: clamp(3rem, 9vw, 7rem);
+    height: 0.5rem;
+    background: rgb(255 255 255 / 0.16);
   }
 
-  .game[data-phase='playing'] .live {
-    background: #ff5d5d;
-    animation: pulse 1.6s ease-in-out infinite;
+  .meter::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--maize);
+    transform: scaleX(var(--level, 1));
+    transform-origin: left;
+    transition:
+      transform 0.25s var(--ease),
+      background-color 0.25s var(--ease);
+  }
+
+  .meter[data-low]::after {
+    background: #ff6b6b;
+    animation: pulse 0.7s ease-in-out infinite;
+  }
+
+  .sound {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid var(--screen-line);
+    color: var(--screen-text);
+    pointer-events: auto;
+    transition:
+      background-color 0.2s var(--ease),
+      color 0.2s var(--ease);
+  }
+
+  .sound:hover {
+    background: var(--maize);
+    color: var(--blue);
+  }
+
+  .sound[aria-pressed='false'] {
+    color: var(--screen-text-2);
+  }
+
+  .sound[aria-pressed='false'] .waves {
+    display: none;
   }
 
   .panel {
@@ -427,8 +484,12 @@ import { ROUND_SECONDS, clock } from '../scripts/game/rules';
       display: none;
     }
 
-    .status span:last-child {
+    .health .key {
       display: none;
+    }
+
+    .value {
+      min-width: 0;
     }
 
     .results {
@@ -447,7 +508,7 @@ import { ROUND_SECONDS, clock } from '../scripts/game/rules';
 
   @media (prefers-reduced-motion: reduce) {
     .panel,
-    .game[data-phase='playing'] .live {
+    .meter[data-low]::after {
       animation: none;
     }
   }
