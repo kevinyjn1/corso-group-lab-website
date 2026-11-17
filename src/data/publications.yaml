@@ -2,6 +2,18 @@
 # Newest first. To add a paper, copy an entry, give it a unique id, and fill in the fields.
 # Field reference: see README.md ("Adding a publication").
 
+- id: fan2026reswam
+  title: "ResWAM: Learning What Changes, Not What Stays, for World-Action Models"
+  authors: ["C. Fan", "G. Liu", "R. R. Kompella", "J. J. Corso", "S. Liu"]
+  year: 2026
+  date: "2026-11"
+  type: preprint
+  venue: "arXiv preprint"
+  venueShort: "arXiv"
+  topics: [robotics, learning]
+  links:
+    arxiv: "https://arxiv.org/abs/2611.19559"
+
 - id: wang2026surggraph
   title: "SurgGraph: Quantitative Laparoscopic Video Understanding via Geometry-Grounded Scene Graphs"
   authors: ["J. Wang", "R. Natalie", "M. D. Singleterry", "F. Bellos", "B. George", "G. Sandhu", "J. J. Corso", "A. Guo", "V. Popov", "X. Wang"]
@@ -13,6 +25,54 @@
   topics: [health, video]
   links:
     arxiv: "https://arxiv.org/abs/2609.25651"
+
+- id: dillitzer2026attention
+  title: "Attention is Case-Sensitive"
+  authors: ["M. Dillitzer", "T. S. Sohn", "J. J. Corso", "M. Auerbach"]
+  year: 2026
+  date: "2026-09"
+  type: conference
+  venue: "European Conference on Computer Vision"
+  venueShort: "ECCV"
+  topics: [language, learning]
+  links:
+    arxiv: "https://arxiv.org/abs/2608.03711"
+
+- id: bellos2026echovqa
+  title: "EchoVQA: Enabling Conversational Assistance for Point-of-Care Cardiac Ultrasound"
+  authors: ["F. Bellos", "Y. Li", "J. N. Dong", "Z. Guo", "E. Mackay", "Y. Li", "Y. Avrithis", "A. Pouch", "J. J. Corso"]
+  year: 2026
+  date: "2026-09"
+  type: conference
+  venue: "International Conference on Medical Image Computing and Computer-Assisted Intervention"
+  venueShort: "MICCAI"
+  topics: [health, language]
+  links:
+    arxiv: "https://arxiv.org/abs/2605.24159"
+
+- id: griffin2026label
+  title: "The Label Imitation Game: Turing Test Network for Zero-Shot Pseudo-Label Pruning"
+  authors: ["B. A. Griffin", "J. J. Corso"]
+  year: 2026
+  date: "2026-09"
+  type: conference
+  venue: "European Conference on Computer Vision"
+  venueShort: "ECCV"
+  topics: [learning]
+  links:
+    arxiv: "https://arxiv.org/abs/2606.30875"
+
+- id: sohn2026snow
+  title: "SNOW: Spatio-Temporal Scene Understanding with World Knowledge for Open-World Embodied Reasoning"
+  authors: ["T. S. Sohn", "M. Dillitzer", "J. J. Corso", "J. Bach", "E. Sax"]
+  year: 2026
+  date: "2026-09"
+  type: conference
+  venue: "European Conference on Computer Vision"
+  venueShort: "ECCV"
+  topics: [robotics, video, language]
+  links:
+    arxiv: "https://arxiv.org/abs/2512.16461"
 
 - id: liang2026adaturn
   title: "AdaTurn: Budget-Aware Test-Time Scaling for Active Visual Perception Agents"
@@ -37,6 +97,30 @@
   topics: [learning]
   links:
     arxiv: "https://arxiv.org/abs/2602.18873"
+
+- id: song2026tdmm
+  title: "Bridging Facial Understanding and Animation via Language Models"
+  authors: ["L. Song", "P. Liu", "H. Liu", "Z. Jin", "Y. Y. Tang", "Z. Xu", "S. Liang", "J. Bi", "J. J. Corso", "C. Xu"]
+  year: 2026
+  date: "2026-06"
+  type: conference
+  venue: "IEEE/CVF Conference on Computer Vision and Pattern Recognition"
+  venueShort: "CVPR"
+  topics: [learning, language]
+  links:
+    arxiv: "https://arxiv.org/abs/2603.16936"
+
+- id: sohn2026r4
+  title: "R4: Retrieval-Augmented Reasoning for Vision-Language Models in 4D Spatio-Temporal Space"
+  authors: ["T. S. Sohn", "M. Dillitzer", "J. J. Corso", "E. Sax"]
+  year: 2026
+  date: "2026-06"
+  type: conference
+  venue: "IEEE/CVF Conference on Computer Vision and Pattern Recognition"
+  venueShort: "CVPR"
+  topics: [language, robotics, video]
+  links:
+    arxiv: "https://arxiv.org/abs/2512.15940"
 
 - id: li2026mistake
   title: "Mistake Attribution: Fine-Grained Mistake Understanding in Egocentric Videos"
@@ -88,17 +172,17 @@
   links:
     arxiv: "https://arxiv.org/abs/2511.15613"
 
-- id: bellos2026echovqa
-  title: "EchoVQA: Enabling Conversational Assistance for Point-of-Care Cardiac Ultrasound"
-  authors: ["F. Bellos", "Y. Li", "J. N. Dong", "Z. Guo", "E. Mackay", "Y. Li", "Y. Avrithis", "A. Pouch", "J. J. Corso"]
+- id: bellos2026deep
+  title: "Deep TPC: Temporal-Prior Conditioning for Time Series Forecasting"
+  authors: ["F. Bellos", "N. J. Premkumar", "Y. Avrithis", "N. H. Nguyen", "J. J. Corso"]
   year: 2026
   date: "2026-05"
-  type: preprint
-  venue: "arXiv preprint"
-  venueShort: "arXiv"
-  topics: [health, language]
+  type: conference
+  venue: "IEEE International Conference on Acoustics, Speech and Signal Processing"
+  venueShort: "ICASSP"
+  topics: [learning]
   links:
-    arxiv: "https://arxiv.org/abs/2605.24159"
+    arxiv: "https://arxiv.org/abs/2602.16188"
 
 - id: li2026substantial
   title: "Substantial, Decomposable, and Invisible: Visual Context Misalignment in Instructional Videos for Physical Tasks"
@@ -126,18 +210,6 @@
     arxiv: "https://arxiv.org/abs/2603.27143"
     doi: "https://doi.org/10.1109/ISBI61048.2026.11515776"
 
-- id: song2026tdmm
-  title: "TDMM-LM: Bridging Facial Understanding and Animation via Language Models"
-  authors: ["L. Song", "P. Liu", "H. Liu", "Z. Jin", "Y. Y. Tang", "Z. Xu", "S. Liang", "J. Bi", "J. J. Corso", "C. Xu"]
-  year: 2026
-  date: "2026-03"
-  type: preprint
-  venue: "arXiv preprint"
-  venueShort: "arXiv"
-  topics: [learning, language]
-  links:
-    arxiv: "https://arxiv.org/abs/2603.16936"
-
 - id: griffin2026zero
   title: "Zero-Shot Coreset Selection via Iterative Subspace Sampling"
   authors: ["B. A. Griffin", "J. Marks", "J. J. Corso"]
@@ -161,6 +233,18 @@
   topics: [language, learning]
   links:
     arxiv: "https://arxiv.org/abs/2602.01623"
+
+- id: sohn2025embodied4c
+  title: "Embodied4C: Measuring What Matters for Embodied Vision-Language Navigation"
+  authors: ["T. S. Sohn", "M. Dillitzer", "J. J. Corso", "E. Sax"]
+  year: 2025
+  date: "2025-12"
+  type: preprint
+  venue: "arXiv preprint"
+  venueShort: "arXiv"
+  topics: [robotics, language]
+  links:
+    arxiv: "https://arxiv.org/abs/2512.18028"
 
 - id: storks2025transparent
   title: "Transparent and Coherent Procedural Mistake Detection"
@@ -189,6 +273,19 @@
     arxiv: "https://arxiv.org/abs/2507.18374"
     doi: "https://doi.org/10.1109/ICCVW69036.2025.00264"
 
+- id: sohn2025framework
+  title: "A Framework for a Capability-Driven Evaluation of Scenario Understanding for Multimodal Large Language Models in Autonomous Driving"
+  authors: ["T. S. Sohn", "P. Reis", "M. Dillitzer", "J. Bach", "J. J. Corso", "E. Sax"]
+  year: 2025
+  date: "2025-09"
+  type: conference
+  venue: "IEEE International Automated Vehicle Validation Conference"
+  venueShort: "IAVVC"
+  topics: [robotics, language]
+  links:
+    arxiv: "https://arxiv.org/abs/2503.11400"
+    doi: "https://doi.org/10.1109/IAVVC61942.2025.11219622"
+
 - id: li2025consistent
   title: "Towards Consistent Long-Term Pose Generation"
   authors: ["Y. Li", "F. Bellos", "J. J. Corso"]
@@ -200,6 +297,30 @@
   topics: [learning, video]
   links:
     arxiv: "https://arxiv.org/abs/2507.18382"
+
+- id: sohn2025drive4c
+  title: "Drive4C: A Closed-Loop Benchmark on What Foundation Models Really Need to Be Capable of for Language-Guided Autonomous Driving"
+  authors: ["T. S. Sohn", "M. Dillitzer", "J. Bach", "J. J. Corso", "T. Brühl", "R. Schwager", "T. D. Eberhardt", "E. Sax"]
+  year: 2025
+  date: "2025-06"
+  type: conference
+  venue: "IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops"
+  venueShort: "CVPR Workshops"
+  topics: [robotics, language]
+  links:
+    link: "https://openaccess.thecvf.com/content/CVPR2025W/WDFM-AD/html/Sohn_Drive4C_A_Closed-Loop_Benchmark_on_What_Foundation_Models_Really_Need_CVPRW_2025_paper.html"
+
+- id: griffin2025auto
+  title: "Auto-Labeling Data for Object Detection"
+  authors: ["B. A. Griffin", "M. Gangwar", "J. Sela", "J. J. Corso"]
+  year: 2025
+  date: "2025-06"
+  type: preprint
+  venue: "arXiv preprint"
+  venueShort: "arXiv"
+  topics: [learning]
+  links:
+    arxiv: "https://arxiv.org/abs/2506.02359"
 
 - id: liu2025intentional
   title: "Intentional Gesture: Deliver Your Intentions with Gestures for Speech"
@@ -2079,7 +2200,7 @@
   authors: ["I. Nwogu", "J. J. Corso"]
   year: 2008
   type: conference
-  venue: "Medical Image Computing and Computer Aided Inter-vention (MICCAI)"
+  venue: "Medical Image Computing and Computer Aided Intervention (MICCAI)"
   venueShort: "MICCAI"
   topics: [health]
   links:

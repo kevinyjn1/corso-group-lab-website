@@ -4,7 +4,7 @@
  * Markup opts in with data attributes:
  *   data-reveal            fade the element up when it scrolls into view
  *   data-reveal="stagger"  do the same for each child, one after another
- *   data-count             count a number up from zero ("170+", "19K+")
+ *   data-count             count a number up from zero ("170+", "24K+")
  *   data-spotlight         track the pointer for a soft glow (see global.css)
  *
  * The hidden starting state only applies under the `js` class set in the

@@ -128,7 +128,9 @@ Upload the contents of `dist/` to the host. CI runs the end-to-end tests against
 
 ## Where the content came from
 
-The publication list, alumni, courses, and honors were compiled from the previous website, from
-Prof. Corso's public curriculum vitae (April 2025), and from arXiv listings for newer papers. Alumni
-positions are as stated in that CV. Before launch, the group should review the current member
-list, the research descriptions, and anything dated.
+The publication list, alumni, courses, and honors were compiled from the previous website and from
+Prof. Corso's public curriculum vitae (April 2025). Papers from 2025 onward, their venues, and the
+citation figures were checked against his Google Scholar profile and arXiv in November 2026. Alumni
+positions and the member list are as stated in that CV, which is the newest public source for
+them. Before launch, the group should review the current member list, the research descriptions,
+and anything dated.

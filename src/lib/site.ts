@@ -20,8 +20,10 @@ export const site = {
     eecs: 'https://eecs.engin.umich.edu/',
     legacy: 'https://web.eecs.umich.edu/~jjcorso/',
   },
-  /** Citation figures from Google Scholar, as reported in Prof. Corso's CV. */
-  scholar: { citations: '19K+', hIndex: 50, asOf: 'April 2025' },
+  /** Citation figures from Prof. Corso's Google Scholar profile. */
+  scholar: { citations: '24K+', hIndex: 53, asOf: 'November 2026' },
+  /** Date of the public curriculum vitae that the alumni and course lists were taken from. */
+  cv: { asOf: 'April 2025' },
 } as const;
 
 export const nav = [
