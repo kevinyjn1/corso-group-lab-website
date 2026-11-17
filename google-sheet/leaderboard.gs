@@ -13,6 +13,11 @@
  *
  * After changing this file, deploy it again with Deploy > Manage deployments > Edit > New
  * version, so the URL stays the same.
+ *
+ * The tag below limits what Google lets this script touch to the one spreadsheet it is attached
+ * to, instead of every spreadsheet in the account. Keep it.
+ *
+ * @OnlyCurrentDoc
  */
 
 const SHEET_NAME = 'Scores';

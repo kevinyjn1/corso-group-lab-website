@@ -143,8 +143,8 @@ Google Sheet:
 2. In the sheet, open Extensions, then Apps Script. Replace what is in the editor with
    [google-sheet/leaderboard.gs](google-sheet/leaderboard.gs) and save.
 3. Choose Deploy, then New deployment, then the type Web app. Set "Execute as" to Me and "Who has
-   access" to Anyone, deploy, and approve the access Google asks for. Copy the web app URL, which
-   ends in `/exec`.
+   access" to Anyone, deploy, and approve the access Google asks for, which covers that one
+   spreadsheet and nothing else in the account. Copy the web app URL, which ends in `/exec`.
 4. Give the site that address as a repository variable named `LEADERBOARD_URL` (Settings, then
    Secrets and variables, then Actions, then the Variables tab, or
    `gh variable set LEADERBOARD_URL --body "<the URL>"`).
