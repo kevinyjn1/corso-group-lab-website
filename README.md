@@ -97,68 +97,13 @@ src/
   data/               Content (YAML)
   lib/                Site config and content helpers
   layouts/Base.astro  Page shell: head, fonts, theme, header, footer
-  components/         Header, footer, publication row, hero scene, charts, the game
+  components/         Header, footer, publication row, hero scene, charts
   pages/              One file per page
   scripts/            Browser code: hero scene, publication filter, motion
-    scene/            Dot-matrix figures and drawing shared by the hero and the game
-    game/             Ground Truth: rules (pure functions) and the playable scene
+    scene/            The cast of the home page scene, and how it is drawn as dots
   styles/global.css   Design tokens and shared styles
-tests/                End-to-end tests, plus tests of the game rules
+tests/                End-to-end tests, plus tests of the scene's timing
 ```
-
-## The hidden game
-
-`/play/` is Ground Truth, an easter egg that is deliberately left out of the navigation. The
-visitor is the annotator: figures from the home page scene cross the frame in waves, the visitor
-drags a box around each one, and every box is graded on IoU against the true box. A box counts at
-0.5 IoU or better, small and distant targets are worth more, and streaks multiply the score.
-
-Correct boxes keep the model's accuracy up. Targets that get away, stray boxes, and boxed
-hallucinations (flickering figures that are not really there) bring it down, and the round ends
-when it reaches zero. Waves add speed, occlusion, low light, and more hallucinations. Crates that
-drift past give power-ups when boxed: auto-label, slow motion, double points, and clean data. Now
-and then a rare class appears, worth three times as much. The game has sound, with a mute button.
-
-There are four ways in:
-
-- Try all four views of the home page scene (Detect, Segment, Pose, Depth) and a fifth tab,
-  Play, appears and stays.
-- Type the Konami code on any page: up, up, down, down, left, right, left, right, B, A.
-- Follow the small "IoU >= 0.5?" link at the bottom of the footer.
-- Land on the 404 page and choose to label some data instead.
-
-Scoring, waves, power-ups, and ranks are plain data and functions in
-[src/scripts/game/rules.ts](src/scripts/game/rules.ts), so they can be tuned in one place.
-
-A visitor who finds the game for the first time is told so: an "Easter egg unlocked" pop-up on
-the page where they found it, or the stamped label on the game's own page.
-
-### The leaderboard
-
-The game keeps a top ten, shown beside it, with three-character initials. Out of the box each
-visitor's device keeps its own board. To share one board between all visitors, keep it in a
-Google Sheet:
-
-1. Create a Google Sheet (for example at [sheets.new](https://sheets.new)).
-2. In the sheet, open Extensions, then Apps Script. Replace what is in the editor with
-   [google-sheet/leaderboard.gs](google-sheet/leaderboard.gs) and save.
-3. Choose Deploy, then New deployment, then the type Web app. Set "Execute as" to Me and "Who has
-   access" to Anyone, deploy, and approve the access Google asks for, which covers that one
-   spreadsheet and nothing else in the account. Copy the web app URL, which ends in `/exec`.
-4. Give the site that address as a repository variable named `LEADERBOARD_URL` (Settings, then
-   Secrets and variables, then Actions, then the Variables tab, or
-   `gh variable set LEADERBOARD_URL --body "<the URL>"`).
-5. Push a commit or re-run the CI workflow. The board's label changes from "This device" to
-   "All visitors".
-
-Scores land in a tab named "Scores", one row each. To moderate the board, edit or delete rows in
-the sheet; the sheet itself does not need to be shared with anyone. To try it locally, put
-`PUBLIC_LEADERBOARD_URL` in a `.env` file. If the sheet cannot be reached, the game quietly falls
-back to the device's own board.
-
-Scores are sent by the browser, so a determined visitor can post a made-up score. The script
-checks that initials are one to three letters or digits and that scores are in a believable
-range, and nothing else can be written through it.
 
 ## VIGIL, the flagship project
 
@@ -172,9 +117,15 @@ page at `/vigil/`.
 - **Videos and press** are ordinary entries in `src/data/media.yaml` marked `project: vigil`, so
   they appear on the Media page and on the VIGIL page.
 - **Related papers** are the publication ids listed under `papers` in `src/lib/vigil.ts`.
-- **The figure** (`vigil` in `src/scripts/figures.ts`) is an illustration of a guided heart
-  ultrasound, drawn from the team's public descriptions. It is labeled as an illustration
-  wherever it appears, and the spoken lines in it are examples.
+- **The figures** (`vigil` and `leg` in `src/scripts/figures.ts`) are illustrations of a guided
+  heart ultrasound and a guided scan of the leg for blood clots, drawn from the team's public
+  descriptions and its demo day posters. They are labeled as illustrations wherever they appear,
+  and the spoken lines in them are examples.
+- **Demo day posters** are in `src/lib/vigil-posters.ts`: what each team showed, in this site's
+  words, with a link to the paper where one has been published. Some of that work is not yet
+  published, so have each team confirm its entry before the site is made public.
+- **Photos** of the system in use are in `src/assets/vigil/`. They come from Prof. Corso's own
+  posts. Replace them with the original files when you have them: these are screen captures.
 
 ## Design notes
 
@@ -185,9 +136,15 @@ page at `/vigil/`.
 - **Logo** (`src/components/Logo.astro`, `src/lib/logo.ts`) - a vector redraw of the gear-and-eye
   mark on the group's GitHub organization, measured from the original so it is sharp at any size.
   Its eye follows the pointer, it blinks, and the gear turns as the page scrolls.
-- **Hero scene** (`src/scripts/hero-scene.ts`) - a procedural "video" drawn as a dot matrix and read
-  four ways: detection and tracking, segmentation, pose, and depth, with a generated caption and an
-  activity timeline. It is drawn on a canvas with no dependencies and pauses when off screen.
+- **The headline** on the home page is Prof. Corso's own summary of what an AI that guides
+  people has to do: understand the task, understand the human, and fill the gap. The source is
+  linked under it. The Research page takes its title from his Toyota Professorship lecture.
+- **Operating room scene** (`src/scripts/hero-scene.ts`, `src/scripts/scene/operation.ts`) - a
+  bypass graft being sewn onto a coronary artery, drawn as a dot matrix and read four ways. Each
+  reading is published work of the group, listed with its paper in `src/lib/readings.ts`: hand
+  pose tracking, surgical video and language, the surface of the beating heart, and the path of
+  each hand. It is an illustration, not footage, drawn on a canvas with no dependencies, and it
+  pauses when off screen.
 - **Research figures** (`src/scripts/figures.ts`) - one live figure per research area, each
   illustrating work the group is known for: a supervoxel hierarchy, dense captioning of a cooking
   video, a robot following directions, an assistant catching a mistake, an echocardiogram with

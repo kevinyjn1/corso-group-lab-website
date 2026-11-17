@@ -1,62 +1,82 @@
 ---
-/** The animated "viewport" on the home page. See src/scripts/hero-scene.ts. */
-import { href } from '../lib/site';
-
-const modes = [
-  { id: 'detect', label: 'Detect' },
-  { id: 'segment', label: 'Segment' },
-  { id: 'pose', label: 'Pose' },
-  { id: 'depth', label: 'Depth' },
-];
+/**
+ * The animated "viewport" on the home page, and beneath it the four readings of the scene with
+ * the papers they come from. See src/scripts/hero-scene.ts and src/lib/readings.ts.
+ */
+import { READINGS } from '../lib/readings';
 ---
 
-<figure class="viewport" data-hero-scene>
-  <canvas aria-hidden="true"></canvas>
-  <div class="hud">
-    <div class="modes" role="group" aria-label="Choose how the scene is read">
-      {modes.map((mode, i) => (
-        <button type="button" data-mode={mode.id} aria-pressed={i === 0 ? 'true' : 'false'}>
-          {mode.label}
-        </button>
-      ))}
-      {/* Hidden until the visitor has tried all four views: the way into the hidden game. */}
-      <a
-        class="play"
-        href={href('/play/')}
-        data-play
-        hidden
-        aria-label="Your turn: play Ground Truth"
-      >
-        Play
-      </a>
+<div class="scene">
+  <figure class="viewport" data-hero-scene>
+    <canvas aria-hidden="true"></canvas>
+    <div class="hud">
+      <div class="modes" role="group" aria-label="Choose how the scene is read">
+        {READINGS.map((reading, i) => (
+          <button type="button" data-mode={reading.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {reading.label}
+          </button>
+        ))}
+      </div>
+      <p class="status" aria-hidden="true">
+        <span class="live"></span>
+        <span class="status-text">Illustration</span>
+        <span class="frame">
+          Frame <span data-frame>000000</span>
+        </span>
+      </p>
     </div>
-    <p class="status" aria-hidden="true">
-      <span class="live"></span>
-      <span class="status-text">Synthetic scene</span>
-      <span class="frame">
-        Frame <span data-frame>000000</span>
+    <div class="caption" aria-hidden="true">
+      <span class="caption-tag">Caption</span>
+      <span class="caption-text">
+        <span data-caption></span>
+        <span class="cursor"></span>
       </span>
-    </p>
-  </div>
-  <div class="caption" aria-hidden="true">
-    <span class="caption-tag">Caption</span>
-    <span class="caption-text">
-      <span data-caption></span>
-      <span class="cursor"></span>
-    </span>
-  </div>
-  <figcaption class="sr-only">
-    Animated illustration of the group's research: in a synthetic video, a walking adult, a running
-    dog, a bouncing ball, and a flying bird are detected and tracked, segmented, given skeletal
-    poses, placed in depth, and described in a sentence.
-  </figcaption>
-</figure>
+    </div>
+    <figcaption class="sr-only">
+      Animated illustration, not footage: seen from above, a surgeon's two hands sew a bypass graft
+      onto a coronary artery of a beating heart, one stitch at a time, until blood flows past a
+      blockage. The scene is read four ways that the group has published: the pose of each hand, the
+      operation in words, the moving surface of the heart, and the path each hand travels.
+    </figcaption>
+  </figure>
+
+  <ol class="readings" aria-label="The four readings and the papers they come from">
+    {READINGS.map((reading, i) => (
+      <li data-reading={reading.id} data-active={i === 0 ? '' : undefined}>
+        <button type="button" class="reading-name" data-show={reading.id}>
+          <span class="reading-index">{String(i + 1).padStart(2, '0')}</span>
+          {reading.label}
+        </button>
+        <p class="reading-what">{reading.what}</p>
+        <p class="reading-paper">
+          <a href={reading.href} rel="noopener">
+            {reading.paper} <span aria-hidden="true">&nearr;</span>
+          </a>
+          <span class="reading-venue">{reading.venue}</span>
+        </p>
+      </li>
+    ))}
+  </ol>
+</div>
 
 <script>
   import { mountHeroScene } from '../scripts/hero-scene';
 
   const scene = document.querySelector<HTMLElement>('[data-hero-scene]');
   if (scene) mountHeroScene(scene);
+
+  // The list under the scene follows the reading on show, and can choose it.
+  const readings = [...document.querySelectorAll<HTMLElement>('[data-reading]')];
+  document.addEventListener('hero-scene:view', (event) => {
+    const view = (event as CustomEvent<string>).detail;
+    for (const item of readings) item.toggleAttribute('data-active', item.dataset.reading === view);
+  });
+  for (const button of document.querySelectorAll<HTMLElement>('[data-show]')) {
+    button.addEventListener('click', () => {
+      scene?.querySelector<HTMLElement>(`[data-mode="${button.dataset.show}"]`)?.click();
+      scene?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+  }
 </script>
 
 <style>
@@ -125,23 +145,8 @@ const modes = [
     transition: color 0.2s var(--ease);
   }
 
-  .modes button + button,
-  .modes .play {
+  .modes button + button {
     border-left: 1px solid var(--screen-line);
-  }
-
-  .modes .play {
-    display: flex;
-    align-items: center;
-    height: 1.75rem;
-    padding-inline: 0.7rem;
-    color: var(--maize);
-    animation: unlock 2.4s var(--ease) 0.2s 2 both;
-  }
-
-  .modes .play:hover {
-    background: var(--maize);
-    color: var(--on-maize);
   }
 
   .modes button:hover,
@@ -251,16 +256,6 @@ const modes = [
     }
   }
 
-  @keyframes unlock {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgb(255 203 5 / 0);
-    }
-    40% {
-      box-shadow: 0 0 0 0.45rem rgb(255 203 5 / 0.22);
-    }
-  }
-
   @keyframes blink {
     50% {
       opacity: 0;
@@ -284,6 +279,123 @@ const modes = [
     background: none;
   }
 
+  /* --- The readings, listed under the scene --------------------------------- */
+
+  .readings {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: clamp(1.25rem, 2.5vw, 2rem) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .readings li {
+    padding: 0.8rem clamp(0.9rem, 1.6vw, 1.5rem) 0.25rem;
+    border-top: var(--rule) solid var(--line-2);
+    transition: border-color 0.3s var(--ease);
+  }
+
+  .readings li + li {
+    border-left: 1px solid var(--line);
+  }
+
+  .readings li:first-child {
+    padding-left: 0;
+  }
+
+  /* The reading on show is marked the way the active tab is. */
+  .readings li[data-active] {
+    border-top-color: var(--maize);
+  }
+
+  .reading-name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-stretch: 80%;
+    font-size: clamp(1.3rem, 1.9vw, 1.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: color 0.2s var(--ease);
+  }
+
+  .reading-name:hover,
+  li[data-active] .reading-name {
+    color: var(--maize);
+  }
+
+  .reading-index {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+  }
+
+  .reading-what {
+    margin-top: 0.6rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .reading-paper {
+    display: grid;
+    gap: 0.3rem;
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+
+  .reading-paper a {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--line-2);
+    text-underline-offset: 0.2em;
+  }
+
+  .reading-paper a:hover {
+    text-decoration-color: var(--maize);
+  }
+
+  .reading-venue {
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  @media (max-width: 62rem) {
+    .readings {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 1.5rem;
+    }
+
+    .readings li:nth-child(odd) {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .readings {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .readings li,
+    .readings li + li {
+      padding-inline: 0;
+      border-left: 0;
+    }
+  }
+
   @media (max-width: 44rem) {
     .frame {
       display: none;
@@ -295,15 +407,8 @@ const modes = [
       display: none;
     }
 
-    .modes button,
-    .modes .play {
+    .modes button {
       padding-inline: 0.55rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .modes .play {
-      animation: none;
     }
   }
 </style>

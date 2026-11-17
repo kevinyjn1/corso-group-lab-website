@@ -11,7 +11,6 @@ const pages = [
   '/teaching/',
   '/join/',
   '/media/',
-  '/play/',
 ];
 
 /** Collect console errors, uncaught exceptions, and failed requests for a page. */
@@ -134,7 +133,7 @@ test.describe('publications', () => {
 });
 
 test.describe('home page scene', () => {
-  test('draws, captions, and switches modes', async ({ page }) => {
+  test('draws, captions, and switches between its four readings', async ({ page }) => {
     await page.goto(at('/'));
     const scene = page.locator('[data-hero-scene]');
     // The scene only runs while it is on screen.
@@ -152,12 +151,36 @@ test.describe('home page scene', () => {
       return seen.size;
     });
     expect(colors).toBeGreaterThan(3);
+    // Two hands of 21 keypoints each are being followed.
+    await expect(scene).toHaveAttribute('data-keypoints', '42');
 
-    for (const mode of ['segment', 'pose', 'depth', 'detect']) {
+    const readings = page.locator('[data-reading]');
+    await expect(readings).toHaveCount(4);
+    for (const mode of ['language', 'surface', 'motion', 'hands']) {
       await scene.locator(`[data-mode="${mode}"]`).click();
       await expect(scene.locator(`[data-mode="${mode}"]`)).toHaveAttribute('aria-pressed', 'true');
       await expect(scene.locator('[aria-pressed="true"]')).toHaveCount(1);
+      await expect(scene).toHaveAttribute('data-view', mode);
+      // The list under the scene follows along, and names the paper behind the reading.
+      await expect(page.locator('[data-reading][data-active]')).toHaveCount(1);
+      await expect(page.locator(`[data-reading="${mode}"]`)).toHaveAttribute('data-active', '');
     }
+    for (const paper of await page.locator('[data-reading] a').all()) {
+      await expect(paper).toHaveAttribute('href', /^https:\/\/(arxiv\.org|doi\.org)\//);
+    }
+
+    // A reading can also be chosen from the list.
+    await page.locator('[data-show="surface"]').click();
+    await expect(scene).toHaveAttribute('data-view', 'surface');
+  });
+
+  test('the operation moves forward, one stitch at a time', async ({ page }) => {
+    await page.goto(at('/'));
+    const scene = page.locator('[data-hero-scene]');
+    await scene.scrollIntoViewIfNeeded();
+    const stitch = async () => Number(await scene.getAttribute('data-stitch'));
+    const before = await stitch();
+    await expect.poll(stitch, { timeout: 12_000 }).not.toBe(before);
   });
 
   test('is static and fully readable with reduced motion', async ({ page }) => {
@@ -373,6 +396,67 @@ test('the VIGIL page has the talk, the coverage, and the papers', async ({ page 
 
   await expect(page.locator('.papers .rows > li')).toHaveCount(3);
   await expect(page.locator('.team .subteam')).toHaveCount(3);
+});
+
+test('the VIGIL page shows the system at work: photos, both exams, and the demo day', async ({
+  page,
+}) => {
+  await page.goto(at('/vigil/'));
+
+  // Three photographs of the demonstration, each with a description.
+  const photos = page.locator('#in-the-room .photo img');
+  await expect(photos).toHaveCount(3);
+  for (const photo of await photos.all()) {
+    await photo.scrollIntoViewIfNeeded();
+    await expect(photo).toHaveAttribute('alt', /\S{4,}/);
+    await expect
+      .poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(0);
+  }
+
+  // The heart exam and the leg exam are both drawn.
+  for (const name of ['vigil', 'leg']) {
+    const figure = page.locator(`#how [data-figure="${name}"]`);
+    await figure.scrollIntoViewIfNeeded();
+    await expect(figure).toHaveAttribute('data-painted', '');
+  }
+
+  // What each team showed, and the research shown alongside.
+  const posters = page.locator('#demo-day .poster');
+  expect(await posters.count()).toBeGreaterThanOrEqual(8);
+  for (const poster of await posters.all()) {
+    await expect(poster.locator('.poster-team')).not.toBeEmpty();
+    await expect(poster.locator('.poster-what')).not.toBeEmpty();
+    await expect(poster.locator('.poster-people')).not.toBeEmpty();
+  }
+  const related = page.locator('#demo-day .related > li');
+  expect(await related.count()).toBeGreaterThanOrEqual(5);
+  for (const link of await related.locator('h4 a').all()) {
+    await expect(link).toHaveAttribute('href', /^https:\/\/arxiv\.org\/abs\//);
+  }
+});
+
+test("the home page leads with the group's own thesis, then VIGIL, then the operating room", async ({
+  page,
+}) => {
+  await page.goto(at('/'));
+  const headline = page.locator('h1');
+  await expect(headline).toContainText('Understand the task.');
+  await expect(headline).toContainText('Understand the human.');
+  await expect(headline).toContainText('Fill the gap.');
+  // The headline is a quotation, so its source is given.
+  await expect(page.locator('.hero-source a')).toHaveAttribute(
+    'href',
+    /^https:\/\/www\.stevens\.edu\//,
+  );
+
+  const order = await page.evaluate(() => {
+    const top = (selector: string) =>
+      document.querySelector(selector)!.getBoundingClientRect().top + window.scrollY;
+    return { vigil: top('section.vigil'), scene: top('[data-hero-scene]'), areas: top('.areas') };
+  });
+  expect(order.vigil).toBeLessThan(order.scene);
+  expect(order.scene).toBeLessThan(order.areas);
 });
 
 test('the header fits at every width where the full navigation shows', async ({

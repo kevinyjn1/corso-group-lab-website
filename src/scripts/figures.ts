@@ -9,9 +9,10 @@
  *   health    an echocardiogram with tracked landmarks and a view-quality score
  *   learning  an embedding space from which a small, well-spread coreset is chosen
  *
- * One more illustrates the group's flagship project:
+ * Two more illustrate the group's flagship project:
  *
  *   vigil     a heart ultrasound guided by light projected onto the patient and a voice
+ *   leg       a scan of the leg for blood clots, vein by vein, with the same guidance
  *
  * Figures only run while they are on screen, and draw a single still frame for visitors who
  * ask for reduced motion.
@@ -33,6 +34,7 @@ const TINTS: Record<string, string> = {
   health: '#ff9466',
   learning: '#b79cff',
   vigil: MAIZE,
+  leg: MAIZE,
 };
 
 interface Stage {
@@ -948,6 +950,317 @@ const vigil: Figure = (() => {
   };
 })();
 
+// --- VIGIL: a guided scan of the leg for blood clots --------------------------
+
+/**
+ * An illustration of the leg exam the VIGIL teams showed at their demo day: light projected
+ * along the thigh marks the path of the vein, the probe is pressed down at each mark to see
+ * whether the vein flattens, and three bars report how much of each vein has been scanned: the
+ * common femoral, the femoral, and the popliteal. The spoken lines are examples.
+ */
+const leg: Figure = (() => {
+  const LOOP = 17;
+  const AT = { light: 0.3, start: 1.8, scan: 2.6, done: 13.6, reset: 15.6 };
+  /** The three veins, and the share of the path from groin to knee that each one covers. */
+  const VEINS = [
+    { name: 'common femoral', short: 'CFV', to: 0.22, color: BLUE },
+    { name: 'femoral', short: 'FV', to: 0.8, color: GREEN },
+    { name: 'popliteal', short: 'PV', to: 1, color: PINK },
+  ];
+  /** Places along the path where the probe is pressed down. */
+  const PRESSES = [0.06, 0.2, 0.38, 0.56, 0.74, 0.94];
+  const SPOKEN: readonly (readonly [number, string])[] = [
+    [AT.light, 'line the leg up with the light'],
+    [AT.start, 'start at the groin. press, and release'],
+    [5.2, 'follow the vein down the thigh'],
+    [11.2, 'behind the knee: the last vein'],
+    [AT.done, 'all three veins scanned. report ready'],
+  ];
+  /**
+   * Both legs, from the hips at the left edge to the feet: each part runs from (x0, y0) to
+   * (x1, y1) and is r0 thick at its start and r1 at its end. The far leg mirrors the near one.
+   */
+  const PARTS: readonly (readonly number[])[] = [
+    [0.6, 1.42, 5.6, 1.2, 0.98, 0.68],
+    [5.6, 1.2, 9.6, 1.1, 0.64, 0.4],
+    [9.6, 1.1, 10.1, 1.45, 0.34, 0.3],
+  ];
+  /** The vein's course along the near leg, in the same units. */
+  const COURSE: readonly (readonly [number, number])[] = [
+    [1.0, 1.3],
+    [2.4, 1.3],
+    [4.0, 1.25],
+    [5.3, 1.2],
+    [6.3, 1.2],
+  ];
+  const span = (from: number, to: number, at: number) => clamp((at - from) / (to - from), 0, 1);
+
+  return (s) => {
+    const { ctx, step } = s;
+    const now = s.t % LOOP;
+    const fade = 1 - span(AT.reset, LOOP - 0.4, now);
+    const snap = (v: number) => (Math.round(v / step - 0.5) + 0.5) * step;
+    const top = Math.max(step * 3.4, 38);
+    const bottom = s.h - step * 2.8;
+    const split = Math.round((s.w * 0.6) / step) * step;
+
+    // --- The room, from above: the legs on the table, hips to the left ------
+    const u = Math.min((split - step * 2) / 11.2, (bottom - top) / 5.2);
+    const bx = (split - 10.4 * u) / 2;
+    const cy = snap((top + bottom) / 2 + step * 0.3);
+    const inLegs = (x: number, y: number) => {
+      const px = (x - bx) / u;
+      const py = Math.abs(y - cy) / u;
+      if (px > -0.4 && px < 0.9 && py < 2.4) return true;
+      return PARTS.some(([x0, y0, x1, y1, r0, r1]) => {
+        const along = clamp(
+          ((px - x0) * (x1 - x0) + (py - y0) * (y1 - y0)) / ((x1 - x0) ** 2 + (y1 - y0) ** 2),
+          0,
+          1,
+        );
+        return Math.hypot(px - lerp(x0, x1, along), py - lerp(y0, y1, along)) < lerp(r0, r1, along);
+      });
+    };
+    /** A point on the vein, `share` of the way from the groin to behind the knee. */
+    const onVein = (share: number) => {
+      const at = clamp(share, 0, 1) * (COURSE.length - 1);
+      const i = Math.min(Math.floor(at), COURSE.length - 2);
+      return {
+        x: bx + lerp(COURSE[i][0], COURSE[i + 1][0], at - i) * u,
+        y: cy + lerp(COURSE[i][1], COURSE[i + 1][1], at - i) * u,
+      };
+    };
+
+    ctx.strokeStyle = PAPER;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.2;
+    ctx.strokeRect(bx - 0.5 * u, cy - 2.6 * u, 11.2 * u, 5.2 * u);
+    ctx.globalAlpha = 1;
+    for (let row = Math.floor(top / step); row < Math.ceil(bottom / step); row++) {
+      for (let col = 0; col < split / step; col++) {
+        const x = (col + 0.5) * step;
+        const y = (row + 0.5) * step;
+        if (inLegs(x, y)) s.cell(col, row, PAPER, 0.34, 0.5);
+      }
+    }
+
+    // How far the scan has got. The probe moves on steadily and stops to press at each mark.
+    const scanned = span(AT.scan, AT.done, now);
+    const sweep = span(AT.light, AT.light + 1.2, now);
+    const back = smooth(span(AT.reset, LOOP - 0.3, now));
+    const press = PRESSES.reduce(
+      (most, at) => Math.max(most, Math.exp(-Math.pow((scanned - at) / 0.028, 2))),
+      0,
+    );
+
+    // The light: a mark at every place to press, green once the probe has been there.
+    PRESSES.forEach((at) => {
+      if (at > sweep || fade <= 0) return;
+      const point = onVein(at);
+      const done = scanned >= at;
+      const arm = step * (done ? 0.36 : 0.5);
+      ctx.globalAlpha = fade;
+      if (done) {
+        ctx.fillStyle = GREEN;
+        ctx.fillRect(point.x - arm, point.y - arm, arm * 2, arm * 2);
+      } else {
+        ctx.strokeStyle = MAIZE;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(point.x - arm, point.y);
+        ctx.lineTo(point.x + arm, point.y);
+        ctx.moveTo(point.x, point.y - arm);
+        ctx.lineTo(point.x, point.y + arm);
+        ctx.stroke();
+      }
+    });
+    ctx.globalAlpha = 1;
+
+    // The probe: brought in from the cart, then walked down the vein.
+    const rest = { x: split - Math.max(1.1 * u, step * 1.8) - step * 1.6, y: bottom - step };
+    const arrive = smooth(span(AT.start, AT.scan, now));
+    const on = onVein(scanned);
+    const px = lerp(lerp(rest.x, on.x, arrive), rest.x, back);
+    const py = lerp(lerp(rest.y, on.y, arrive), rest.y, back);
+    const long = Math.max(1.05 * u, step * 1.8);
+    const wide = Math.max(0.46 * u, step * 0.8);
+    const heading = lerp(lerp(0, 1.25, arrive), 0, back);
+    const working = arrive >= 1 && scanned < 1 && back === 0;
+
+    // Two cameras keep the probe in sight.
+    const cameras = [
+      { x: step * 1.4, y: bottom - step * 0.3 },
+      { x: split - step * 1.6, y: top + step * 0.2 },
+    ];
+    ctx.strokeStyle = BLUE;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([step * 0.3, step * 0.5]);
+    ctx.lineDashOffset = -s.t * step * 1.4;
+    ctx.globalAlpha = 0.5;
+    for (const camera of cameras) {
+      ctx.beginPath();
+      ctx.moveTo(camera.x, camera.y);
+      ctx.lineTo(px, py);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = BLUE;
+    for (const camera of cameras) {
+      ctx.fillRect(camera.x - step * 0.4, camera.y - step * 0.4, step * 0.8, step * 0.8);
+    }
+    if (s.w >= 460) {
+      s.text('rgb-d', cameras[0].x + step * 0.9, cameras[0].y, MUTED);
+      s.text('rgb-d', cameras[1].x - step * 0.9, cameras[1].y, MUTED, 'right');
+    }
+
+    // Pressing down: a ring closes on the probe.
+    if (working && press > 0.05) {
+      ctx.strokeStyle = GREEN;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = press;
+      ctx.beginPath();
+      ctx.arc(px, py, step * (2.1 - 1.1 * press), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    const tail = { x: px + Math.cos(heading) * long, y: py + Math.sin(heading) * long };
+    ctx.strokeStyle = MUTED;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(tail.x, tail.y);
+    ctx.quadraticCurveTo(tail.x + step * 2, bottom + step * 0.4, split, bottom - step * 0.2);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(heading);
+    ctx.fillStyle = PAPER;
+    ctx.fillRect(0, -wide / 2, long, wide);
+    ctx.fillStyle = working && press > 0.4 ? GREEN : MAIZE;
+    ctx.fillRect(0, -wide * 0.62, long * 0.2, wide * 1.24);
+    ctx.restore();
+
+    // --- The ultrasound screen: the vein and the artery beside it, in cross-section ---
+    ctx.strokeStyle = PAPER;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.16;
+    ctx.beginPath();
+    ctx.moveTo(split, top - step);
+    ctx.lineTo(split, bottom + step * 0.4);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    const left = split + step * 0.5;
+    const right = s.w - step;
+    const col0 = Math.floor(left / step);
+    const cols = s.cols - col0;
+    const rows = clamp(Math.floor((bottom - top) / step) - 7, 6, 15);
+    const row0 = Math.round(top / step);
+    const image = { x: col0 * step, y: row0 * step, w: cols * step, h: rows * step };
+    const contact = working ? 1 : 0;
+    const r = Math.min(image.w * 0.17, image.h * 0.3);
+    // The vein sits beside the artery, and drifts a little as the probe moves.
+    const drift = Math.sin(s.t * 0.9) * image.w * 0.04;
+    const vein = { x: image.x + image.w * 0.4 + drift, y: image.y + image.h * 0.52 };
+    const artery = { x: vein.x + r * 2.3, y: vein.y - r * 0.2 };
+    const flat = 1 - 0.86 * press;
+    const pulse = 1 + 0.07 * Math.sin(s.t * 7);
+    for (let row = row0; row < row0 + rows; row++) {
+      for (let col = col0; col < col0 + cols; col++) {
+        const x = (col + 0.5) * step;
+        const y = (row + 0.5) * step;
+        const speckle = hash(col, row, Math.floor(s.t * 9));
+        const inVein = Math.hypot((x - vein.x) / r, (y - vein.y) / (r * flat));
+        const inArtery = Math.hypot(x - artery.x, y - artery.y) / (r * 0.8 * pulse);
+        const wall = Math.max(
+          Math.exp(-Math.pow((inVein - 1) / 0.3, 2)),
+          Math.exp(-Math.pow((inArtery - 1) / 0.3, 2)),
+        );
+        // Vessels are dark inside, bright at the wall; the tissue around them is speckled.
+        const tissue = inVein < 0.8 || inArtery < 0.8 ? 0.03 : 0.1 + 0.2 * speckle;
+        const level = clamp(0.04 + contact * (tissue + wall * 0.6), 0, 1);
+        const mine = Math.exp(-Math.pow((inVein - 1) / 0.3, 2)) > 0.45;
+        s.cell(col, row, contact && mine ? BLUE : PAPER, level, 0.3 + 0.5 * level);
+      }
+    }
+    if (contact) {
+      // The tracked vein, in a box that follows it.
+      const box = r * 1.45;
+      ctx.strokeStyle = GREEN;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(vein.x - box, vein.y - box, box * 2, box * 2);
+      s.text(press > 0.5 ? 'flattens' : 'vein', vein.x - box, vein.y - box - step * 0.8, GREEN);
+    }
+    s.text(
+      contact ? 'thigh, cross-section' : 'no contact',
+      right,
+      top - step * 0.9,
+      MUTED,
+      'right',
+    );
+
+    // How much of each vein has been scanned, and of the exam as a whole.
+    const shares = VEINS.map((vein_, k) => {
+      const from = k === 0 ? 0 : VEINS[k - 1].to;
+      return span(from, vein_.to, scanned) * (1 - back);
+    });
+    const labelW = step * 3.4;
+    const barCols = Math.max(4, Math.floor((image.w - labelW) / step) - 4);
+    VEINS.forEach((vein_, k) => {
+      const row = row0 + rows + 1 + k;
+      const y = (row + 0.5) * step;
+      s.text(vein_.short, left, y, shares[k] > 0 ? PAPER : MUTED);
+      const first = Math.ceil((left + labelW) / step);
+      for (let i = 0; i < barCols; i++) {
+        const filled = i < Math.round(shares[k] * barCols);
+        s.cell(
+          first + i,
+          row,
+          filled ? vein_.color : PAPER,
+          filled ? 0.95 : 0.16,
+          filled ? 0.8 : 0.34,
+        );
+      }
+      s.text(
+        `${Math.round(shares[k] * 100)}%`,
+        right,
+        y,
+        shares[k] > 0 ? vein_.color : MUTED,
+        'right',
+      );
+    });
+    const overall = Math.round(
+      (shares.reduce((sum, share) => sum + share, 0) / VEINS.length) * 100,
+    );
+    const lastY = (row0 + rows + VEINS.length + 1.7) * step;
+    if (lastY < bottom + step) {
+      s.text('exam', left, lastY, MUTED);
+      s.text(`${overall}%`, right, lastY, overall >= 100 ? GREEN : PAPER, 'right');
+    }
+
+    // --- The voice in the earpiece ------------------------------------------
+    const line = [...SPOKEN].reverse().find(([at]) => now >= at);
+    if (line && fade > 0.1) {
+      const [at, words] = line;
+      const said = typed(words, now - at, 26);
+      const y = s.h - step * 1.3;
+      const speaking = said.length < words.length;
+      ctx.fillStyle = MAIZE;
+      for (let k = 0; k < 3; k++) {
+        const level = speaking ? 0.3 + 0.7 * Math.abs(Math.sin(s.t * 9 + k * 1.3)) : 0.25;
+        ctx.fillRect(
+          step * (1 + k * 0.5),
+          y - level * step * 0.55,
+          step * 0.28,
+          level * step * 1.1,
+        );
+      }
+      s.text(said, step * 3, y, PAPER);
+      if (s.w >= 560) s.text('earpiece', right, y, MUTED, 'right');
+    }
+  };
+})();
+
 const FIGURES: Record<string, Figure> = {
   video,
   language,
@@ -956,6 +1269,7 @@ const FIGURES: Record<string, Figure> = {
   health,
   learning,
   vigil,
+  leg,
 };
 
 /** A moment at which each figure makes a good still, for reduced motion. */
@@ -967,6 +1281,7 @@ const STILL: Record<string, number> = {
   health: 0.5,
   learning: 9.5,
   vigil: 9.9,
+  leg: 7.9,
 };
 
 function mount(root: HTMLElement) {

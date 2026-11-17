@@ -3,6 +3,7 @@
  * VIGIL, the group's flagship project. The facts are in src/lib/vigil.ts, each with its sources,
  * and the videos and press are the media items marked `project: vigil`.
  */
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Cite from '../components/Cite.astro';
 import MediaRow from '../components/MediaRow.astro';
@@ -13,6 +14,10 @@ import VigilName from '../components/VigilName.astro';
 import { getMedia, getPublications } from '../lib/content';
 import { href } from '../lib/site';
 import { SOURCES, vigil, type SourceId } from '../lib/vigil';
+import { RELATED_POSTERS, SYSTEM_POSTERS } from '../lib/vigil-posters';
+import heartScan from '../assets/vigil/demo-day-heart-scan.jpg';
+import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
+import teamPhoto from '../assets/vigil/demo-day-team.jpg';
 
 const { award, services } = vigil;
 const media = (await getMedia()).filter((item) => item.data.project === 'vigil');
@@ -78,6 +83,71 @@ const plate = [
     </div>
   </header>
 
+  <section class="section room-photos" id="in-the-room">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">In the room</p>
+          <h2 class="h2">
+            A working system in under a <em>year</em>.
+          </h2>
+          <p>
+            In November 2025, nine months after the award, the team demonstrated VIGIL live at
+            ARPA-H's PARADIGM meeting in Washington, guiding people through ultrasound exams.
+            <Cite ids={['demo']} />
+          </p>
+        </div>
+      </div>
+      <div class="photos" data-reveal="stagger">
+        <figure class="photo photo--tall">
+          <Image
+            src={legScan}
+            alt="A clinician scans the thigh of a patient lying on a bed. Green light is projected onto the leg, and a screen in front shows a model of the leg with the probe's position marked."
+            widths={[480, 686]}
+            sizes="(min-width: 62rem) 38vw, 92vw"
+            quality={82}
+          />
+          <figcaption>
+            <strong>The leg.</strong> The green marks on the thigh are projected by VIGIL. The
+            screen shows where the probe is on a model of the patient's own body.
+          </figcaption>
+        </figure>
+        <figure class="photo">
+          <Image
+            src={heartScan}
+            alt="A clinician holds an ultrasound probe to the chest of a man lying on an exam table, beside three monitors. One shows an ultrasound image of the heart outlined in red."
+            widths={[480, 666]}
+            sizes="(min-width: 62rem) 38vw, 92vw"
+            quality={82}
+          />
+          <figcaption>
+            <strong>The heart.</strong> The ultrasound image the system is reading is boxed in red,
+            beside the view it is steering toward.
+          </figcaption>
+        </figure>
+        <figure class="photo">
+          <Image
+            src={teamPhoto}
+            alt="Thirteen members of the VIGIL team, one in a patient gown, around a screen showing the VIGIL logo."
+            widths={[480, 666]}
+            sizes="(min-width: 62rem) 38vw, 92vw"
+            quality={82}
+          />
+          <figcaption>
+            <strong>The team</strong> at the demonstration, including the day's patients.
+          </figcaption>
+        </figure>
+      </div>
+      <p class="photo-credit" data-reveal>
+        Photos: Jason Corso, from{' '}
+        <a class="link" href={SOURCES.demo.href} rel="noopener">
+          his post about the meeting
+        </a>
+        .
+      </p>
+    </div>
+  </section>
+
   <section class="section band--blue how" id="how">
     <div class="container">
       <div class="section-head" data-reveal>
@@ -89,15 +159,29 @@ const plate = [
         </div>
       </div>
 
-      <div data-reveal>
-        <ResearchFigure topic="vigil" number={1} wide />
-        <p class="note">
-          Live: one guided heart exam, start to finish. Light marks where the probe goes, the system
-          judges the probe as far, close, or on target, and a voice corrects it. This is an
-          illustration drawn from the team's public descriptions, not footage of the system, and the
-          spoken lines are examples.
-        </p>
+      <div class="exams" data-reveal="stagger">
+        <div>
+          <ResearchFigure topic="vigil" number={1} wide />
+          <p class="note">
+            <strong>The heart.</strong> Light marks where the probe goes, the system judges the
+            probe as far, close, or on target, and a voice corrects it until the four chambers are
+            in view.
+          </p>
+        </div>
+        <div>
+          <ResearchFigure topic="leg" number={2} wide />
+          <p class="note">
+            <strong>The leg.</strong> Marks along the thigh show where to press. A vein that
+            flattens under the probe is clear, and three bars count off the veins as they are
+            scanned.
+          </p>
+        </div>
       </div>
+      <p class="note note--all" data-reveal>
+        Both figures are live illustrations drawn from the team's public descriptions and its demo
+        day posters, not footage of the system, and the spoken lines are examples.
+        <Cite ids={['detroit', 'posters']} />
+      </p>
 
       <ol class="steps" data-reveal="stagger">
         {vigil.steps.map((step, i) => (
@@ -325,17 +409,96 @@ const plate = [
     </div>
   </section>
 
+  <section class="section demo" id="demo-day">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Demo day, summer 2026</p>
+          <h2 class="h2">
+            What each team <em>showed</em>.
+          </h2>
+          <p>
+            VIGIL is built in parts, by different teams, that meet in one room. These are the parts
+            as the teams presented them on posters at the demo day.
+            <Cite ids={['posters']} />
+          </p>
+        </div>
+      </div>
+
+      <ul class="posters" data-reveal="stagger">
+        {SYSTEM_POSTERS.map((poster) => (
+          <li class="poster">
+            <p class="label poster-team">{poster.team}</p>
+            <h3 class="h3">
+              {poster.href ? (
+                <a href={poster.href} rel="noopener">
+                  {poster.title} <span aria-hidden="true">&nearr;</span>
+                </a>
+              ) : (
+                poster.title
+              )}
+            </h3>
+            <p class="poster-what">{poster.what}</p>
+            {poster.result && (
+              <p class="poster-result">
+                <strong>{poster.result.value}</strong>
+                <span>{poster.result.label}</span>
+              </p>
+            )}
+            <p class="poster-people">
+              {poster.people}
+              {poster.venue && <span class="poster-venue">{poster.venue}</span>}
+            </p>
+          </li>
+        ))}
+      </ul>
+
+      <h3 class="label related-head" data-reveal>
+        Shown alongside: research from the same groups
+      </h3>
+      <ul class="rows related" data-reveal="stagger">
+        {RELATED_POSTERS.map((poster) => (
+          <li>
+            <p class="related-team">
+              <span>{poster.team}</span>
+              {poster.venue && <span class="related-venue">{poster.venue}</span>}
+            </p>
+            <div>
+              <h4>
+                <a href={poster.href} rel="noopener">
+                  {poster.title} <span aria-hidden="true">&nearr;</span>
+                </a>
+              </h4>
+              <p class="related-what">
+                {poster.what}
+                {poster.result && (
+                  <span class="related-result">
+                    {' '}
+                    {poster.result.value}: {poster.result.label.toLowerCase()}.
+                  </span>
+                )}
+              </p>
+              <p class="related-people">{poster.people}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <div class="section-head" data-reveal>
         <div>
           <p class="label">Team</p>
           <h2 class="h2">
-            Eight universities and RTX BBN, <em>one</em> team.
+            Nine universities and RTX BBN, <em>one</em> team.
           </h2>
           <p>
-            The team as it was announced in February 2025, in its three sub-teams.
+            The team as it was announced in February 2025, in its three sub-teams,
             <Cite ids={['michigan']} />
+            with Cornell Tech, where Andrew Owens has since moved.
+            <Cite ids={['cornell', 'posters']} />
             The program manager at {award.funder} is {award.manager}.
             <Cite ids={['paradigm']} />
           </p>
@@ -411,9 +574,13 @@ const plate = [
         {sources.map(([id, source], i) => (
           <li id={`source-${id}`}>
             <span class="source-index">{i + 1}</span>
-            <a class="link" href={source.href} rel="noopener">
-              {source.label}
-            </a>
+            {source.href ? (
+              <a class="link" href={source.href} rel="noopener">
+                {source.label}
+              </a>
+            ) : (
+              <span>{source.label}</span>
+            )}
           </li>
         ))}
       </ol>
@@ -484,6 +651,51 @@ const plate = [
     color: var(--text-2);
   }
 
+  /* --- In the room ---------------------------------------------------------- */
+
+  .room-photos {
+    scroll-margin-top: var(--header-h);
+  }
+
+  /* Two photographs stacked beside a tall one, as the team's own collage has them. */
+  .photos {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1.5rem clamp(1.25rem, 2.5vw, 2rem);
+    align-items: start;
+  }
+
+  .photo--tall {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .photo :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line-2);
+  }
+
+  .photo figcaption {
+    max-width: 34rem;
+    margin-top: 0.7rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--text-2);
+  }
+
+  .photo figcaption strong {
+    color: var(--text);
+  }
+
+  .photo-credit {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-3);
+  }
+
   /* --- How it works --------------------------------------------------------- */
 
   .how,
@@ -492,11 +704,26 @@ const plate = [
     scroll-margin-top: var(--header-h);
   }
 
+  .exams {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem clamp(1.25rem, 2.5vw, 2rem);
+  }
+
   .note {
     max-width: 52rem;
     margin-top: 0.8rem;
     font-size: 0.9rem;
     line-height: 1.4;
+    color: var(--text-2);
+  }
+
+  .note strong {
+    color: var(--text);
+  }
+
+  .note--all {
+    margin-top: 1.5rem;
     color: var(--text-3);
   }
 
@@ -783,6 +1010,153 @@ const plate = [
     justify-self: start;
   }
 
+  /* --- Demo day ------------------------------------------------------------- */
+
+  .demo {
+    padding-top: 0;
+    scroll-margin-top: var(--header-h);
+  }
+
+  .posters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 2px solid var(--text);
+    border-left: 1px solid var(--line);
+  }
+
+  .poster {
+    display: flex;
+    flex-direction: column;
+    padding: 1.4rem clamp(1rem, 1.8vw, 1.6rem) 1.5rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .poster-team {
+    margin-bottom: 0.7rem;
+    color: var(--text-2);
+  }
+
+  .poster .h3 {
+    font-size: clamp(1.25rem, 1.75vw, 1.5rem);
+  }
+
+  .poster a:hover,
+  .related a:hover {
+    background: color-mix(in srgb, var(--maize) 45%, transparent);
+  }
+
+  .poster-what {
+    margin-top: 0.7rem;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* A result the poster states, set like a figure in a table. */
+  .poster-result {
+    display: grid;
+    gap: 0.25rem;
+    margin-top: 1rem;
+    padding-left: 0.9rem;
+    border-left: var(--rule) solid var(--maize);
+  }
+
+  .poster-result strong {
+    font-family: var(--font-display);
+    font-stretch: 70%;
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    font-weight: 800;
+    line-height: 0.95;
+  }
+
+  .poster-result span {
+    font-size: 0.85rem;
+    line-height: 1.3;
+    color: var(--text-2);
+  }
+
+  .poster-people {
+    margin-top: auto;
+    padding-top: 1.1rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text-3);
+  }
+
+  .poster-venue {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .related-head {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    margin-bottom: 0.9rem;
+    color: var(--text);
+  }
+
+  .related > li {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr);
+    gap: 0.5rem 2rem;
+    align-items: start;
+    padding-block: 1.25rem;
+  }
+
+  .related-team {
+    display: grid;
+    gap: 0.35rem;
+    padding-top: 0.2rem;
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .related-venue {
+    color: var(--text-3);
+  }
+
+  .related h4 {
+    font-family: var(--font-display);
+    font-stretch: 84%;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .related-what {
+    max-width: 46rem;
+    margin-top: 0.4rem;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .related-result {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .related-people {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-3);
+  }
+
   /* --- Team ----------------------------------------------------------------- */
 
   .team {
@@ -896,6 +1270,8 @@ const plate = [
 
   @media (max-width: 62rem) {
     .head-foot,
+    .photos,
+    .exams,
     .why,
     .room-grid,
     .record,
@@ -912,6 +1288,15 @@ const plate = [
     .team {
       grid-template-columns: minmax(0, 1fr);
     }
+
+    .posters {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .photo--tall {
+      grid-column: auto;
+      grid-row: auto;
+    }
   }
 
   @media (max-width: 38rem) {
@@ -922,9 +1307,14 @@ const plate = [
     }
 
     .plate div,
-    .timeline li {
+    .timeline li,
+    .related > li {
       grid-template-columns: minmax(0, 1fr);
       gap: 0.2rem;
+    }
+
+    .posters {
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .subteam:first-child {

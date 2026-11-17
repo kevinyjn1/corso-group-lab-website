@@ -1,9 +1,19 @@
-/** Shared 2D helpers for the dot-matrix scenes: the home page hero and the Ground Truth game. */
+/** Shared 2D helpers for the dot-matrix scene on the home page. */
 
 export type Vec = { x: number; y: number };
 export type Box = { x0: number; y0: number; x1: number; y1: number };
 /** A line segment as [ax, ay, bx, by]. */
 export type Bone = readonly [number, number, number, number];
+
+/** Anything in a scene: a silhouette, given as a signed distance field. */
+export interface Figure {
+  /** Loose bounds used to limit which dots are sampled. */
+  bounds: Box;
+  /** The segments the figure is built on, such as the bones of a hand. */
+  bones: Bone[];
+  /** Signed distance from a point to the silhouette, in pixels. */
+  sdf: (x: number, y: number) => number;
+}
 
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;

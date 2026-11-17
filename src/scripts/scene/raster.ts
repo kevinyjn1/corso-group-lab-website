@@ -1,6 +1,5 @@
-/** Sampling figures onto the dot grid, and the box and label drawing shared by the scenes. */
-import { type Box, clamp } from './geometry';
-import type { Figure } from './figures';
+/** Sampling figures onto the dot grid, and the box and label drawing the scene uses. */
+import { type Box, type Figure, clamp } from './geometry';
 
 export const INK = '#05080f';
 

@@ -40,7 +40,23 @@ export const SOURCES = {
     label: 'Jason Corso on LinkedIn, August 2026',
     href: 'https://www.linkedin.com/posts/jason-corso_delivering-effective-healthcare-anywhere-ugcPost-7495463545971597312-wGDo/',
   },
-} as const;
+  cornell: {
+    label: 'Cornell Tech, Andrew Owens',
+    href: 'https://www.tech.cornell.edu/people/andrew-owens/',
+  },
+  demo: {
+    label: 'Jason Corso on LinkedIn, November 2025, on the demonstration in Washington',
+    href: 'https://www.linkedin.com/in/jason-corso/recent-activity/all/',
+  },
+  sitevisit: {
+    label: 'Jason Corso on LinkedIn, May 2026, on the annual site visit',
+    href: 'https://www.linkedin.com/in/jason-corso/recent-activity/all/',
+  },
+  posters: {
+    label: 'Posters at the VIGIL demo day, summer 2026, as photographed by the group',
+    href: undefined,
+  },
+} as const satisfies Record<string, { label: string; href: string | undefined }>;
 
 export type SourceId = keyof typeof SOURCES;
 
@@ -66,9 +82,9 @@ interface Moment extends Sourced {
 
 const facts: readonly Fact[] = [
   { value: '$24.6M', label: 'ARPA-H award, up to, begun February 2025', sources: ['award'] },
-  { value: '8 + 1', label: 'Universities and RTX BBN on one team', sources: ['michigan'] },
+  { value: '61', label: 'People on the team, at ten institutions', sources: ['sitevisit'] },
   { value: '4', label: 'Clinical services guided, as of August 2026', sources: ['update'] },
-  { value: '1', label: 'Workstation runs it all, with no cloud', sources: ['detroit'] },
+  { value: '30+', label: 'Publications from the project, by May 2026', sources: ['sitevisit'] },
 ];
 
 /** How the system works, in the order things happen in the room. */
@@ -107,8 +123,8 @@ const timeline: readonly Moment[] = [
   },
   {
     when: 'November 2025',
-    what: 'A demonstration video shows guided cardiac ultrasound, with a medical question-answering system for use in the field.',
-    sources: ['cardiac'],
+    what: "Nine months after the award, the team demonstrates VIGIL live at ARPA-H's PARADIGM meeting in Washington, guiding people through ultrasound exams of the heart and the leg.",
+    sources: ['demo', 'cardiac'],
   },
   {
     when: 'January 2026',
@@ -117,8 +133,8 @@ const timeline: readonly Moment[] = [
   },
   {
     when: 'May 2026',
-    what: 'Demonstrations for federal, state, and university officials: a deep vein thrombosis scan, a cardiac ultrasound, and positioning a patient for an X-ray.',
-    sources: ['detroit'],
+    what: 'The annual site visit at Michigan, with demonstrations for federal, state, and university officials: a deep vein thrombosis scan, a cardiac ultrasound, and positioning a patient for an X-ray. The team now counts 61 people at ten institutions.',
+    sources: ['detroit', 'sitevisit'],
   },
   {
     when: 'August 2026',
@@ -185,7 +201,10 @@ export const vigil = {
     ],
   },
   timeline,
-  /** The team as it was announced in February 2025, by sub-team and institution. */
+  /**
+   * The team by sub-team and institution: as announced in February 2025, with Cornell Tech, where
+   * Andrew Owens has since moved.
+   */
   team: [
     {
       name: 'Technical',
@@ -196,7 +215,6 @@ export const vigil = {
           people: [
             'Jason Corso, principal investigator (physical AI)',
             'Anhong Guo (interactive systems)',
-            'Andrew Owens (multimodal AI)',
             'Mike Oelke (project management)',
           ],
         },
@@ -222,6 +240,10 @@ export const vigil = {
           people: ['Alison Marie Pouch (medical image analysis)'],
         },
         { place: 'Purdue University', people: ['Jeffrey Siskind (AI physical systems)'] },
+        {
+          place: 'Cornell Tech',
+          people: ['Andrew Owens (multimodal AI), at Michigan when the project began'],
+        },
         { place: 'University of Rochester', people: ['Chenliang Xu (multimodal AI)'] },
       ],
     },

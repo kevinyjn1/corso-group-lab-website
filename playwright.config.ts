@@ -18,7 +18,7 @@ export default defineConfig({
   projects: [
     { name: 'desktop', testIgnore: rules, use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', testIgnore: rules, use: { ...devices['Pixel 7'] } },
-    // Game rules are plain functions, checked once without a browser.
+    // Plain functions, such as the timing of the home page scene, checked once without a browser.
     { name: 'rules', testMatch: rules },
   ],
   webServer: {
