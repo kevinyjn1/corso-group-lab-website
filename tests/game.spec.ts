@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { ROUND_SECONDS } from '../src/scripts/game/rules';
 import { at } from './base-path';
 
 interface Box {
@@ -70,8 +71,8 @@ test.describe('Ground Truth', () => {
     const results = game.locator('[data-results-panel]');
     await expect(results).toBeHidden();
 
-    // Let the 45 second round run out without waiting for it.
-    await page.clock.runFor(47_000);
+    // Let the round run out without waiting for it.
+    await page.clock.runFor((ROUND_SECONDS + 2) * 1000);
     await expect(game).toHaveAttribute('data-phase', 'over');
     await expect(results).toBeVisible();
     await expect(results.getByRole('heading')).toHaveText('Random initialization');

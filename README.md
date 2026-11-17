@@ -98,7 +98,7 @@ tests/                End-to-end tests, plus tests of the game rules
 visitor is the annotator: figures from the home page scene cross the frame, the visitor drags a
 box around each one, and every box is graded on IoU against the true box. A box counts at 0.5
 IoU or better, small and distant targets are worth more, and streaks multiply the score. A round
-lasts 45 seconds and moves from clear footage to occlusion to low light.
+lasts 30 seconds and moves from clear footage to occlusion to low light.
 
 There are four ways in:
 

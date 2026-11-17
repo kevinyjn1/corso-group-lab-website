@@ -25,6 +25,7 @@ import {
   PERFECT_IOU,
   ROUND_SECONDS,
   type Tally,
+  clock,
   conditionAt,
   depthScale,
   emptyTally,
@@ -458,7 +459,7 @@ export function mountGroundTruth(root: GameElement): void {
     const playing = phase === 'playing';
     set('score', tally.score.toLocaleString('en-US'));
     set('streak', `×${streakMultiplier(tally.streak).toFixed(1)}`);
-    set('time', playing ? `0:${String(Math.ceil(left)).padStart(2, '0')}` : '0:45');
+    set('time', clock(playing ? Math.ceil(left) : ROUND_SECONDS));
     part('timebar')?.style.setProperty('--left', playing ? (left / ROUND_SECONDS).toFixed(4) : '1');
     root.dataset.score = String(tally.score);
     root.dataset.hits = String(tally.hits);

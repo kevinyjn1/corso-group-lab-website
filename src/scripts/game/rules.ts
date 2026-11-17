@@ -49,7 +49,11 @@ export const KINDS: Record<Kind, KindSpec> = {
   },
 };
 
-export const ROUND_SECONDS = 45;
+export const ROUND_SECONDS = 30;
+
+/** Seconds as minutes and seconds, for the clock on the readout. */
+export const clock = (seconds: number) =>
+  `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 /** The classic bar for a correct detection: the box and the truth overlap by at least half. */
 export const HIT_IOU = 0.5;
 /** Boxes this tight earn a bonus. */
@@ -106,7 +110,7 @@ export const speedScale = (elapsed: number) => lerp(1, 1.45, progress(elapsed));
 /** Which kind of target appears next: big and slow early, small and quick later. */
 export function pickKind(elapsed: number, roll: number): Kind {
   const weights: [Kind, number][] =
-    elapsed < 8
+    elapsed < ROUND_SECONDS / 5
       ? [
           ['adult', 4],
           ['dog', 3],
@@ -141,29 +145,30 @@ export const CONDITION_NOTES: Record<Condition, string> = {
   'low light': 'Trust the motion',
 };
 
+/** Score needed for each rank. Tuned for a round of ROUND_SECONDS; rescale if that changes. */
 export const RANKS = [
   {
     from: 0,
     title: 'Random initialization',
     line: 'Everyone starts as noise. Train one more epoch.',
   },
-  { from: 600, title: 'Weakly supervised', line: 'The labels are there in spirit.' },
+  { from: 400, title: 'Weakly supervised', line: 'The labels are there in spirit.' },
   {
-    from: 1500,
+    from: 1000,
     title: 'Undergraduate annotator',
     line: 'Solid work. The next batch is ten thousand frames.',
   },
   {
-    from: 2800,
+    from: 1900,
     title: 'First-year Ph.D. student',
     line: 'You now have opinions about IoU thresholds.',
   },
   {
-    from: 4500,
+    from: 3000,
     title: 'Senior Ph.D. student',
     line: 'Fast, tight, and one deadline from graduating.',
   },
-  { from: 6500, title: 'Ground truth', line: 'The benchmark is graded against you.' },
+  { from: 4300, title: 'Ground truth', line: 'The benchmark is graded against you.' },
 ] as const;
 
 export function rankFor(score: number) {

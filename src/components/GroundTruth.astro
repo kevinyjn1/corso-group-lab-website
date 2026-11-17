@@ -1,6 +1,7 @@
 ---
 /** Ground Truth, the hidden annotation game. See src/scripts/game/ground-truth.ts. */
 import { href } from '../lib/site';
+import { ROUND_SECONDS, clock } from '../scripts/game/rules';
 ---
 
 <div class="game" data-game>
@@ -27,7 +28,7 @@ import { href } from '../lib/site';
     <p class="readout">
       <span class="key">Time</span>
       <span class="value" data-time>
-        0:45
+        {clock(ROUND_SECONDS)}
       </span>
     </p>
   </div>

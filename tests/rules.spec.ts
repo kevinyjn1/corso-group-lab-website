@@ -6,6 +6,7 @@ import {
   PERFECT_IOU,
   RANKS,
   ROUND_SECONDS,
+  clock,
   conditionAt,
   depthScale,
   emptyTally,
@@ -77,6 +78,13 @@ test('every score has a rank, and ranks rise with the score', () => {
       expect(rankFor(rank.from - 1).title).toBe(RANKS[i - 1].title);
     }
   }
+});
+
+test('the clock reads in minutes and seconds', () => {
+  expect(clock(0)).toBe('0:00');
+  expect(clock(7)).toBe('0:07');
+  expect(clock(30)).toBe('0:30');
+  expect(clock(75)).toBe('1:15');
 });
 
 test('a round gets busier, faster, and harder to see as it goes on', () => {
