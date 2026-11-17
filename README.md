@@ -103,7 +103,17 @@ tests/                End-to-end tests
 
 ## Deploying
 
-`npm run build` writes the site to `dist/`. Two environment variables describe where it will live:
+Every push to `main` that passes CI is published to GitHub Pages by the `deploy` job in
+[.github/workflows/ci.yml](.github/workflows/ci.yml):
+
+https://kevinyjn1.github.io/corso-group-lab-website/
+
+That deployment is a preview. It is built with `SITE_NOINDEX=true`, which adds a
+`<meta name="robots" content="noindex">` tag so search engines do not list it. Delete that setting
+from the workflow once the group wants the site to be found.
+
+To host the site somewhere else, `npm run build` writes it to `dist/`. Two environment variables
+describe where it will live:
 
 ```bash
 # At a domain root (the default)
@@ -113,7 +123,8 @@ SITE_URL=https://example.edu npm run build
 SITE_URL=https://web.eecs.umich.edu BASE_PATH=/~jjcorso/ npm run build
 ```
 
-Upload the contents of `dist/` to the host.
+Upload the contents of `dist/` to the host. CI runs the end-to-end tests against both layouts;
+`npm run test:subpath` does the sub-path run locally.
 
 ## Where the content came from
 

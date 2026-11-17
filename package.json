@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "playwright test",
-    "verify": "npm run format:check && npm run check && npm run test"
+    "test:subpath": "BASE_PATH=/~jjcorso/ playwright test",
+    "verify": "npm run format:check && npm run check && npm run test && npm run test:subpath"
   },
   "dependencies": {
     "astro": "^7.4.12"

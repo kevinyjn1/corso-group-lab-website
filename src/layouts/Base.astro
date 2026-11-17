@@ -14,6 +14,8 @@ interface Props {
 const { title, description = site.description } = Astro.props;
 const fullTitle = title ? `${title} - ${site.name}` : site.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+/** Preview deployments set SITE_NOINDEX=true so search engines do not list them. */
+const noindex = process.env.SITE_NOINDEX === 'true';
 ---
 
 <!doctype html>
@@ -24,6 +26,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href={href('/favicon.svg')} />
     <meta name="theme-color" content="#060a12" />
     <meta property="og:type" content="website" />

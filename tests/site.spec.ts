@@ -1,4 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
+import { basePath } from './base-path';
+
+/** The address of a site path under the mount point being tested. */
+const at = (path: string) => `${basePath}${path}`;
 
 const pages = [
   '/',
@@ -27,7 +31,7 @@ function watchForProblems(page: Page): string[] {
 for (const path of pages) {
   test(`${path} renders cleanly`, async ({ page }) => {
     const problems = watchForProblems(page);
-    await page.goto(path);
+    await page.goto(at(path));
     await page.evaluate(() => document.fonts.ready);
 
     await expect(page.locator('h1')).toHaveCount(1);
@@ -49,7 +53,7 @@ for (const path of pages) {
 test('every internal link resolves', async ({ page, request, baseURL }) => {
   const links = new Set<string>();
   for (const path of pages) {
-    await page.goto(path);
+    await page.goto(at(path));
     const hrefs = await page
       .locator('a[href]')
       .evaluateAll((anchors) => anchors.map((a) => (a as HTMLAnchorElement).href));
@@ -67,7 +71,7 @@ test('every internal link resolves', async ({ page, request, baseURL }) => {
 
 test('in-page anchors point at real elements', async ({ page }) => {
   for (const path of ['/research/', '/publications/']) {
-    await page.goto(path);
+    await page.goto(at(path));
     const missing = await page
       .locator('a[href^="#"]')
       .evaluateAll((anchors) =>
@@ -81,7 +85,7 @@ test('in-page anchors point at real elements', async ({ page }) => {
 
 test.describe('publications', () => {
   test('search narrows the list and can be cleared', async ({ page }) => {
-    await page.goto('/publications/');
+    await page.goto(at('/publications/'));
     const visible = page.locator('[data-pub]:visible');
     const total = await page.locator('[data-pub]').count();
     await expect(visible).toHaveCount(total);
@@ -99,7 +103,7 @@ test.describe('publications', () => {
   });
 
   test('a research area in the URL pre-filters the list', async ({ page }) => {
-    await page.goto('/publications/?topic=health');
+    await page.goto(at('/publications/?topic=health'));
     const health = page.locator('[data-filter-topic="health"]');
     await expect(health).toHaveAttribute('aria-pressed', 'true');
     const topics = await page
@@ -115,7 +119,7 @@ test.describe('publications', () => {
   });
 
   test('type filter and year chart work together', async ({ page }) => {
-    await page.goto('/publications/');
+    await page.goto(at('/publications/'));
     await page.getByRole('combobox').selectOption('journal');
     const types = await page
       .locator('[data-pub]:visible')
@@ -131,7 +135,7 @@ test.describe('publications', () => {
 
 test.describe('home page scene', () => {
   test('draws, captions, and switches modes', async ({ page }) => {
-    await page.goto('/');
+    await page.goto(at('/'));
     const scene = page.locator('[data-hero-scene]');
     await expect(scene.locator('[data-caption]')).not.toBeEmpty({ timeout: 10_000 });
 
@@ -156,7 +160,7 @@ test.describe('home page scene', () => {
 
   test('is static and fully readable with reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
+    await page.goto(at('/'));
     await expect(page.locator('[data-hero-scene] [data-caption]')).not.toBeEmpty();
     const hidden = await page
       .locator('[data-reveal], [data-reveal="stagger"] > *')
@@ -168,7 +172,7 @@ test.describe('home page scene', () => {
 });
 
 test('scrolling reveals content that starts hidden', async ({ page }) => {
-  await page.goto('/');
+  await page.goto(at('/'));
   const card = page.locator('.areas > li').first();
   await card.scrollIntoViewIfNeeded();
   await expect(card).toHaveClass(/is-visible/);
@@ -177,17 +181,17 @@ test('scrolling reveals content that starts hidden', async ({ page }) => {
 
 test('theme choice persists across pages', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto('/');
+  await page.goto(at('/'));
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: 'Switch color theme' }).click();
   await expect(html).toHaveAttribute('data-theme', 'light');
-  await page.goto('/people/');
+  await page.goto(at('/people/'));
   await expect(html).toHaveAttribute('data-theme', 'light');
 });
 
 test('navigation reaches every page', async ({ page, isMobile }) => {
-  await page.goto('/');
+  await page.goto(at('/'));
   const targets = [
     ['Research', '/research/'],
     ['Publications', '/publications/'],
@@ -216,7 +220,7 @@ test('navigation reaches every page', async ({ page, isMobile }) => {
 
 test('mobile menu closes with Escape', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'The menu button only exists on small screens.');
-  await page.goto('/');
+  await page.goto(at('/'));
   await page.getByRole('button', { name: 'Open menu' }).click();
   await expect(page.getByRole('navigation', { name: 'Mobile' })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -224,7 +228,7 @@ test('mobile menu closes with Escape', async ({ page, isMobile }) => {
 });
 
 test('portraits load, and people without a photo fall back to initials', async ({ page }) => {
-  await page.goto('/people/');
+  await page.goto(at('/people/'));
   const photo = page.getByRole('img', { name: 'Portrait of Jason J. Corso' });
   await expect(photo).toBeVisible();
   expect(
@@ -234,7 +238,7 @@ test('portraits load, and people without a photo fall back to initials', async (
 });
 
 test('unknown pages show the 404 page', async ({ page }) => {
-  const response = await page.goto('/no-such-page/');
+  const response = await page.goto(at('/no-such-page/'));
   expect(response?.status()).toBe(404);
   await expect(page.locator('h1')).toContainText('Nothing in');
 });
