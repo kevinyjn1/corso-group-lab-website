@@ -28,20 +28,26 @@ function memory(initial: Record<string, string> = {}) {
   };
 }
 
-/** A stand-in for fetch that records what was asked and answers from a list of rows. */
-function server(rows: object[], fail = false) {
+/**
+ * A stand-in for the Google Sheet web app: it records what was asked, answers a read with the
+ * board, and answers a post by adding the score and sending the board back.
+ */
+function sheet(rows: Entry[], behavior: 'working' | 'offline' | 'refusing' = 'working') {
   const calls: { url: string; init?: RequestInit }[] = [];
   const request = (async (url: string, init?: RequestInit) => {
     calls.push({ url, init });
-    if (fail) throw new Error('offline');
+    if (behavior === 'offline') throw new Error('offline');
+    if (behavior === 'refusing')
+      return new Response(JSON.stringify({ error: 'no' }), { status: 200 });
     if (init?.method === 'POST') {
-      rows.push({ ...JSON.parse(init.body as string), created_at: '2026-11-17T01:00:00Z' });
-      return new Response(null, { status: 201 });
+      rows.push({ ...JSON.parse(init.body as string), at: '2026-11-17T01:00:00.000Z' });
     }
     return new Response(JSON.stringify(rows), { status: 200 });
   }) as typeof fetch;
   return { calls, request };
 }
+
+const ENDPOINT = 'https://script.google.com/macros/s/EXAMPLE/exec';
 
 test('initials are up to three capital letters or digits', () => {
   expect(cleanName('abc')).toBe('ABC');
@@ -101,43 +107,37 @@ test("a device's own board remembers scores and survives bad stored data", async
   expect(await localBoard(null).submit('AB', { score: 10, wave: 1 })).toHaveLength(1);
 });
 
-test('the shared board reads and posts through the database, with its public key', async () => {
-  const { calls, request } = server([
-    { name: 'JJC', score: 900, wave: 5, created_at: '2026-11-17T00:00:00Z' },
-  ]);
-  const board = sharedBoard('https://example.supabase.co/', 'public-key', request);
+test('the shared board reads and posts through the sheet', async () => {
+  const { calls, request } = sheet([entry('JJC', 900, '2026-11-17T00:00:00.000Z', 5)]);
+  const board = sharedBoard(ENDPOINT, request);
   expect(board.shared).toBe(true);
-  expect(await board.top()).toEqual([entry('JJC', 900, '2026-11-17T00:00:00Z', 5)]);
-  expect(calls[0].url).toBe(
-    'https://example.supabase.co/rest/v1/scores?select=name,score,wave,created_at&order=score.desc,created_at.asc&limit=10',
-  );
-  expect(calls[0].init?.headers).toMatchObject({
-    apikey: 'public-key',
-    Authorization: 'Bearer public-key',
-  });
+  expect(await board.top()).toEqual([entry('JJC', 900, '2026-11-17T00:00:00.000Z', 5)]);
+  expect(calls[0]).toEqual({ url: ENDPOINT, init: undefined });
 
   const after = await board.submit('KN', { score: 1200, wave: 6 });
+  expect(calls[1].url).toBe(ENDPOINT);
   expect(calls[1].init?.method).toBe('POST');
+  // Plain text is the one kind of post a browser sends to another site without asking first.
+  expect(calls[1].init?.headers).toEqual({ 'Content-Type': 'text/plain;charset=utf-8' });
   expect(JSON.parse(calls[1].init?.body as string)).toEqual({ name: 'KN', score: 1200, wave: 6 });
   expect(after.map((e) => e.name)).toEqual(['KN', 'JJC']);
+  // One round trip: the post itself brings back the new board.
+  expect(calls).toHaveLength(2);
 });
 
-test('without a database, or when it cannot be reached, the device keeps its own board', async () => {
-  const unset = createBoard({}, memory());
-  expect(unset.shared).toBe(false);
+test('without a sheet, or when it cannot be used, the device keeps its own board', async () => {
+  expect(createBoard(undefined, memory()).shared).toBe(false);
+  expect(createBoard('', memory()).shared).toBe(false);
 
-  const { calls, request } = server([], true);
-  const store = memory();
-  const board = createBoard(
-    { url: 'https://example.supabase.co', key: 'public-key' },
-    store,
-    request,
-  );
-  expect(board.shared).toBe(true);
-  expect(await board.top()).toEqual([]);
-  expect(board.shared).toBe(false);
-  // Once it has failed, the rest of the visit stays on the device without asking again.
-  const after = await board.submit('KN', { score: 400, wave: 2 });
-  expect(after.map((e) => e.name)).toEqual(['KN']);
-  expect(calls).toHaveLength(1);
+  for (const behavior of ['offline', 'refusing'] as const) {
+    const { calls, request } = sheet([], behavior);
+    const board = createBoard(ENDPOINT, memory(), request);
+    expect(board.shared).toBe(true);
+    expect(await board.top()).toEqual([]);
+    expect(board.shared, behavior).toBe(false);
+    // Once it has failed, the rest of the visit stays on the device without asking again.
+    const after = await board.submit('KN', { score: 400, wave: 2 });
+    expect(after.map((e) => e.name)).toEqual(['KN']);
+    expect(calls).toHaveLength(1);
+  }
 });

@@ -85,10 +85,9 @@ jobs:
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}/
-          # The game's shared leaderboard. Without these two repository variables, each
-          # visitor's device keeps its own board. See the README.
+          # The game's shared leaderboard, kept in a Google Sheet. Without this repository
+          # variable, each visitor's device keeps its own board. See the README.
           PUBLIC_LEADERBOARD_URL: ${{ vars.LEADERBOARD_URL }}
-          PUBLIC_LEADERBOARD_KEY: ${{ vars.LEADERBOARD_KEY }}
       - name: Confirm the build is hidden from search
         if: env.SITE_NOINDEX == 'true'
         run: grep -q 'name="robots" content="noindex"' dist/index.html

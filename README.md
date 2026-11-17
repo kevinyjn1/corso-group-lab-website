@@ -136,23 +136,29 @@ the page where they found it, or the stamped label on the game's own page.
 ### The leaderboard
 
 The game keeps a top ten, shown beside it, with three-character initials. Out of the box each
-visitor's device keeps its own board. To share one board between all visitors:
+visitor's device keeps its own board. To share one board between all visitors, keep it in a
+Google Sheet:
 
-1. Create a free project at [supabase.com](https://supabase.com).
-2. In the project's SQL editor, run [supabase/leaderboard.sql](supabase/leaderboard.sql).
-3. In this repository on GitHub, open Settings, then Secrets and variables, then Actions, then
-   the Variables tab, and add two variables: `LEADERBOARD_URL` (the project URL) and
-   `LEADERBOARD_KEY` (the project's public key, called "anon" or "publishable"). Never use the
-   service role key: it is a secret, and this value ends up in the public site.
-4. Push a commit or re-run the CI workflow. The board's label changes from "This device" to
+1. Create a Google Sheet (for example at [sheets.new](https://sheets.new)).
+2. In the sheet, open Extensions, then Apps Script. Replace what is in the editor with
+   [google-sheet/leaderboard.gs](google-sheet/leaderboard.gs) and save.
+3. Choose Deploy, then New deployment, then the type Web app. Set "Execute as" to Me and "Who has
+   access" to Anyone, deploy, and approve the access Google asks for. Copy the web app URL, which
+   ends in `/exec`.
+4. Give the site that address as a repository variable named `LEADERBOARD_URL` (Settings, then
+   Secrets and variables, then Actions, then the Variables tab, or
+   `gh variable set LEADERBOARD_URL --body "<the URL>"`).
+5. Push a commit or re-run the CI workflow. The board's label changes from "This device" to
    "All visitors".
 
-To try it locally, put `PUBLIC_LEADERBOARD_URL` and `PUBLIC_LEADERBOARD_KEY` in a `.env` file.
-If the database cannot be reached, the game quietly falls back to the device's own board.
+Scores land in a tab named "Scores", one row each. To moderate the board, edit or delete rows in
+the sheet; the sheet itself does not need to be shared with anyone. To try it locally, put
+`PUBLIC_LEADERBOARD_URL` in a `.env` file. If the sheet cannot be reached, the game quietly falls
+back to the device's own board.
 
-The table only lets visitors read scores and add one; nothing can be changed or deleted from the
-website. Scores are sent by the browser, so a determined visitor can post a made-up score. The SQL
-file ends with the two statements for clearing the board or removing an entry.
+Scores are sent by the browser, so a determined visitor can post a made-up score. The script
+checks that initials are one to three letters or digits and that scores are in a believable
+range, and nothing else can be written through it.
 
 ## Design notes
 

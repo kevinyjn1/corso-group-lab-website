@@ -1,8 +1,9 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  /** Supabase project URL for the shared Ground Truth leaderboard. Optional. */
+  /**
+   * Address of the Google Sheet web app that keeps the shared Ground Truth leaderboard.
+   * Optional: without it each device keeps its own board.
+   */
   readonly PUBLIC_LEADERBOARD_URL?: string;
-  /** That project's public (anon or publishable) key. Optional. */
-  readonly PUBLIC_LEADERBOARD_KEY?: string;
 }

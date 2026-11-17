@@ -179,11 +179,8 @@
   } catch {
     storage = null;
   }
-  // Scores are shared when the site was built with a database to keep them in.
-  const board = createBoard(
-    { url: import.meta.env.PUBLIC_LEADERBOARD_URL, key: import.meta.env.PUBLIC_LEADERBOARD_KEY },
-    storage,
-  );
+  // Scores are shared when the site was built with a Google Sheet to keep them in.
+  const board = createBoard(import.meta.env.PUBLIC_LEADERBOARD_URL, storage);
   const view = panel ? mountBoard(panel, board) : null;
   if (game) mountGroundTruth(game, { onRoundOver: (run) => view?.offer(run) });
 </script>

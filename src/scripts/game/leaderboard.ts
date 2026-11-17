@@ -1,9 +1,10 @@
 /**
  * The Ground Truth leaderboard: the ten best rounds, with three-character initials.
  *
- * Scores are shared between all visitors when the site is built with a database to keep them in
- * (see supabase/leaderboard.sql and the README). Without one, or when it cannot be reached, each
- * device keeps its own board, so the game never depends on the network.
+ * Scores are shared between all visitors when the site is built with the address of a Google
+ * Sheet to keep them in (see google-sheet/leaderboard.gs and the README). Without one, or when
+ * it cannot be reached, each device keeps its own board, so the game never depends on the
+ * network.
  */
 
 export interface Entry {
@@ -86,33 +87,34 @@ export function localBoard(store: Store | null): Board {
   };
 }
 
-/** A board shared by all visitors, kept in a Supabase table and reached over its REST API. */
-export function sharedBoard(url: string, key: string, request: typeof fetch = fetch): Board {
-  const table = `${url.replace(/\/+$/, '')}/rest/v1/scores`;
-  const headers = { apikey: key, Authorization: `Bearer ${key}` };
-  const top = async (): Promise<Entry[]> => {
-    const query = `select=name,score,wave,created_at&order=score.desc,created_at.asc&limit=${BOARD_SIZE}`;
-    const response = await request(`${table}?${query}`, { headers });
-    if (!response.ok) throw new Error(`Leaderboard read failed: ${response.status}`);
-    const rows = (await response.json()) as {
-      name: string;
-      score: number;
-      wave: number;
-      created_at: string;
-    }[];
-    return ranked(rows.map(({ created_at, ...row }) => ({ ...row, at: created_at })));
-  };
+/** What the sheet sends back: the board, or a reason it refused. */
+function readBoard(answer: unknown): Entry[] {
+  if (!Array.isArray(answer)) throw new Error('The leaderboard did not answer with a board.');
+  return ranked(answer as Entry[]);
+}
+
+/**
+ * A board shared by all visitors, kept in a Google Sheet. `endpoint` is the address of the web
+ * app deployed from the script attached to the sheet. A GET reads the board and a POST adds a
+ * score; both answer with the board as it then stands.
+ */
+export function sharedBoard(endpoint: string, request: typeof fetch = fetch): Board {
   return {
     shared: true,
-    top,
+    async top() {
+      const response = await request(endpoint);
+      if (!response.ok) throw new Error(`Leaderboard read failed: ${response.status}`);
+      return readBoard(await response.json());
+    },
     async submit(name, run) {
-      const response = await request(table, {
+      const response = await request(endpoint, {
         method: 'POST',
-        headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        // Sent as plain text, which a browser may send to another site without asking first.
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ name, score: run.score, wave: run.wave }),
       });
       if (!response.ok) throw new Error(`Leaderboard post failed: ${response.status}`);
-      return top();
+      return readBoard(await response.json());
     },
   };
 }
@@ -122,13 +124,13 @@ export function sharedBoard(url: string, key: string, request: typeof fetch = fe
  * If the shared board fails once, the rest of the visit uses the device's own.
  */
 export function createBoard(
-  config: { url?: string; key?: string },
+  endpoint: string | undefined,
   store: Store | null,
   request: typeof fetch = fetch,
 ): Board {
   const local = localBoard(store);
-  if (!config.url || !config.key) return local;
-  const remote = sharedBoard(config.url, config.key, request);
+  if (!endpoint) return local;
+  const remote = sharedBoard(endpoint, request);
   const board: Board = {
     shared: true,
     async top() {
