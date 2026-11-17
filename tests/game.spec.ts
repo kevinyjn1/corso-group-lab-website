@@ -179,6 +179,13 @@ test('a round that makes the board can be posted with initials', async ({ page }
   await expect(rows.first()).toContainText('KN7');
   await expect(rows.first()).toContainText(score.toLocaleString('en-US'));
   await expect(rows.first()).toHaveAttribute('data-mine', '');
+  // The visitor's own row is a solid block, so everything written on it must stand out from it.
+  const { fill, inks } = await rows.first().evaluate((row) => ({
+    fill: getComputedStyle(row).backgroundColor,
+    inks: [...row.querySelectorAll('span')].map((part) => getComputedStyle(part).color),
+  }));
+  expect(inks.length).toBeGreaterThan(0);
+  for (const ink of inks) expect(ink).not.toBe(fill);
   await expect(board.locator('[data-board-status]')).toContainText('number 1');
   await expect(board.locator('[data-board-empty]')).toBeHidden();
 

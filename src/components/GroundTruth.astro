@@ -649,8 +649,9 @@
     text-transform: uppercase;
   }
 
-  .board :global(li:first-child .name),
-  .board :global(li:first-child .score) {
+  /* First place is picked out in maize, unless it is the visitor's own row, which is a maize block. */
+  .board :global(li:first-child:not([data-mine]) .name),
+  .board :global(li:first-child:not([data-mine]) .score) {
     color: var(--maize);
   }
 
