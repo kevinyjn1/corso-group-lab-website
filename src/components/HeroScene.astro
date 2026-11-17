@@ -1,5 +1,7 @@
 ---
 /** The animated "viewport" on the home page. See src/scripts/hero-scene.ts. */
+import { href } from '../lib/site';
+
 const modes = [
   { id: 'detect', label: 'Detect' },
   { id: 'segment', label: 'Segment' },
@@ -17,6 +19,16 @@ const modes = [
           {mode.label}
         </button>
       ))}
+      {/* Hidden until the visitor has tried all four views: the way into the hidden game. */}
+      <a
+        class="play"
+        href={href('/play/')}
+        data-play
+        hidden
+        aria-label="Your turn: play Ground Truth"
+      >
+        Play
+      </a>
     </div>
     <p class="status" aria-hidden="true">
       <span class="live"></span>
@@ -113,8 +125,23 @@ const modes = [
     transition: color 0.2s var(--ease);
   }
 
-  .modes button + button {
+  .modes button + button,
+  .modes .play {
     border-left: 1px solid var(--screen-line);
+  }
+
+  .modes .play {
+    display: flex;
+    align-items: center;
+    height: 1.75rem;
+    padding-inline: 0.7rem;
+    color: var(--maize);
+    animation: unlock 2.4s var(--ease) 0.2s 2 both;
+  }
+
+  .modes .play:hover {
+    background: var(--maize);
+    color: var(--on-maize);
   }
 
   .modes button:hover,
@@ -224,6 +251,16 @@ const modes = [
     }
   }
 
+  @keyframes unlock {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgb(255 203 5 / 0);
+    }
+    40% {
+      box-shadow: 0 0 0 0.45rem rgb(255 203 5 / 0.22);
+    }
+  }
+
   @keyframes blink {
     50% {
       opacity: 0;
@@ -258,8 +295,15 @@ const modes = [
       display: none;
     }
 
-    .modes button {
+    .modes button,
+    .modes .play {
       padding-inline: 0.55rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modes .play {
+      animation: none;
     }
   }
 </style>

@@ -81,6 +81,11 @@ const michigan = [
       <p>
         &copy; {year} {site.name}, {site.university}
       </p>
+      <p class="mono">
+        <a class="egg" href={href('/play/')} title="A small game">
+          IoU &ge; 0.5?
+        </a>
+      </p>
       <p class="mono">42.2936&deg; N, 83.7166&deg; W</p>
     </div>
   </div>
@@ -162,6 +167,14 @@ const michigan = [
   .mono {
     font-family: var(--font-mono);
     letter-spacing: 0.04em;
+  }
+
+  .egg {
+    transition: color 0.2s var(--ease);
+  }
+
+  .egg:hover {
+    color: var(--accent);
   }
 
   @media (max-width: 52rem) {

@@ -12,12 +12,17 @@ import { href } from '../lib/site';
           Nothing in <em>frame</em>.
         </h1>
         <p class="lead">The page you were looking for has moved or never existed.</p>
-        <a class="btn btn--primary" href={href('/')}>
-          Back to the home page{' '}
-          <span class="arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </a>
+        <div class="actions">
+          <a class="btn btn--primary" href={href('/')}>
+            Back to the home page{' '}
+            <span class="arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+          <a class="btn" href={href('/play/')}>
+            Label some data instead
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -33,5 +38,11 @@ import { href } from '../lib/site';
     gap: 1.5rem;
     padding: clamp(2.5rem, 8vw, 7rem) clamp(2rem, 6vw, 5rem);
     background-color: var(--bg-2);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 </style>

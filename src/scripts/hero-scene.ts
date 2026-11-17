@@ -9,24 +9,27 @@
  * Switching modes sweeps a scan line across the frame.
  */
 
-type Vec = { x: number; y: number };
-type Box = { x0: number; y0: number; x1: number; y1: number };
-type Bone = readonly [number, number, number, number];
+import {
+  BALL_RADIUS,
+  FIGURE_COLORS,
+  type Figure,
+  bouncingBall,
+  flyingBird,
+  runningDog,
+  walkingAdult,
+} from './scene/figures';
+import { type Box, type Vec, circle, clamp, easeInOut, easeOut, lerp } from './scene/geometry';
+import { INK, drawChip, drawCorners, sample } from './scene/raster';
+
 type Mode = 'detect' | 'segment' | 'pose' | 'depth';
 
-interface Actor {
+interface Actor extends Figure {
   key: string;
   name: string;
   action: string;
   color: string;
   /** Distance from the camera in meters, for the depth view. */
   meters: number;
-  /** Signed distance from point to the actor's silhouette, in pixels. */
-  sdf: (x: number, y: number) => number;
-  /** Loose bounds used to limit which dots are sampled. */
-  bounds: Box;
-  /** Limb segments for the pose view. */
-  bones: Bone[];
   /** Dots covered this frame, as flat [x, y, coverage] triples. */
   cells: number[];
   /** Smoothed detection box, or null while the actor is out of frame. */
@@ -42,16 +45,20 @@ const ACTOR_KEYS = ['adult', 'dog', 'ball', 'bird', 'visitor'] as const;
 const TIMELINE_ROWS = ['adult', 'dog', 'ball', 'bird'] as const;
 
 const COLORS = {
-  adult: '#ffcb05',
-  dog: '#5cc8ff',
-  ball: '#ff7ab6',
-  bird: '#7be495',
+  ...FIGURE_COLORS,
   visitor: '#eef1f6',
-  ink: '#05080f',
+  ink: INK,
   dot: 'rgba(255, 255, 255, 0.11)',
   ground: 'rgba(255, 255, 255, 0.16)',
   text: 'rgba(238, 241, 246, 0.62)',
   scan: '#ffcb05',
+};
+const ACTIONS: Record<string, string> = {
+  adult: 'walking',
+  dog: 'running',
+  ball: 'bouncing',
+  bird: 'flying',
+  visitor: 'watching',
 };
 const METERS: Record<string, number> = {
   adult: 4.2,
@@ -78,12 +85,8 @@ const WIPE_DURATION = 0.95;
 /** Height of the controls strip along the top of the viewport, which labels must not cover. */
 const HUD_HEIGHT = 46;
 const TIMELINE_STRIP = 58;
+const UNLOCKED_KEY = 'ground-truth-unlocked';
 const COMPACT_STRIP = 98;
-
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 function depthColor(meters: number, alpha = 1): string {
   const t = clamp(meters / FAR, 0, 1) * (DEPTH_RAMP.length - 1);
@@ -91,17 +94,6 @@ function depthColor(meters: number, alpha = 1): string {
   const [a, b] = [DEPTH_RAMP[i], DEPTH_RAMP[i + 1]];
   const c = a.map((v, k) => Math.round(lerp(v, b[k], t - i)));
   return `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha})`;
-}
-
-function circle(px: number, py: number, cx: number, cy: number, r: number): number {
-  return Math.hypot(px - cx, py - cy) - r;
-}
-
-function capsule(px: number, py: number, [ax, ay, bx, by]: Bone, r: number): number {
-  const abx = bx - ax;
-  const aby = by - ay;
-  const t = clamp(((px - ax) * abx + (py - ay) * aby) / (abx * abx + aby * aby || 1), 0, 1);
-  return Math.hypot(px - (ax + abx * t), py - (ay + aby * t)) - r;
 }
 
 /** Back-and-forth traversal of the frame with a pause off-screen between passes. */
@@ -143,6 +135,7 @@ export function mountHeroScene(root: HTMLElement): void {
   const captionEl = root.querySelector<HTMLElement>('[data-caption]');
   const frameEl = root.querySelector<HTMLElement>('[data-frame]');
   const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+  const playLink = root.querySelector<HTMLElement>('[data-play]');
   const ctx = canvas?.getContext('2d');
   if (!canvas || !ctx || !captionEl) return;
 
@@ -182,11 +175,13 @@ export function mountHeroScene(root: HTMLElement): void {
   let pendingSince = 0;
 
   const pointer = { x: 0, y: 0, active: false };
+  /** Views the visitor has picked by hand. */
+  const chosen = new Set<Mode>();
 
   const actors: Actor[] = ACTOR_KEYS.map((key) => ({
     key,
     name: key,
-    action: '',
+    action: ACTIONS[key],
     color: COLORS[key],
     meters: METERS[key],
     sdf: () => 1,
@@ -265,109 +260,26 @@ export function mountHeroScene(root: HTMLElement): void {
 
     // Adult, walking.
     {
-      const a = byKey.adult;
       const { x, dir, dist } = traverse(time + 9, 8.5 * u, span, 5, margin, width);
-      const phase = dist / (4.6 * u);
-      const swing = Math.sin(phase);
-      const bob = Math.abs(Math.cos(phase)) * 0.7 * u;
-      const hipY = ground - 15 * u - bob;
-      const shoulderY = ground - 26 * u - bob;
-      const footY = ground - 1.8 * u;
-      const head: Vec = { x: x + dir * 0.6 * u, y: ground - 32.5 * u - bob };
-      const torso: Bone = [x, shoulderY, x, hipY];
-      const legA: Bone = [x, hipY, x + swing * 6 * u, footY - Math.max(0, swing) * 1.4 * u];
-      const legB: Bone = [x, hipY, x - swing * 6 * u, footY - Math.max(0, -swing) * 1.4 * u];
-      const armA: Bone = [x, shoulderY + u, x - swing * 4.6 * u, ground - 16 * u - bob];
-      const armB: Bone = [x, shoulderY + u, x + swing * 4.6 * u, ground - 16 * u - bob];
-      a.action = 'walking';
-      a.bounds = { x0: x - 10 * u, y0: ground - 38 * u, x1: x + 10 * u, y1: ground + u };
-      a.bones = [[head.x, head.y, x, shoulderY], torso, legA, legB, armA, armB];
-      a.sdf = (px, py) =>
-        Math.min(
-          circle(px, py, head.x, head.y, 3.5 * u),
-          capsule(px, py, torso, 3.3 * u),
-          capsule(px, py, legA, 1.9 * u),
-          capsule(px, py, legB, 1.9 * u),
-          capsule(px, py, armA, 1.45 * u),
-          capsule(px, py, armB, 1.45 * u),
-        );
+      Object.assign(byKey.adult, walkingAdult(x, dir, dist, ground, u));
     }
 
     // Dog, running after the ball.
     const chase = traverse(time, 25 * u, span + 18 * u, 3.5, margin + 18 * u, width);
-    {
-      const a = byKey.dog;
-      const { x, dir, dist } = chase;
-      const phase = dist / (3.1 * u);
-      const y = ground - Math.abs(Math.sin(phase)) * 1.5 * u;
-      const leg = (offset: number, shift: number): Bone => {
-        const hx = x + dir * offset;
-        const lift = Math.max(0, Math.cos(phase + shift)) * 2 * u;
-        return [
-          hx,
-          y - 7 * u,
-          hx + dir * Math.sin(phase + shift) * 3.6 * u,
-          ground - 1.3 * u - lift,
-        ];
-      };
-      const legs = [
-        leg(6.2 * u, 0),
-        leg(4.6 * u, 1.1),
-        leg(-6.6 * u, Math.PI),
-        leg(-5 * u, Math.PI + 1.1),
-      ];
-      const body: Bone = [x - dir * 7.5 * u, y - 9.4 * u, x + dir * 7 * u, y - 9.9 * u];
-      const head: Vec = { x: x + dir * 11.6 * u, y: y - 13.6 * u };
-      const snout: Bone = [x + dir * 12.5 * u, y - 13 * u, x + dir * 16 * u, y - 12 * u];
-      const ear: Bone = [x + dir * 10.4 * u, y - 16 * u, x + dir * 9.2 * u, y - 18.2 * u];
-      const wag = Math.sin(phase * 2) * u;
-      const tail: Bone = [x - dir * 10 * u, y - 11 * u, x - dir * 14.5 * u, y - 15.5 * u - wag];
-      a.action = 'running';
-      a.bounds = { x0: x - 17 * u, y0: ground - 20 * u, x1: x + 19 * u, y1: ground + u };
-      a.bones = [body, [body[2], body[3], head.x, head.y], tail, ...legs];
-      a.sdf = (px, py) => {
-        let d = Math.min(
-          capsule(px, py, body, 3.5 * u),
-          circle(px, py, head.x, head.y, 3 * u),
-          capsule(px, py, snout, 1.45 * u),
-          capsule(px, py, ear, 1.1 * u),
-          capsule(px, py, tail, 1 * u),
-        );
-        for (const l of legs) d = Math.min(d, capsule(px, py, l, 1.3 * u));
-        return d;
-      };
-    }
+    Object.assign(byKey.dog, runningDog(chase.x, chase.dir, chase.dist, ground, u));
 
     // Ball, bouncing just ahead of the dog.
     {
-      const a = byKey.ball;
-      const r = 3.3 * u;
       const x = chase.x + chase.dir * 27 * u;
-      const y = ground - r - Math.abs(Math.sin(chase.dist / (8.5 * u))) * 10.5 * u;
-      a.action = 'bouncing';
-      a.bounds = { x0: x - r - u, y0: y - r - u, x1: x + r + u, y1: y + r + u };
-      a.bones = [[x, y, x + chase.dir * 7 * u, y]];
-      a.sdf = (px, py) => circle(px, py, x, y, r);
+      const bounce = Math.abs(Math.sin(chase.dist / (8.5 * u))) * 10.5 * u;
+      Object.assign(byKey.ball, bouncingBall(x, ground - BALL_RADIUS * u - bounce, chase.dir, u));
     }
 
     // Bird, flying.
     {
-      const a = byKey.bird;
       const { x, dir, dist } = traverse(time + 4, 15 * u, span, 6, margin, width);
       const y = 24 * u + Math.sin(dist / (26 * u)) * 7 * u;
-      const tipY = y - Math.sin(time * 9) * 5.2 * u - 1.2 * u;
-      const body: Bone = [x - dir * 2.4 * u, y, x + dir * 2.6 * u, y - 0.4 * u];
-      const wingA: Bone = [x - dir * 0.4 * u, y - 0.6 * u, x - dir * 3 * u - 4.4 * u, tipY];
-      const wingB: Bone = [x - dir * 0.4 * u, y - 0.6 * u, x - dir * 3 * u + 4.4 * u, tipY];
-      a.action = 'flying';
-      a.bounds = { x0: x - 10 * u, y0: y - 9 * u, x1: x + 10 * u, y1: y + 9 * u };
-      a.bones = [body, wingA, wingB];
-      a.sdf = (px, py) =>
-        Math.min(
-          capsule(px, py, body, 1.7 * u),
-          capsule(px, py, wingA, 1.15 * u),
-          capsule(px, py, wingB, 1.15 * u),
-        );
+      Object.assign(byKey.bird, flyingBird(x, y, dir, time * 9, u));
     }
 
     // The visitor: whoever is moving a pointer over the scene.
@@ -375,7 +287,6 @@ export function mountHeroScene(root: HTMLElement): void {
       const a = byKey.visitor;
       const r = 3.6 * u;
       const { x, y } = pointer;
-      a.action = 'watching';
       a.bones = [];
       a.bounds = pointer.active
         ? { x0: x - r - u, y0: y - r - u, x1: x + r + u, y1: y + r + u }
@@ -385,39 +296,8 @@ export function mountHeroScene(root: HTMLElement): void {
   }
 
   /** Sample an actor on the grid; record covered dots and return the box around them. */
-  function measure(actor: Actor): Box | null {
-    const { bounds, cells } = actor;
-    cells.length = 0;
-    if (bounds.x1 < bounds.x0 || bounds.y1 < bounds.y0) return null;
-    const c0 = Math.max(0, Math.floor(bounds.x0 / step));
-    const c1 = Math.min(Math.ceil(width / step) - 1, Math.ceil(bounds.x1 / step));
-    const r0 = Math.max(0, Math.floor(bounds.y0 / step));
-    const r1 = Math.min(Math.floor((timelineTop - 1) / step) - 1, Math.ceil(bounds.y1 / step));
-    let count = 0;
-    let x0 = Infinity;
-    let y0 = Infinity;
-    let x1 = -Infinity;
-    let y1 = -Infinity;
-    for (let row = r0; row <= r1; row++) {
-      for (let col = c0; col <= c1; col++) {
-        const cx = col * step + step / 2;
-        const cy = row * step + step / 2;
-        const cover = clamp(0.5 - actor.sdf(cx, cy) / step, 0, 1);
-        if (cover <= 0.04) continue;
-        cells.push(cx, cy, cover);
-        if (cover >= 0.5) {
-          count++;
-          x0 = Math.min(x0, cx);
-          y0 = Math.min(y0, cy);
-          x1 = Math.max(x1, cx);
-          y1 = Math.max(y1, cy);
-        }
-      }
-    }
-    if (count < 3) return null;
-    const pad = step * 0.9;
-    return { x0: x0 - pad, y0: y0 - pad, x1: x1 + pad, y1: y1 + pad };
-  }
+  const measure = (actor: Actor) =>
+    sample(actor, { step, width, bottom: timelineTop }, actor.cells);
 
   function drawDots(actor: Actor, view: Mode) {
     const { cells } = actor;
@@ -441,45 +321,14 @@ export function mountHeroScene(root: HTMLElement): void {
     ctx!.globalAlpha = 1;
   }
 
-  /** A label chip above a box, kept inside the frame. */
-  function drawChip(text: string, detail: string, box: Box, color: string, alpha: number) {
-    const fontSize = compact ? 10 : 11;
-    ctx!.font = `500 ${fontSize}px ${fontFamily}`;
-    const textWidth = ctx!.measureText(text).width;
-    const detailWidth = compact || !detail ? 0 : ctx!.measureText(detail).width + 8;
-    const chipW = Math.ceil(textWidth + detailWidth + 12);
-    const chipH = fontSize + 7;
-    const chipX = clamp(box.x0, 0, width - chipW);
-    const chipY = box.y0 - chipH - 3 < HUD_HEIGHT ? box.y1 + 3 : box.y0 - chipH - 3;
-    ctx!.globalAlpha = alpha;
-    ctx!.fillStyle = color;
-    ctx!.fillRect(chipX, chipY, chipW, chipH);
-    ctx!.fillStyle = COLORS.ink;
-    ctx!.textBaseline = 'middle';
-    ctx!.textAlign = 'left';
-    ctx!.fillText(text, chipX + 6, chipY + chipH / 2 + 0.5);
-    if (detailWidth > 0) {
-      ctx!.globalAlpha = alpha * 0.6;
-      ctx!.fillText(detail, chipX + 6 + textWidth + 8, chipY + chipH / 2 + 0.5);
-    }
-    ctx!.globalAlpha = 1;
-  }
-
-  function drawCorners(x: number, y: number, w: number, h: number) {
-    const tick = Math.min(9, w / 3, h / 3);
-    ctx!.lineWidth = 2;
-    ctx!.beginPath();
-    for (const [cx, cy, sx, sy] of [
-      [x, y, 1, 1],
-      [x + w, y, -1, 1],
-      [x, y + h, 1, -1],
-      [x + w, y + h, -1, -1],
-    ]) {
-      ctx!.moveTo(cx + sx * tick, cy);
-      ctx!.lineTo(cx, cy);
-      ctx!.lineTo(cx, cy + sy * tick);
-    }
-    ctx!.stroke();
+  /** A label chip above a box, kept inside the frame and clear of the controls. */
+  function chip(text: string, detail: string, box: Box, color: string, alpha: number) {
+    drawChip(ctx!, text, compact ? '' : detail, box, color, alpha, {
+      fontFamily,
+      fontSize: compact ? 10 : 11,
+      width,
+      top: HUD_HEIGHT,
+    });
   }
 
   function drawOverlay(actor: Actor, view: Mode) {
@@ -512,16 +361,16 @@ export function mountHeroScene(root: HTMLElement): void {
       ctx!.lineWidth = 1;
       ctx!.strokeRect(x, y, w, h);
       ctx!.globalAlpha = lock;
-      drawCorners(x, y, w, h);
+      drawCorners(ctx!, x, y, w, h);
       const label = compact ? actor.name : `${actor.name} \u00b7 ${actor.action}`;
-      drawChip(label, actor.confidence.toFixed(2), outer, color, lock);
+      chip(label, actor.confidence.toFixed(2), outer, color, lock);
       return;
     }
 
     if (view === 'segment') {
       ctx!.globalAlpha = lock;
-      drawCorners(x, y, w, h);
-      drawChip(actor.name, `IoU ${(actor.confidence - 0.04).toFixed(2)}`, outer, color, lock);
+      drawCorners(ctx!, x, y, w, h);
+      chip(actor.name, `IoU ${(actor.confidence - 0.04).toFixed(2)}`, outer, color, lock);
       return;
     }
 
@@ -552,7 +401,7 @@ export function mountHeroScene(root: HTMLElement): void {
       }
       const detail =
         actor.key === 'ball' ? 'velocity' : joints.size > 0 ? `${joints.size} keypoints` : '';
-      drawChip(actor.name, detail, outer, color, lock);
+      chip(actor.name, detail, outer, color, lock);
       return;
     }
 
@@ -561,7 +410,7 @@ export function mountHeroScene(root: HTMLElement): void {
     ctx!.setLineDash([3, 3]);
     ctx!.strokeRect(x, y, w, h);
     ctx!.setLineDash([]);
-    drawChip(actor.name, `${actor.meters.toFixed(1)} m`, outer, color, lock);
+    chip(actor.name, `${actor.meters.toFixed(1)} m`, outer, color, lock);
   }
 
   /** Dots swell around the pointer, like a receptive field following the visitor. */
@@ -744,8 +593,22 @@ export function mountHeroScene(root: HTMLElement): void {
     }
   }
 
+  /** Trying all four views by hand reveals the way into the hidden game, and it stays revealed. */
+  function unlockPlay() {
+    playLink?.removeAttribute('hidden');
+    try {
+      localStorage.setItem(UNLOCKED_KEY, '1');
+    } catch {
+      // Without storage the link simply has to be earned again next visit.
+    }
+  }
+
   function setMode(next: Mode, byUser: boolean) {
-    if (byUser) auto = false;
+    if (byUser) {
+      auto = false;
+      chosen.add(next);
+      if (chosen.size === MODES.length) unlockPlay();
+    }
     if (next !== mode) {
       previous = reduceMotion ? null : mode;
       mode = next;
@@ -816,6 +679,11 @@ export function mountHeroScene(root: HTMLElement): void {
 
   for (const tab of tabs) {
     tab.addEventListener('click', () => setMode(tab.dataset.mode as Mode, true));
+  }
+  try {
+    if (localStorage.getItem(UNLOCKED_KEY)) playLink?.removeAttribute('hidden');
+  } catch {
+    // No storage: the link stays hidden until it is earned.
   }
 
   new ResizeObserver(resize).observe(root);

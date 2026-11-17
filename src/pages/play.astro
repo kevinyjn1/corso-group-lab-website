@@ -1,0 +1,165 @@
+---
+import Base from '../layouts/Base.astro';
+import GroundTruth from '../components/GroundTruth.astro';
+import { href } from '../lib/site';
+
+const notes = [
+  {
+    term: 'IoU',
+    title: 'Intersection over union',
+    body: 'The area your box shares with the true box, divided by the area the two cover together. A perfect match is 1.00; boxes that never touch score 0.',
+  },
+  {
+    term: '0.5',
+    title: 'The classic bar',
+    body: 'Object detectors have long been graded the same way: a detection counts as correct when its IoU with the truth is at least 0.5. Here, so does yours.',
+  },
+  {
+    term: '×2.0',
+    title: 'Why speed matters',
+    body: 'Models learn from millions of boxes like these, so labeling has to be fast and accurate at once. Ten correct boxes in a row doubles every score.',
+  },
+];
+---
+
+<Base
+  title="Ground Truth"
+  description="A hidden game on the Corso Group website: label a moving scene with bounding boxes and get graded on IoU, the way a detector is."
+>
+  <header class="play-head">
+    <div class="container">
+      <p class="label">You found the hidden level</p>
+      <h1 class="page-title">
+        Ground <em>truth</em>.
+      </h1>
+      <p class="lead">
+        Every model the group trains starts with labels like the ones you are about to draw. You are
+        the annotator: box what moves, and get graded the way a detector is.
+      </p>
+    </div>
+  </header>
+
+  <section class="stage">
+    <div class="container">
+      <GroundTruth />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">How it is scored</p>
+      </div>
+      <ul class="notes" data-reveal="stagger">
+        {notes.map((note) => (
+          <li>
+            <p class="term">{note.term}</p>
+            <h2 class="h3">{note.title}</h2>
+            <p>{note.body}</p>
+          </li>
+        ))}
+      </ul>
+      <!-- prettier-ignore -->
+      <p class="outro">
+        The group also works on doing this without people: <a class="link" href={href('/publications/?q=label')}>labeling data automatically, and catching the labels that are wrong</a>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .play-head {
+    padding-block: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.25rem, 2vw, 1.5rem);
+  }
+
+  /* On wide screens the title and its lead share a row, which leaves the height to the game. */
+  @media (min-width: 62rem) {
+    .play-head .container {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: end;
+      column-gap: clamp(2.5rem, 5vw, 4.5rem);
+    }
+
+    .play-head .label {
+      grid-column: 1 / -1;
+    }
+
+    .play-head .lead {
+      margin: 0 0 0.45rem;
+    }
+  }
+
+  .play-head .label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .play-head .label::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--maize);
+  }
+
+  .play-head .page-title {
+    font-size: clamp(2.5rem, 6vw, 3.75rem);
+  }
+
+  .play-head .lead {
+    max-width: 46rem;
+    margin-top: 0.9rem;
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+  }
+
+  .stage {
+    padding-bottom: clamp(1rem, 3vw, 2rem);
+  }
+
+  .section-head {
+    margin-bottom: 1rem;
+  }
+
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem clamp(1.5rem, 4vw, 3rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .notes li {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line-2);
+  }
+
+  .term {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  .notes h2 {
+    margin-block: 0.6rem 0.5rem;
+  }
+
+  .notes p:last-child {
+    color: var(--text-2);
+  }
+
+  .outro {
+    max-width: 46rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    color: var(--text-2);
+  }
+
+  @media (max-width: 52rem) {
+    .notes {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

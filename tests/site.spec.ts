@@ -1,8 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { basePath } from './base-path';
-
-/** The address of a site path under the mount point being tested. */
-const at = (path: string) => `${basePath}${path}`;
+import { at } from './base-path';
 
 const pages = [
   '/',
@@ -12,6 +9,7 @@ const pages = [
   '/resources/',
   '/teaching/',
   '/join/',
+  '/play/',
 ];
 
 /** Collect console errors, uncaught exceptions, and failed requests for a page. */

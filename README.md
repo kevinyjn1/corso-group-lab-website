@@ -83,12 +83,33 @@ src/
   data/               Content (YAML)
   lib/                Site config and content helpers
   layouts/Base.astro  Page shell: head, fonts, theme, header, footer
-  components/         Header, footer, publication row, hero scene, charts
+  components/         Header, footer, publication row, hero scene, charts, the game
   pages/              One file per page
   scripts/            Browser code: hero scene, publication filter, motion
+    scene/            Dot-matrix figures and drawing shared by the hero and the game
+    game/             Ground Truth: rules (pure functions) and the playable scene
   styles/global.css   Design tokens and shared styles
-tests/                End-to-end tests
+tests/                End-to-end tests, plus tests of the game rules
 ```
+
+## The hidden game
+
+`/play/` is Ground Truth, an easter egg that is deliberately left out of the navigation. The
+visitor is the annotator: figures from the home page scene cross the frame, the visitor drags a
+box around each one, and every box is graded on IoU against the true box. A box counts at 0.5
+IoU or better, small and distant targets are worth more, and streaks multiply the score. A round
+lasts 45 seconds and moves from clear footage to occlusion to low light.
+
+There are four ways in:
+
+- Try all four views of the home page scene (Detect, Segment, Pose, Depth) and a fifth tab,
+  Play, appears and stays.
+- Type the Konami code on any page: up, up, down, down, left, right, left, right, B, A.
+- Follow the small "IoU >= 0.5?" link at the bottom of the footer.
+- Land on the 404 page and choose to label some data instead.
+
+Scoring, ranks, and the pace of a round are plain functions in
+[src/scripts/game/rules.ts](src/scripts/game/rules.ts), so they can be tuned in one place.
 
 ## Design notes
 
