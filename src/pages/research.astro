@@ -24,7 +24,6 @@ const sections = areas.map((area) => {
   ].slice(0, 4);
   return {
     area,
-    count: inArea.length,
     picks,
     releases: area.data.releases
       ? area.data.releases.flatMap((id) => resources.filter((r) => r.id === id))
@@ -69,7 +68,7 @@ const sections = areas.map((area) => {
     </div>
   </nav>
 
-  {sections.map(({ area, count, picks, releases }, i) => (
+  {sections.map(({ area, picks, releases }, i) => (
     <section class="section area" id={area.id} data-topic={area.id}>
       <div class="container">
         <div class="area-grid" data-reveal="stagger">
@@ -115,7 +114,7 @@ const sections = areas.map((area) => {
           <div class="papers-head">
             <h3 class="label">Selected papers</h3>
             <a class="more" href={href(`/publications/?topic=${area.id}`)}>
-              All {count} papers{' '}
+              All papers in this area{' '}
               <span class="arrow" aria-hidden="true">
                 &rarr;
               </span>

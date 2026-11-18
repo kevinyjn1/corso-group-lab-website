@@ -75,16 +75,11 @@ const michigan = [
     </div>
   </div>
 
-  <p class="wordmark" aria-hidden="true">
-    {site.name}
-  </p>
-
   <div class="container">
     <div class="bottom">
       <p>
         &copy; {year} {site.name}, {site.university}
       </p>
-      <p class="mono">42.2936&deg; N, 83.7166&deg; W</p>
     </div>
   </div>
 </footer>
@@ -148,22 +143,6 @@ const michigan = [
     background-size: 100% 2px;
   }
 
-  /* The group's name closes every page. */
-  .wordmark {
-    font-family: var(--font-display);
-    font-stretch: 66%;
-    /* The name signs the page off at the size of a heading, not of a poster. */
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 800;
-    line-height: 0.9;
-    letter-spacing: -0.008em;
-    text-align: center;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--maize);
-    user-select: none;
-  }
-
   .bottom {
     display: flex;
     flex-wrap: wrap;
@@ -174,11 +153,6 @@ const michigan = [
     border-top: 1px solid var(--line);
     font-size: 0.8125rem;
     color: var(--text-3);
-  }
-
-  .mono {
-    font-family: var(--font-mono);
-    letter-spacing: 0.04em;
   }
 
   @media (max-width: 52rem) {

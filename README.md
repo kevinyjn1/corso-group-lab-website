@@ -64,8 +64,9 @@ Copy an entry in `src/data/publications.yaml` and edit it:
 ```
 
 Topics are the ids in `areas.yaml`: `video`, `language`, `robotics`, `human`, `health`, `learning`.
-Counts, the per-year chart, the venue ticker, and the selected papers on the research page all
-update from this one file.
+The per-year chart and the selected papers on the research page update from this one file. The
+home page names the venues where the group publishes most; the build stops if a venue it names
+has fewer than five papers on the list.
 
 ### Adding a person
 
@@ -179,6 +180,10 @@ page at `/vigil/`.
   60 pixels on a desktop, a section heading about 44, and nothing on the site is larger than 84.
   A test measures every piece of text on every page and fails if anything is. An earlier design
   set headlines as large as the screen allowed, and it read as shouting.
+- **Nothing that poses as data.** The home page has no rows of big statistics, no scrolling strip
+  of venues, no numbers that count up, no frame counter on a figure, no coordinates in the
+  footer. A fact worth stating is stated once, in a sentence, where it belongs. A video's summary
+  says what it is about, not how long it runs.
 - **Details.** Four rules, each with a test behind it. Do not say twice what the page already
   shows right there. A pattern has no exceptions: every row of a timeline is a date, every title
   of a list is in one case. A link opens the thing its words name: a post is linked as the post,

@@ -17,16 +17,16 @@ const byYear = years.map((year) => ({
 const typesInUse = (Object.keys(TYPE_LABELS) as Publication['data']['type'][]).filter((type) =>
   publications.some((p) => p.data.type === type),
 );
-const span = years[0] - years[years.length - 1];
+const firstYear = years[years.length - 1];
 ---
 
 <Base
   title="Publications"
-  description={`All ${publications.length} publications from the Corso Group, searchable by title, author, venue, and research area.`}
+  description="Publications from the Corso Group, searchable by title, author, venue, and research area."
 >
   <PageHead label="Publications">
     <Fragment slot="title">
-      {publications.length} papers over <em>{span} years</em>.
+      Papers, {firstYear} to <em>today</em>.
     </Fragment>
     <!-- prettier-ignore -->
     <p class="lead">

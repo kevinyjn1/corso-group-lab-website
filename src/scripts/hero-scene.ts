@@ -109,7 +109,6 @@ function describe({ progress }: Operation): string {
 export function mountHeroScene(root: HTMLElement): void {
   const canvas = root.querySelector<HTMLCanvasElement>('canvas');
   const captionEl = root.querySelector<HTMLElement>('[data-caption]');
-  const frameEl = root.querySelector<HTMLElement>('[data-frame]');
   const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-mode]')];
   const ctx = canvas?.getContext('2d');
   if (!canvas || !ctx || !captionEl) return;
@@ -129,7 +128,6 @@ export function mountHeroScene(root: HTMLElement): void {
   // Without motion the scene holds one telling moment: the needle part way through a stitch.
   let time = reduceMotion ? 4 * STITCH_SECONDS + 1 : 0;
   let last = 0;
-  let frame = 0;
   let running = false;
   let onScreen = true;
   let sampleClock = 0;
@@ -702,7 +700,6 @@ export function mountHeroScene(root: HTMLElement): void {
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
     time += dt;
-    frame++;
 
     if (auto) {
       const elapsed = time - modeSince;
@@ -738,9 +735,6 @@ export function mountHeroScene(root: HTMLElement): void {
     const text = captionTarget.slice(0, Math.floor(captionShown));
     if (text !== caption) captionEl!.textContent = caption = text;
 
-    if (frameEl && frame % 3 === 0) {
-      frameEl.textContent = String(Math.floor(time * 30)).padStart(6, '0');
-    }
     requestAnimationFrame(tick);
   }
 

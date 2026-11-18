@@ -185,17 +185,20 @@ test.describe('home page scene', () => {
     const scene = page.locator('[data-hero-scene]');
     await scene.scrollIntoViewIfNeeded();
     await expect(scene.locator('[data-caption]')).not.toBeEmpty({ timeout: 10_000 });
-    const frame = scene.locator('[data-frame]');
+    // What is drawn is the test: held, the picture does not change; playing, it does.
+    const picture = () =>
+      scene.locator('canvas').evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
 
     await scene.getByRole('button', { name: 'Pause the scene' }).click();
     await expect(scene).toHaveAttribute('data-held', '');
-    const stopped = await frame.innerText();
+    await page.waitForTimeout(300);
+    const stopped = await picture();
     await page.waitForTimeout(1200);
-    await expect(frame).toHaveText(stopped);
+    expect(await picture()).toBe(stopped);
 
     await scene.getByRole('button', { name: 'Play the scene' }).click();
     await expect(scene).not.toHaveAttribute('data-held', '');
-    await expect.poll(() => frame.innerText(), { timeout: 5_000 }).not.toBe(stopped);
+    await expect.poll(picture, { timeout: 5_000 }).not.toBe(stopped);
   });
 
   test('the operation moves forward, one stitch at a time', async ({ page }) => {
@@ -481,9 +484,7 @@ test('clips of the system play while on screen and can be held still', async ({ 
   await expect(clip).toHaveAttribute('data-playing', 'true');
 });
 
-test('with motion reduced, no page scrolls sideways, and the venue strip is still readable', async ({
-  page,
-}) => {
+test('with motion reduced, no page scrolls sideways', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   for (const path of pages) {
     await page.goto(at(path));
@@ -492,19 +493,6 @@ test('with motion reduced, no page scrolls sideways, and the venue strip is stil
     );
     expect(overflow, path).toBe(0);
   }
-  // The strip of venues does not move, so it shows one copy of the list and scrolls by hand.
-  await page.goto(at('/'));
-  const strip = page.locator('.ticker .window');
-  await strip.scrollIntoViewIfNeeded();
-  await expect(strip.locator('ul:visible')).toHaveCount(1);
-  const reach = await strip.evaluate((el) => {
-    el.scrollLeft = el.scrollWidth;
-    const last = el.querySelector('ul li:last-child')!.getBoundingClientRect();
-    const box = el.getBoundingClientRect();
-    return { scrolled: el.scrollLeft, lastInView: last.right <= box.right + 1 };
-  });
-  expect(reach.scrolled).toBeGreaterThan(0);
-  expect(reach.lastInView).toBe(true);
 });
 
 test('clips stay still for visitors who ask for reduced motion', async ({ page }) => {
@@ -759,18 +747,12 @@ test('the home page leads with the thesis, then its proof, then the operating ro
   // The headline is the group's thesis, in the words of the talk's title.
   const headline = page.locator('h1');
   await expect(headline).toHaveText(/^\s*Physically-grounded agentic\s+upskilling\s*\.\s*$/);
-  // It is defined in a sentence, each word is explained, and the talk it comes from is named.
+  // It is defined in a sentence and each word is explained, with no small print under them.
   await expect(page.locator('.hero .lead')).toContainText(
     'guides a person through a physical task',
   );
   await expect(page.locator('.hero .words div')).toHaveCount(3);
-  await expect(page.locator('.hero-source')).toContainText(
-    'Physically-Grounded Agentic Upskilling',
-  );
-  await expect(page.locator('.hero-source a')).toHaveAttribute(
-    'href',
-    /^https:\/\/www\.youtube\.com\/watch\?v=/,
-  );
+  await expect(page.locator('.hero-more > *')).toHaveCount(1);
 
   const order = await page.evaluate(() => {
     const top = (selector: string) =>
@@ -862,6 +844,40 @@ test('the first screen is calm: one moderate line of headline, with the photogra
     });
     expect(largest.size, `${path}: "${largest.text}"`).toBeLessThanOrEqual(84);
   }
+});
+
+test('the home page is not a dashboard: no rows of big numbers, no ticker, no ornament that poses as data', async ({
+  page,
+}) => {
+  await page.goto(at('/'));
+  // The rows of statistics, the scrolling strip of venues, and the numbers that counted up are gone.
+  await expect(page.locator('.stats, .numbers, .vigil-facts, .ticker, [data-count]')).toHaveCount(
+    0,
+  );
+  // Where the group publishes is said once, in a sentence, beside its latest papers.
+  await expect(page.getByText(/^The group publishes mainly at CVPR, ICCV, and ECCV/)).toHaveCount(
+    1,
+  );
+  // No running totals on the links to more.
+  for (const text of await page.locator('main a.more, main .area-count').allInnerTexts()) {
+    expect(text, text).not.toMatch(/\d/);
+  }
+  // A video's summary says what it is about, not how long it runs.
+  await expect(page.locator('main')).not.toContainText(/\b\d+ minutes\b/);
+  // The surgery figure has no recording light or frame counter, and the footer no coordinates.
+  await expect(page.locator('[data-hero-scene]')).not.toContainText(/Frame\s*\d/i);
+  await expect(page.locator('footer')).not.toContainText(/°|\d\.\d{3}/);
+  // The VIGIL band and the operating room share one blue field, with no edge between them.
+  const join = await page.evaluate(() => {
+    const band = document.querySelector('section.vigil')!.getBoundingClientRect();
+    const stage = document.querySelector('.stage')!.getBoundingClientRect();
+    return {
+      gap: Math.round(stage.top - band.bottom),
+      light: getComputedStyle(document.querySelector('.stage')!).backgroundImage,
+    };
+  });
+  expect(join.gap).toBe(0);
+  expect(join.light).not.toContain('255, 203, 5');
 });
 
 test('the thesis makes its claims with live figures and the papers behind them', async ({

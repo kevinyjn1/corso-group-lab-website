@@ -46,13 +46,6 @@ export const thesis = {
   name: 'Physically grounded upskilling',
   /** The title of the talk. */
   talk: 'Physically-Grounded Agentic Upskilling',
-  /** Where the talk was given in 2026, in order. */
-  venues: ['Colorado State University', 'Tübingen AI Center', 'Salesforce Research'],
-  /** A public recording of the talk it grew out of. */
-  recording: {
-    label: "AI's Role in Upskilling Medical Practice, 2025",
-    href: 'https://www.youtube.com/watch?v=GO4KWuxpWA0',
-  },
   definition:
     'AI that guides a person through a physical task they were never trained to do, and makes them better at it as they work.',
   /** What each word is doing. */

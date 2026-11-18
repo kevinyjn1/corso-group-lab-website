@@ -1,10 +1,9 @@
 /**
- * Site-wide motion: scroll reveals, count-up numbers, and pointer spotlights.
+ * Site-wide motion: scroll reveals and pointer spotlights.
  *
  * Markup opts in with data attributes:
  *   data-reveal            fade the element up when it scrolls into view
  *   data-reveal="stagger"  do the same for each child, one after another
- *   data-count             count a number up from zero ("170+", "24K+")
  *   data-spotlight         track the pointer for a soft glow (see global.css)
  *
  * The hidden starting state only applies under the `js` class set in the
@@ -40,36 +39,6 @@ function reveal() {
   for (const el of targets) observer.observe(el);
 }
 
-function countUp() {
-  const targets = document.querySelectorAll<HTMLElement>('[data-count]');
-  if (reduceMotion || !('IntersectionObserver' in window)) return;
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const el = entry.target as HTMLElement;
-        observer.unobserve(el);
-        const final = el.textContent ?? '';
-        const match = final.match(/^(\d+)(.*)$/);
-        if (!match) continue;
-        const target = Number(match[1]);
-        const suffix = match[2];
-        const start = performance.now();
-        const duration = 1400;
-        const step = (now: number) => {
-          const t = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - t, 4);
-          el.textContent = t < 1 ? `${Math.round(target * eased)}${suffix}` : final;
-          if (t < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }
-    },
-    { threshold: 0.6 },
-  );
-  for (const el of targets) observer.observe(el);
-}
-
 function spotlight() {
   if (reduceMotion) return;
   document.addEventListener(
@@ -86,5 +55,4 @@ function spotlight() {
 }
 
 reveal();
-countUp();
 spotlight();

@@ -41,9 +41,6 @@ const profileLinks = [
   { label: 'Essays', href: site.links.essays },
   { label: 'Voxel51', href: site.links.voxel51 },
 ];
-/** Small counts are written as words, as in the rest of the site's prose. */
-const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-const inWords = (n: number) => WORDS[n] ?? String(n);
 /** A program's catalog code, as a name a visitor from outside Michigan can read. */
 const PROGRAMS: Record<string, string> = { ROB: 'Robotics' };
 const programName = (code: string) => PROGRAMS[code] ?? code;
@@ -58,9 +55,8 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
       The <em>group</em>.
     </Fragment>
     <p class="lead">
-      One principal investigator, {inWords(students.length)} Ph.D. students, a team of undergraduate
-      researchers, staff, and collaborators, and {phd.length} Ph.D. alumni in industry research labs
-      and on university faculties.
+      Prof. Corso, the group's Ph.D. students, undergraduate researchers, staff, and collaborators,
+      and the alumni who have gone on to industry research labs and university faculties.
     </p>
   </PageHead>
 
@@ -179,7 +175,6 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
           <h2 class="h2">Ph.D. graduates</h2>
           <p>Dissertations advised by Prof. Corso at Michigan and at SUNY at Buffalo.</p>
         </div>
-        <p class="label">{phd.length} dissertations</p>
       </div>
 
       <ul class="theses rows" data-reveal="stagger">

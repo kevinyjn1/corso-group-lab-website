@@ -16,11 +16,6 @@ export const LINKS = {
     'https://www.linkedin.com/posts/jason-corso_the-team-the-team-the-team-the-vigil-share-7461791088459157504-eJ6b/',
 } as const;
 
-interface Fact {
-  value: string;
-  label: string;
-}
-
 interface Step {
   name: string;
   title: string;
@@ -31,13 +26,6 @@ interface Moment {
   when: string;
   what: string;
 }
-
-const facts: readonly Fact[] = [
-  { value: '$24.6M', label: 'Maximum value of the ARPA-H award, made in February 2025' },
-  { value: '61', label: 'People on the team, at ten institutions' },
-  { value: '4', label: 'Clinical services guided, as of August 2026' },
-  { value: '30+', label: 'Publications from the project, as of May 2026' },
-];
 
 /** How the system works, in the order things happen in the room. */
 const steps: readonly Step[] = [
@@ -117,7 +105,6 @@ export const vigil = {
     prime: 'University of Michigan',
     manager: 'Bon Ku, M.D., MPP',
   },
-  facts,
   steps,
   /** Tasks the team has shown or named in public, and what it has said may come next. */
   services: {
