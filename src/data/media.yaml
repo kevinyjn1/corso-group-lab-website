@@ -5,6 +5,16 @@
 # project: vigil puts an item on the VIGIL page as well. A LinkedIn post has no title of its own,
 # so those titles say what the post is about.
 
+- id: upskilling-medical-practice-midas
+  title: "AI's Role in Upskilling Medical Practice"
+  kind: video
+  outlet: 'Michigan Institute for Data & AI in Society'
+  date: '2025-09-29'
+  url: 'https://www.youtube.com/watch?v=GO4KWuxpWA0'
+  youtubeId: 'GO4KWuxpWA0'
+  summary: "Prof. Corso's lecture on physically grounded upskilling: why guiding a person through a physical task is one of the hardest things to ask of AI, and what it takes, from hazy oracles to VIGIL. 103 minutes."
+  featured: 1
+
 - id: vigil-system-architecture-talk
   title: 'VIGIL: Vectors of Intelligent Guidance in Long-Reach Rural Healthcare'
   kind: video
@@ -127,7 +137,7 @@
   url: 'https://www.youtube.com/watch?v=vuMKvR-xGDA'
   youtubeId: 'vuMKvR-xGDA'
   summary: 'The lecture Prof. Corso gave at Michigan Robotics to mark his appointment as Toyota Professor of Artificial Intelligence, on the human, physical, and computational sides of AI.'
-  featured: 1
+  featured: 2
 
 - id: toward-autonomous-multi-floor-exploration-ascend
   title: 'Toward Autonomous Multi-Floor Exploration: Ascending Stairway Localization and Modeling'
@@ -160,7 +170,7 @@
   date: '2025-06-10'
   url: 'https://twimlai.com/podcast/twimlai/zero-shot-auto-labeling-the-end-of-annotation-for-computer-vision'
   summary: 'Interview on using foundation models to label data automatically with far less human annotation.'
-  featured: 3
+  featured: 4
 
 - id: computer-vision-in-action
   title: 'Computer Vision In Action'
@@ -343,7 +353,7 @@
   date: '2026-08-26'
   url: 'https://time.com/article/2026/08/26/why-i-stopped-fighting-ai-in-my-classroom-and-started-teaching-with-it/'
   summary: 'First-person essay on moving from resisting AI to teaching with it in his courses.'
-  featured: 2
+  featured: 3
 
 - id: from-prototype-to-production-what-it-really-take
   title: 'From Prototype to Production: What it Really Takes to Deploy Computer Vision in Manufacturing'
@@ -368,7 +378,7 @@
   date: '2025-03-22'
   url: 'https://venturebeat.com/ai/the-open-source-ai-debate-why-selective-transparency-poses-a-serious-risk/'
   summary: 'His guest article arguing that partial openness in AI models carries real risks.'
-  featured: 4
+  featured: 5
 
 - id: understanding-dataset-difficulty-with-class-wise
   title: 'Understanding Dataset Difficulty with Class-Wise Autoencoders'

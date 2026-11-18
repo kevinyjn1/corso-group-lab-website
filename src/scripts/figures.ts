@@ -5,9 +5,13 @@
  *   video     a supervoxel hierarchy that merges and splits (LIBSVX, streaming segmentation)
  *   language  dense captioning of a cooking video, step by step (YouCook2, ProcNets)
  *   robotics  a robot following spoken directions through a room (RobotSlang, navigation)
- *   human     an assistant that catches a mistake in a task and asks before going on
+ *   human     mistake attribution: what went wrong, when, and where (CVPR 2026)
  *   health    an echocardiogram with tracked landmarks and a view-quality score
  *   learning  an embedding space from which a small, well-spread coreset is chosen
+ *
+ * One more shows the group's own picture of a person as a fallible partner:
+ *
+ *   oracle    the hazy oracle: three mugs, an ambiguous request, and a robot that asks again
  *
  * Two more illustrate the group's flagship project:
  *
@@ -23,6 +27,7 @@ const MAIZE = '#ffcb05';
 const PINK = '#ff7ab6';
 const BLUE = '#5cc8ff';
 const GREEN = '#7be495';
+const ORANGE = '#ff9466';
 const MUTED = 'rgba(246, 243, 234, 0.55)';
 const FAINT = 'rgba(246, 243, 234, 0.13)';
 
@@ -31,6 +36,7 @@ const TINTS: Record<string, string> = {
   language: BLUE,
   robotics: GREEN,
   human: PINK,
+  oracle: MAIZE,
   health: '#ff9466',
   learning: '#b79cff',
   vigil: MAIZE,
@@ -55,8 +61,11 @@ interface Stage {
   text(value: string, x: number, y: number, color?: string, align?: CanvasTextAlign): void;
   /** The figure's one headline reading, shown in the console under it when it has one. */
   report(value: string, label: string): void;
-  /** What is being said to the person in the figure right now, or '' for silence. */
-  say(words: string): void;
+  /**
+   * What is being said in the figure right now, or '' for silence. `who` names the speaker when
+   * a figure has more than one.
+   */
+  say(words: string, who?: string): void;
 }
 
 type Figure = (stage: Stage) => void;
@@ -349,88 +358,339 @@ const robotics: Figure = (() => {
   };
 })();
 
-// --- Human-AI: catching a mistake, and asking before going on ---------------
+// --- Human-AI teams: the hazy oracle ------------------------------------------
 
-const human: Figure = (() => {
-  const TASK = [
-    'open the housing',
-    'unplug the old filter',
-    'insert the new filter',
-    'reseat the cable',
-    'close the housing',
+/**
+ * The group's own example of why a person is a partner and not an oracle (Lemmer and Corso,
+ * ICCV 2021 and AAAI 2023). Asked for "my mug" with three mugs on the table, a robot that must
+ * answer picks at random. One that may ask again gets "the orange one", and fetches it.
+ */
+const oracle: Figure = (() => {
+  const LOOP = 14;
+  const AT = {
+    ask: 0.4,
+    weigh: 2.2,
+    defer: 4.4,
+    rephrase: 6.8,
+    resolve: 8.4,
+    fetch: 9.6,
+    reset: 12.6,
+  };
+  const MUGS = [
+    { name: 'blue', color: BLUE },
+    { name: 'orange', color: ORANGE },
+    { name: 'green', color: GREEN },
   ];
-  const WRONG = 2;
-  const PACE = 1.7;
-  // The third step goes wrong part way through, is flagged, questioned, and then redone.
-  const DETECT = 1.0;
-  const FLAG = 1.0;
-  const ASK = 1.9;
-  const DETOUR = DETECT + FLAG + ASK;
-  const LOOP = TASK.length * PACE + DETOUR + 1.8;
+  const MINE = 1;
+  const span = (from: number, to: number, at: number) => clamp((at - from) / (to - from), 0, 1);
 
   return (s) => {
+    const { ctx, step } = s;
     const now = s.t % LOOP;
-    const left = s.step * 3.4;
-    const right = s.w - s.step;
-    const top = s.step * 4;
-    const gap = (s.h - top - s.step * 0.4) / TASK.length;
-    const cells = Math.floor((right - left) / s.step);
-    let state = 'watching';
+    const fade = 1 - span(AT.reset, LOOP - 0.3, now);
+    const weighed = span(AT.weigh, AT.weigh + 0.8, now) * fade;
+    const resolved = smooth(span(AT.resolve, AT.resolve + 0.9, now)) * fade;
+    const fetching = smooth(span(AT.fetch, AT.fetch + 1.4, now)) * fade;
+    const lifted = smooth(span(AT.fetch + 1.5, AT.fetch + 2.4, now)) * fade;
 
-    TASK.forEach((step, i) => {
-      // When each step starts, counting the detour taken by the step that goes wrong.
-      const start = i * PACE + (i > WRONG ? DETOUR : 0);
-      const y = top + i * gap;
-      const row = Math.round((y + s.step * 0.9) / s.step);
-      const col0 = Math.round(left / s.step);
-      let fill = clamp((now - start) / PACE, 0, 1);
-      let color = s.tint === PINK ? PAPER : s.tint;
-      let label = step;
-      let mark = now >= start + PACE ? 'ok' : '';
+    const top = Math.max(step * 3.6, 40);
+    const tableY = s.h * 0.66;
+    const r = Math.min(s.w / 11, (s.h - top) / 5.4);
+    const xs = MUGS.map((_, k) => s.w * (0.22 + 0.28 * k));
 
-      if (i === WRONG) {
-        const local = now - start;
-        if (local < DETECT) {
-          fill = clamp(local / PACE, 0, 1);
-          mark = '';
-        } else if (local < DETECT + FLAG) {
-          fill = DETECT / PACE;
-          color = PINK;
-          label = 'mistake: wrong part';
-          mark = Math.floor(local * 6) % 2 ? '!!' : '';
-          state = 'mistake found';
-        } else if (local < DETOUR) {
-          fill = DETECT / PACE;
-          color = PINK;
-          label = typed('ask: which filter goes here?', local - DETECT - FLAG, 22);
-          mark = '?';
-          state = 'asking';
-        } else {
-          fill = clamp((local - DETOUR) / PACE, 0, 1);
-          mark = fill >= 1 ? 'ok' : '';
+    // The table.
+    ctx.strokeStyle = PAPER;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.22;
+    ctx.strokeRect(step, tableY - r * 1.9, s.w - step * 2, r * 3.4);
+    ctx.globalAlpha = 1;
+
+    MUGS.forEach((mug, k) => {
+      const cx = xs[k];
+      const cy = tableY - (k === MINE ? lifted * r * 1.5 : 0);
+      const chosen = k === MINE;
+      const dim = 1 - 0.62 * resolved * (chosen ? 0 : 1);
+      // The mug, from above: a disc of dots with a handle.
+      for (let row = Math.floor((cy - r) / step); row <= (cy + r) / step; row++) {
+        for (let col = Math.floor((cx - r) / step); col <= (cx + r) / step; col++) {
+          const d = Math.hypot((col + 0.5) * step - cx, (row + 0.5) * step - cy);
+          if (d > r) continue;
+          s.cell(col, row, mug.color, (d > r * 0.62 ? 0.95 : 0.4) * dim, 0.78);
         }
       }
-      const begun = now >= start;
-      s.text(`0${i + 1}`, s.step, y, begun ? PAPER : MUTED);
-      s.text(
-        label,
-        left,
-        y,
-        !begun ? MUTED : color === PINK ? (mark === '?' ? MAIZE : PINK) : PAPER,
-      );
-      s.text(mark, right, y, mark === 'ok' ? GREEN : color === PINK ? PINK : PAPER, 'right');
-      for (let k = 0; k < cells; k++) {
-        const on = begun && k < Math.round(fill * cells);
-        s.cell(col0 + k, row, on ? color : PAPER, on ? 0.95 : 0.14, on ? 0.8 : 0.3);
+      ctx.strokeStyle = mug.color;
+      ctx.lineWidth = Math.max(2, step * 0.4);
+      ctx.globalAlpha = dim;
+      ctx.beginPath();
+      ctx.arc(cx + r * 1.02, cy, r * 0.36, -Math.PI / 2, Math.PI / 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // How likely the robot thinks it is that this is the mug that was meant.
+      const share = lerp(1 / 3, chosen ? 0.96 : 0.02, resolved);
+      if (weighed > 0) {
+        const barY = top + step * 1.4;
+        const cells = 8;
+        const first = Math.round((cx - (cells * step) / 2) / step);
+        const barRow = Math.round(barY / step);
+        for (let i = 0; i < cells; i++) {
+          const on = i < Math.round(share * cells);
+          s.cell(
+            first + i,
+            barRow,
+            on ? mug.color : PAPER,
+            (on ? 0.95 : 0.16) * weighed,
+            on ? 0.8 : 0.34,
+          );
+        }
+        ctx.globalAlpha = weighed;
+        s.text(
+          `${Math.round(share * 100)}%`,
+          cx,
+          barY - step * 1.5,
+          chosen && resolved > 0.5 ? mug.color : PAPER,
+          'center',
+        );
+        ctx.globalAlpha = 1;
+      }
+      // Undecided: every mug is ringed. Decided: only the one that was meant.
+      const ring = chosen ? Math.max(weighed, resolved) : weighed * (1 - resolved);
+      if (ring > 0) {
+        ctx.strokeStyle = resolved > 0.5 ? mug.color : MAIZE;
+        ctx.lineWidth = 2;
+        ctx.setLineDash(resolved > 0.5 ? [] : [step * 0.5, step * 0.5]);
+        ctx.lineDashOffset = -s.t * step;
+        ctx.globalAlpha = ring;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.34, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
       }
     });
+
+    // The robot's gripper comes down for the mug once it knows which one.
+    const gx = lerp(s.w / 2, xs[MINE], fetching);
+    const gy = lerp(top + step * 4.4, tableY - r * 1.25, fetching) - lifted * r * 1.5;
+    const jaw = lerp(r * 1.5, r * 1.12, fetching);
+    ctx.strokeStyle = PAPER;
+    ctx.lineWidth = Math.max(2, step * 0.36);
+    // It appears only once the robot knows which mug to reach for.
+    ctx.globalAlpha = span(0, 0.25, fetching) * fade;
+    ctx.beginPath();
+    ctx.moveTo(gx, top + step * 2.8);
+    ctx.lineTo(gx, gy);
+    ctx.moveTo(gx - jaw, gy + r * 0.7);
+    ctx.lineTo(gx - jaw, gy);
+    ctx.lineTo(gx + jaw, gy);
+    ctx.lineTo(gx + jaw, gy + r * 0.7);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    const state =
+      now < AT.weigh
+        ? 'listening'
+        : now < AT.defer
+          ? 'ambiguous'
+          : now < AT.resolve
+            ? 'defer'
+            : 'infer';
     s.text(
       state,
-      right,
-      s.step * 0.9,
-      state === 'watching' ? MUTED : state === 'asking' ? MAIZE : PINK,
+      s.w - step,
+      top - step * 1.4,
+      state === 'infer' ? GREEN : state === 'listening' ? MUTED : MAIZE,
       'right',
     );
+
+    // The conversation, in the console under the figure.
+    if (fade < 0.1 || now < AT.ask) s.say('', 'Person');
+    else if (now < AT.defer) s.say('Please fetch my mug.', 'Person');
+    else if (now < AT.rephrase) s.say("I didn't understand. Can you rephrase?", 'Robot');
+    else if (now < AT.fetch) s.say("It's the orange one.", 'Person');
+    else s.say('Fetching the orange mug.', 'Robot');
+    const best = Math.round(lerp(1 / 3, 0.96, resolved) * 100);
+    s.report(
+      now < AT.weigh ? '--' : `${best}%`,
+      now < AT.weigh
+        ? 'Confidence in any one mug'
+        : resolved < 0.5
+          ? 'Confidence in any one mug: ask again'
+          : 'Confidence in the orange mug: act',
+    );
+  };
+})();
+
+// --- Mistake attribution: what went wrong, when, and where ---------------------
+
+/**
+ * The task defined in Mistake Attribution (Li, Jain, Bellos, Corso; CVPR 2026), with the paper's
+ * own example. The instruction is "Grab a chain whip" and the person picks up a wrench. A useful
+ * guide says what was wrong (the object, not the action), when it became irreversible (the point
+ * of no return, 3.2 seconds in), and where (a box around the hand and the tool).
+ */
+const human: Figure = (() => {
+  const LOOP = 14.5;
+  const CLIP = 5; // seconds of video
+  const PNR = 3.2;
+  const AT = { watch: 0.4, what: 6.6, when: 8.6, where: 10.6, reset: 13.2 };
+  const RATE = CLIP / (AT.what - AT.watch - 0.4);
+  const span = (from: number, to: number, at: number) => clamp((at - from) / (to - from), 0, 1);
+
+  return (s) => {
+    const { ctx, step } = s;
+    const now = s.t % LOOP;
+    const fade = 1 - span(AT.reset, LOOP - 0.3, now);
+    // The clock of the attempt video. Once it has played, the frame at the point of no return holds.
+    const playing = now < AT.what;
+    const clock = playing ? clamp((now - AT.watch) * RATE, 0, CLIP) : PNR;
+
+    const top = Math.max(step * 3.6, 40);
+    // The timeline keeps clear of the bottom edge, with room for its two end labels.
+    const railY = s.h - Math.max(step * 3, 26);
+    const benchY = top + (railY - top) * 0.5;
+    const whip = { x: s.w * 0.26, y: benchY };
+    const wrench = { x: s.w * 0.66, y: benchY };
+    const u = Math.min(s.w / 23, (railY - top) / 9.5);
+    const bar = (x0: number, y0: number, x1: number, y1: number, color: string, alpha: number) => {
+      const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / (step * 0.9));
+      for (let i = 0; i <= n; i++) {
+        const x = lerp(x0, x1, i / n);
+        const y = lerp(y0, y1, i / n);
+        s.cell(Math.floor(x / step), Math.floor(y / step), color, alpha, 0.8);
+      }
+    };
+
+    // The bench, and the two tools on it.
+    ctx.strokeStyle = PAPER;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.2;
+    ctx.strokeRect(step, benchY - u * 3.2, s.w - step * 2, u * 6.4);
+    ctx.globalAlpha = 1;
+    // A chain whip: a handle with a short length of chain at its end.
+    bar(whip.x - u * 3.4, whip.y + u * 1.2, whip.x + u * 1.2, whip.y - u * 0.4, PAPER, 0.85);
+    for (let k = 0; k < 4; k++) {
+      const a = 0.5 + k * 0.55;
+      s.cell(
+        Math.floor((whip.x + u * 1.6 + Math.cos(a) * u * (0.6 + k * 0.7)) / step),
+        Math.floor((whip.y - u * 0.7 - Math.sin(a) * u * (0.4 + k * 0.5)) / step),
+        MAIZE,
+        0.95,
+        0.5,
+      );
+    }
+    s.text('chain whip', whip.x - u * 1.2, benchY + u * 4.3, MUTED, 'center');
+
+    // The hand reaches for the wrong tool, closes on it, and lifts it away.
+    const reach = smooth(span(0.6, PNR, clock));
+    const lift = smooth(span(PNR, CLIP, clock));
+    const hx = lerp(s.w * 0.5, wrench.x - u * 0.6, reach);
+    const hy = lerp(railY - step * 2.4, wrench.y + u * 0.9, reach) - lift * u * 2.6;
+    const wx = wrench.x;
+    const wy = wrench.y - lift * u * 2.6;
+    // A wrench: a shaft with an open jaw.
+    bar(wx - u * 2.8, wy + u * 1.1, wx + u * 1.6, wy - u * 0.7, PAPER, 0.85);
+    bar(wx + u * 1.6, wy - u * 0.7, wx + u * 2.9, wy - u * 0.3, PAPER, 0.85);
+    bar(wx + u * 1.6, wy - u * 0.7, wx + u * 2.0, wy - u * 1.9, PAPER, 0.85);
+    s.text('wrench', wrench.x, benchY + u * 4.3, MUTED, 'center');
+    // The hand: a palm of dots and a forearm running off the bottom of the frame.
+    for (let row = Math.floor((hy - u * 1.5) / step); row <= (hy + u * 1.5) / step; row++) {
+      for (let col = Math.floor((hx - u * 1.7) / step); col <= (hx + u * 1.7) / step; col++) {
+        const d = Math.hypot(
+          ((col + 0.5) * step - hx) / (u * 1.7),
+          ((row + 0.5) * step - hy) / (u * 1.5),
+        );
+        if (d <= 1) s.cell(col, row, s.tint, 0.9, 0.78);
+      }
+    }
+    bar(hx - u * 0.4, hy + u * 1.4, hx - u * 2.6, railY - step * 1.2, s.tint, 0.55);
+
+    // Where: a box around the hand and the tool, at the point of no return.
+    const where = span(AT.where, AT.where + 0.5, now) * fade;
+    if (where > 0) {
+      const x0 = Math.min(hx - u * 2.2, wx - u * 3.2);
+      const y0 = wy - u * 2.5;
+      const w = u * 7.4;
+      const h = u * 5.6;
+      const tick = u * 1.1;
+      ctx.strokeStyle = MAIZE;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = where;
+      ctx.beginPath();
+      for (const [cx, cy, sx, sy] of [
+        [x0, y0, 1, 1],
+        [x0 + w, y0, -1, 1],
+        [x0, y0 + h, 1, -1],
+        [x0 + w, y0 + h, -1, -1],
+      ]) {
+        ctx.moveTo(cx + sx * tick, cy);
+        ctx.lineTo(cx, cy);
+        ctx.lineTo(cx, cy + sy * tick);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 0.35 * where;
+      ctx.strokeRect(x0, y0, w, h);
+      ctx.globalAlpha = 1;
+    }
+
+    // The instruction, split the way the model splits it: the action, and the object.
+    const what = span(AT.what, AT.what + 0.5, now) * fade;
+    const lineY = top - step * 1.4;
+    s.text('instruction', s.w - step, lineY, MUTED, 'right');
+    const verbY = top + step * 0.6;
+    s.text('grab', step * 1.2, verbY, what > 0.5 ? GREEN : PAPER);
+    const verbW = ctx.measureText('GRAB ').width;
+    const objectX = step * 1.2 + verbW;
+    const objectW = ctx.measureText('A CHAIN WHIP').width;
+    s.text('a chain whip', objectX, verbY, what > 0.5 ? PINK : PAPER);
+    if (what > 0.5) {
+      // The object is struck out, and the verdict on each half is written beside the instruction.
+      ctx.strokeStyle = PINK;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(objectX, verbY);
+      ctx.lineTo(objectX + objectW, verbY);
+      ctx.stroke();
+      const verdictX = objectX + objectW + verbW;
+      s.text('right action,', verdictX, verbY, GREEN);
+      s.text('wrong object', verdictX + ctx.measureText('RIGHT ACTION, ').width, verbY, PINK);
+    }
+
+    // When: the attempt as a timeline, with the point of no return marked.
+    const first = 1;
+    const cells = s.cols - 2;
+    const railRow = Math.round(railY / step);
+    const when = span(AT.when, AT.when + 0.5, now) * fade;
+    for (let i = 0; i < cells; i++) {
+      const at = ((i + 0.5) / cells) * CLIP;
+      const played = at <= clock;
+      const after = when > 0.5 && at > PNR;
+      s.cell(
+        first + i,
+        railRow,
+        after ? PINK : played ? PAPER : PAPER,
+        after ? 0.5 : played ? 0.9 : 0.16,
+        played || after ? 0.7 : 0.34,
+      );
+    }
+    const mark = (first + (PNR / CLIP) * cells) * step;
+    if (when > 0) {
+      ctx.fillStyle = MAIZE;
+      ctx.globalAlpha = when;
+      ctx.fillRect(mark - 1.5, railY - step * 1.6, 3, step * 2.4);
+      ctx.globalAlpha = 1;
+      s.text('point of no return', mark - step * 0.8, railY - step * 1.9, MAIZE, 'right');
+    }
+    s.text('0 s', step, railY + step * 1.4, MUTED);
+    s.text(`${CLIP} s`, s.w - step, railY + step * 1.4, MUTED, 'right');
+
+    // The attribution, in words, in the console.
+    if (fade < 0.1 || now < AT.watch) s.say('', 'Instruction');
+    else if (now < AT.what) s.say('Grab a chain whip.', 'Instruction');
+    else if (now < AT.when) s.say('Right action, wrong object: that is a wrench.', 'What');
+    else if (now < AT.where) s.say('It could not be undone after 3.2 seconds.', 'When');
+    else s.say('Here: the hand, closing on the wrench.', 'Where');
+    s.report(`${clock.toFixed(1)} s`, playing ? 'Watching the attempt' : 'Point of no return');
   };
 })();
 
@@ -1245,6 +1505,7 @@ const leg: Figure = (() => {
 })();
 
 const FIGURES: Record<string, Figure> = {
+  oracle,
   video,
   language,
   robotics,
@@ -1260,7 +1521,8 @@ const STILL: Record<string, number> = {
   video: 1.6,
   language: 9.2,
   robotics: 6,
-  human: 6.4,
+  human: 11.4,
+  oracle: 9.2,
   health: 0.5,
   learning: 9.5,
   vigil: 9.9,
@@ -1282,6 +1544,7 @@ function mount(root: HTMLElement) {
   const valueEl = consoleEl?.querySelector<HTMLElement>('[data-readout-value]');
   const labelEl = consoleEl?.querySelector<HTMLElement>('[data-readout-label]');
   const saysEl = consoleEl?.querySelector<HTMLElement>('[data-says]');
+  const whoEl = consoleEl?.querySelector<HTMLElement>('[data-says-who]');
   const pauseButton = consoleEl?.querySelector<HTMLButtonElement>('[data-pause]');
   const stepButtons = [...(consoleEl?.querySelectorAll<HTMLButtonElement>('[data-step]') ?? [])];
   const loop = Number(consoleEl?.dataset.loop) || 0;
@@ -1327,10 +1590,12 @@ function mount(root: HTMLElement) {
       if (valueEl) valueEl.textContent = value;
       if (labelEl) labelEl.textContent = label;
     },
-    say(words) {
-      if (words === said) return;
-      said = words;
+    say(words, who) {
+      const line = `${who ?? ''}|${words}`;
+      if (line === said) return;
+      said = line;
       if (saysEl) saysEl.textContent = words;
+      if (whoEl && who) whoEl.textContent = who;
       consoleEl?.toggleAttribute('data-speaking', words !== '');
     },
   };

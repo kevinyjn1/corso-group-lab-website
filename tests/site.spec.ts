@@ -546,25 +546,39 @@ test('the VIGIL page shows the system at work: photos, both exams, and the demo 
   }
 });
 
-test("the home page leads with the group's own thesis, then VIGIL, then the operating room", async ({
+test('the home page leads with the thesis, then its proof, then the operating room', async ({
   page,
 }) => {
   await page.goto(at('/'));
+  // The headline is the group's thesis.
   const headline = page.locator('h1');
-  await expect(headline).toContainText('Understand the task.');
-  await expect(headline).toContainText('Understand the human.');
-  await expect(headline).toContainText('Fill the gap.');
-  // The headline is a quotation, so its source is given.
+  for (const word of ['Physically', 'grounded', 'upskilling.']) {
+    await expect(headline).toContainText(word);
+  }
+  // It is defined in a sentence, each word is explained, and the talk it comes from is named.
+  await expect(page.locator('.hero .lead')).toContainText(
+    'guides a person through a physical task',
+  );
+  await expect(page.locator('.hero .words div')).toHaveCount(3);
+  await expect(page.locator('.hero-source')).toContainText(
+    'Physically-Grounded Agentic Upskilling',
+  );
   await expect(page.locator('.hero-source a')).toHaveAttribute(
     'href',
-    /^https:\/\/www\.stevens\.edu\//,
+    /^https:\/\/www\.youtube\.com\/watch\?v=/,
   );
 
   const order = await page.evaluate(() => {
     const top = (selector: string) =>
       document.querySelector(selector)!.getBoundingClientRect().top + window.scrollY;
-    return { vigil: top('section.vigil'), scene: top('[data-hero-scene]'), areas: top('.areas') };
+    return {
+      thesis: top('#thesis'),
+      vigil: top('section.vigil'),
+      scene: top('[data-hero-scene]'),
+      areas: top('.areas'),
+    };
   });
+  expect(order.thesis).toBeLessThan(order.vigil);
   expect(order.vigil).toBeLessThan(order.scene);
   expect(order.scene).toBeLessThan(order.areas);
 
@@ -575,11 +589,60 @@ test("the home page leads with the group's own thesis, then VIGIL, then the oper
   await expect
     .poll(() => real.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth))
     .toBeGreaterThan(0);
+  await expect(page.locator('section.vigil .kicker')).toContainText('In healthcare delivery');
 
-  // One research area leads the grid, so it is not six equal cards.
-  await expect(page.locator('.areas > li')).toHaveCount(6);
-  await expect(page.locator('.areas > li.lead')).toHaveCount(1);
-  await expect(page.locator('.areas > li').first()).toHaveClass(/lead/);
+  // Human-AI collaboration is the thesis itself, so the grid below shows the other five areas.
+  await expect(page.locator('.areas > li')).toHaveCount(5);
+  await expect(page.locator('.areas [data-figure="human"]')).toHaveCount(0);
+});
+
+test('the thesis makes its claims with live figures and the papers behind them', async ({
+  page,
+}) => {
+  await page.goto(at('/'));
+  const thesis = page.locator('#thesis');
+  await expect(thesis.getByRole('heading', { level: 2 })).toContainText('Understand the task.');
+  const claims = thesis.locator('.claim');
+  await expect(claims).toHaveCount(2);
+  await expect(claims.nth(0)).toContainText('mandates human-AI teams');
+  await expect(claims.nth(1)).toContainText('must monitor for mistakes');
+  for (const paper of await thesis.locator('.claim-papers a').all()) {
+    await expect(paper).toHaveAttribute('href', /^https:\/\/(arxiv\.org|doi\.org)\//);
+  }
+  expect(await thesis.locator('.claim-papers a').count()).toBeGreaterThanOrEqual(4);
+
+  // The hazy oracle: an ambiguous request, a robot that asks again, and then acts.
+  const oracle = thesis.locator('[data-figure="oracle"] + [data-console]');
+  await oracle.scrollIntoViewIfNeeded();
+  const step = (panel: typeof oracle, name: string) =>
+    panel.getByRole('button', { name: new RegExp(`${name}$`) });
+  await step(oracle, 'Ask again').click();
+  await expect(oracle.locator('[data-says-who]')).toHaveText('Robot');
+  await expect(oracle.locator('[data-says]')).toContainText('Can you rephrase?');
+  await expect(oracle.locator('[data-readout-value]')).toHaveText('33%');
+  await step(oracle, 'Fetch').click();
+  await expect(oracle.locator('[data-says]')).toHaveText('Fetching the orange mug.');
+  await expect(oracle.locator('[data-readout-value]')).toHaveText('96%');
+  await expect(oracle.locator('[data-readout-label]')).toContainText('act');
+
+  // Mistake attribution: what, when, and where.
+  const mistake = thesis.locator('[data-figure="human"] + [data-console]');
+  await mistake.scrollIntoViewIfNeeded();
+  await step(mistake, 'Watch').click();
+  await expect(mistake.locator('[data-says]')).toHaveText('Grab a chain whip.');
+  await step(mistake, 'What').click();
+  await expect(mistake.locator('[data-says-who]')).toHaveText('What');
+  await expect(mistake.locator('[data-says]')).toContainText('wrong object');
+  await step(mistake, 'When').click();
+  await expect(mistake.locator('[data-readout-value]')).toHaveText('3.2 s');
+  await expect(mistake.locator('[data-readout-label]')).toHaveText('Point of no return');
+  await step(mistake, 'Where').click();
+  await expect(mistake.locator('[data-says-who]')).toHaveText('Where');
+
+  // The arc ends at the clinic, and the third claim leads on to VIGIL.
+  await expect(thesis.locator('.arc > li')).toHaveCount(5);
+  await thesis.locator('.arc-next').click();
+  await expect(page.locator('section.vigil')).toBeInViewport();
 });
 
 test('the header fits at every width where the full navigation shows', async ({

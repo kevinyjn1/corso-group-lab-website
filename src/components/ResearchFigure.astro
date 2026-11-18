@@ -14,6 +14,7 @@ const figure = FIGURES[topic];
 /** Figures that tell a story in steps get a console: a live reading, and the steps to jump to. */
 const steps = 'steps' in figure ? figure.steps : undefined;
 const loop = 'loop' in figure ? figure.loop : undefined;
+const speaker = 'speaker' in figure ? figure.speaker : '';
 ---
 
 <figure class="figure" data-figure={topic} data-topic={topic} data-wide={wide ? '' : undefined}>
@@ -37,7 +38,7 @@ const loop = 'loop' in figure ? figure.loop : undefined;
           <i />
           <i />
         </span>
-        VIGIL says
+        <span data-says-who>{speaker}</span>
       </span>
       <span class="says-what" data-says />
     </p>
@@ -55,7 +56,7 @@ const loop = 'loop' in figure ? figure.loop : undefined;
         <path d="M4 2.5v11l9.5-5.5z" fill="currentColor" />
       </svg>
     </button>
-    <ol class="steps" aria-label="The steps of this exam. Choose one to jump to it.">
+    <ol class="steps" aria-label="The steps of this figure. Choose one to jump to it.">
       {steps.map((step, i) => (
         <li>
           <button type="button" data-step={step.at}>
@@ -182,6 +183,8 @@ const loop = 'loop' in figure ? figure.loop : undefined;
     font-size: clamp(1.1rem, 1.9vw, 1.45rem);
     font-weight: 600;
     line-height: 1.15;
+    /* Room for two lines, so the console keeps its height whatever is said. */
+    min-height: 2.3em;
     color: var(--screen-text);
     text-wrap: balance;
   }

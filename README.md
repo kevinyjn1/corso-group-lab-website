@@ -105,6 +105,22 @@ src/
 tests/                End-to-end tests, plus tests of the scene's timing
 ```
 
+## The thesis: physically grounded upskilling
+
+The home page is built around the group's thesis, in the words of Prof. Corso's 2026 talk
+"Physically-Grounded Agentic Upskilling": AI that guides a person through a physical task and
+makes them better at it.
+
+- **The words** are in `src/lib/thesis.ts`: the definition, what each word means, the talk's
+  three claims, and the arc from the kitchen to the clinic. The talk's slides are not public, so
+  the site quotes only its title, its three claims, and its closing idea, and links every result
+  to its published paper.
+- **Two live figures** carry the first two claims (`oracle` and `human` in
+  `src/scripts/figures.ts`): the hazy oracle, with the group's own three-mugs example, and
+  mistake attribution, with the paper's chain whip example. The third claim is the VIGIL band.
+- **Private working material** is kept out of this repository by `.gitignore`: slide decks and
+  an Obsidian vault of project notes (`vault/`).
+
 ## VIGIL, the flagship project
 
 VIGIL has a band on the home page and the Research page, an entry in the navigation, and its own

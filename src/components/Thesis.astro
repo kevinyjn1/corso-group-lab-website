@@ -1,0 +1,261 @@
+---
+/**
+ * The group's thesis on the home page: what an AI must do to guide a person, the first two of the
+ * talk's three claims with a live figure each, and how the group got here. The third claim is the
+ * VIGIL band that follows. The words are in src/lib/thesis.ts.
+ */
+import ResearchFigure from './ResearchFigure.astro';
+import { getPublications } from '../lib/content';
+import { thesis } from '../lib/thesis';
+
+const publications = await getPublications();
+const papersOf = (ids: readonly string[]) =>
+  ids.flatMap((id) => publications.filter((pub) => pub.id === id));
+const shown = thesis.claims.filter((claim) => claim.figure);
+---
+
+<section class="section thesis" id="thesis">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="label">The thesis</p>
+        <h2 class="h2">
+          Understand the task. Understand the <em>human</em>. Fill the gap.
+        </h2>
+        <p>
+          That is{' '}
+          <a
+            class="link"
+            href="https://www.stevens.edu/news/darpa-award-59-million-corso-and-teams-artificial-intelligence-program-will-learn-guide-humans"
+            rel="noopener"
+          >
+            how Prof. Corso sums up
+          </a>{' '}
+          what an AI must do to guide someone. His talk makes three claims about what that takes.
+        </p>
+      </div>
+    </div>
+
+    <ol class="claims" data-reveal="stagger">
+      {shown.map((claim, i) => (
+        <li class="claim">
+          <p class="claim-quote">
+            <span class="claim-n">{String(i + 1).padStart(2, '0')}</span>
+            It {claim.quote}
+          </p>
+          <h3 class="h3">{claim.title}</h3>
+          <div class="claim-figure">
+            <ResearchFigure topic={claim.figure!} number={i + 1} />
+          </div>
+          <p class="claim-body">{claim.body}</p>
+          <ul class="claim-papers">
+            {papersOf(claim.papers).map((pub) => (
+              <li>
+                <a href={pub.data.links?.arxiv ?? pub.data.links?.doi} rel="noopener">
+                  {pub.data.title} <span aria-hidden="true">&nearr;</span>
+                </a>
+                <span class="venue">
+                  {pub.data.venueShort ?? pub.data.venue} {pub.data.year}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+
+    <div class="arc-head" data-reveal>
+      <p class="label">How the group got here</p>
+      <a class="arc-next" href="#vigil-band-title">
+        <span class="claim-n">03</span>
+        And it is being proven {thesis.claims[2].quote}
+        <span aria-hidden="true">&darr;</span>
+      </a>
+    </div>
+    <ol class="arc" data-reveal="stagger">
+      {thesis.arc.map((step) => (
+        <li>
+          <p class="arc-when">{step.when}</p>
+          <h3>{step.title}</h3>
+          <p>{step.body}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .thesis {
+    scroll-margin-top: var(--header-h);
+  }
+
+  .claims {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem clamp(1.5rem, 3.5vw, 3.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The claim in the talk's own words, numbered like a proposition. */
+  .claim-quote,
+  .arc-next {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .claim-n {
+    flex: none;
+    padding: 0.15rem 0.4rem;
+    background: var(--blue);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--maize);
+  }
+
+  .claim .h3 {
+    margin-top: 0.7rem;
+    font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+    text-wrap: balance;
+  }
+
+  .claim-figure {
+    margin-top: 1.25rem;
+    box-shadow: 8px 8px 0 var(--maize);
+  }
+
+  .claim-body {
+    max-width: 38rem;
+    margin-top: 1.75rem;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .claim-papers {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line-2);
+  }
+
+  .claim-papers li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.2rem 1.5rem;
+    padding-block: 0.6rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+
+  .claim-papers a:hover,
+  .arc-next:hover {
+    background: color-mix(in srgb, var(--maize) 45%, transparent);
+  }
+
+  .venue {
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-3);
+  }
+
+  /* --- The arc: five steps, the last of which is the band that follows. ------- */
+
+  .arc-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1rem;
+    border-top: var(--rule) solid var(--text);
+  }
+
+  .arc-next {
+    color: var(--text);
+  }
+
+  .arc {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .arc li {
+    padding: 0 clamp(0.8rem, 1.6vw, 1.4rem) 0.25rem;
+    border-left: 1px solid var(--line-2);
+  }
+
+  .arc li:last-child {
+    border-left: var(--rule) solid var(--maize);
+  }
+
+  .arc-when {
+    font-family: var(--font-display);
+    font-stretch: 66%;
+    font-size: clamp(2rem, 3.4vw, 3rem);
+    font-weight: 800;
+    line-height: 0.9;
+  }
+
+  .arc h3 {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-stretch: 84%;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .arc li > p:last-child {
+    margin-top: 0.4rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 62rem) {
+    .claims {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .arc {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 1.75rem;
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .arc {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .claim-figure {
+      box-shadow: 5px 5px 0 var(--maize);
+    }
+  }
+</style>

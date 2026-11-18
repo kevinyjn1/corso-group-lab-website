@@ -7,6 +7,7 @@ import Logo from '../components/Logo.astro';
 import MediaRow from '../components/MediaRow.astro';
 import ResearchFigure from '../components/ResearchFigure.astro';
 import VideoCard from '../components/VideoCard.astro';
+import Thesis from '../components/Thesis.astro';
 import VigilBand from '../components/VigilBand.astro';
 import {
   approx,
@@ -19,18 +20,10 @@ import {
 } from '../lib/content';
 import type { FigureName } from '../lib/figures';
 import { href, pi, site } from '../lib/site';
+import { thesis } from '../lib/thesis';
 
-/**
- * The headline is what Prof. Corso said an AI that guides people must do: "understand the task,
- * understand the human, and understand what's missing to fill in that gap."
- */
-const headline = [
-  ['Understand the task.'],
-  ['Understand the ', { mark: 'human' }, '.'],
-  ['Fill the gap.'],
-];
-const headlineSource =
-  'https://www.stevens.edu/news/darpa-award-59-million-corso-and-teams-artificial-intelligence-program-will-learn-guide-humans';
+/** The headline is the group's thesis, in the words of Prof. Corso's 2026 talk. See lib/thesis.ts. */
+const headline = [['Physically'], ['grounded'], [{ mark: 'upskilling' }, '.']];
 
 const publications = await getPublications();
 const areas = await getAreas();
@@ -41,11 +34,9 @@ const featuredMedia = (await getMedia())
   .sort((a, b) => a.data.featured! - b.data.featured!);
 const leadVideo = featuredMedia.find((item) => item.data.youtubeId);
 
-/** The area closest to the group's thesis leads the grid, at twice the size of the others. */
-const LEAD_AREA = 'human';
-const orderedAreas = [...areas].sort(
-  (a, b) => Number(b.id === LEAD_AREA) - Number(a.id === LEAD_AREA),
-);
+/** Human-AI collaboration is the thesis above, so the grid shows the five areas around it. */
+const THESIS_AREA = 'human';
+const otherAreas = areas.filter((area) => area.id !== THESIS_AREA);
 
 const latest = publications.slice(0, 6);
 const featuredResources = resources.filter((r) => r.data.featured);
@@ -105,35 +96,46 @@ const placements = [
       <div class="hero-foot">
         <div>
           <p class="lead">
-            The {site.name} at the {site.university} builds AI that watches people work with their
-            hands and guides them through what they were never trained to do. It started in a
-            kitchen, went on to battlefield medicine, and is now being built into mobile clinics for
-            rural America.
+            {thesis.definition} That is the work of the {site.name} at the {site.university}: put
+            the person and the AI on one team, and ground the AI in reality, not in text from the
+            web.
           </p>
+          <dl class="words">
+            {thesis.words.map((entry) => (
+              <div>
+                <dt>{entry.word}</dt>
+                <dd>{entry.means}</dd>
+              </div>
+            ))}
+          </dl>
           <p class="hero-source">
-            The headline is{' '}
-            <a class="link" href={headlineSource} rel="noopener">
-              Prof. Corso's own summary
-            </a>{' '}
-            of what such an AI has to do.
+            "{thesis.talk}" is the title of Prof. Corso's 2026 talk, given at{' '}
+            {thesis.venues.slice(0, -1).join(', ')}, and {thesis.venues.at(-1)}. An earlier version
+            is on video:{' '}
+            <a class="link" href={thesis.recording.href} rel="noopener">
+              {thesis.recording.label}
+            </a>
+            .
           </p>
         </div>
         <div class="cta">
-          <a class="btn btn--primary" href={href('/research/')}>
-            Explore the research{' '}
+          <a class="btn btn--primary" href="#thesis">
+            The thesis{' '}
             <span class="arrow" aria-hidden="true">
-              &rarr;
+              &darr;
             </span>
           </a>
-          <a class="btn" href={href('/publications/')}>
-            Publications
+          <a class="btn" href={href('/vigil/')}>
+            See it in a clinic
           </a>
         </div>
       </div>
     </div>
   </section>
 
-  <VigilBand figure={1} />
+  <Thesis />
+
+  <VigilBand figure={3} kicker="03 · In healthcare delivery" />
 
   <section class="numbers">
     <div class="container">
@@ -165,7 +167,7 @@ const placements = [
         </div>
       </div>
       <p class="stage-label">
-        <span class="num">Fig. 2</span>
+        <span class="num">Fig. 4</span>
         Live, and an illustration, not footage. Pick a reading, or move over the scene.
       </p>
       <HeroScene />
@@ -178,7 +180,7 @@ const placements = [
         <div>
           <p class="label">Research</p>
           <h2 class="h2">
-            Six threads, one aim: understand the work well enough to <em>help</em> with it.
+            Five more threads, and what they <em>add</em>.
           </h2>
         </div>
         <a class="more" href={href('/research/')}>
@@ -190,22 +192,15 @@ const placements = [
       </div>
 
       <ul class="areas" data-reveal="stagger">
-        {orderedAreas.map((area, i) => (
-          <li class:list={{ lead: area.id === LEAD_AREA }}>
+        {otherAreas.map((area, i) => (
+          <li>
             <a class="area" href={href(`/research/#${area.id}`)} data-topic={area.id}>
               <div class="area-figure">
-                <ResearchFigure topic={area.id as FigureName} number={i + 3} />
+                <ResearchFigure topic={area.id as FigureName} number={i + 5} />
               </div>
               <div class="area-text">
                 <h3 class="h3">{area.data.title}</h3>
                 <p>{area.data.summary}</p>
-                {area.id === LEAD_AREA && (
-                  <ul class="area-threads">
-                    {area.data.threads.map((thread) => (
-                      <li class="chip">{thread}</li>
-                    ))}
-                  </ul>
-                )}
                 <span class="area-count">
                   <span class="dot" />
                   {countByTopic(area.id)} papers{' '}
@@ -447,10 +442,42 @@ const placements = [
     animation: rise-in 0.9s var(--ease) 0.6s both;
   }
 
-  /* Three full sentences, so the headline is set smaller than a three word one would be. */
+  /* Three words, one to a line, as large as the longest of them allows. */
   .hero .display {
-    font-size: clamp(2.35rem, 8.3vw, 8rem);
-    line-height: 0.88;
+    font-size: clamp(2.9rem, 14.6vw, 13.5rem);
+    line-height: 0.84;
+  }
+
+  /* What each word of the thesis is doing. */
+  .words {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 46rem;
+    margin: 1.4rem 0 0;
+    animation: rise-in 0.9s var(--ease) 0.55s both;
+  }
+
+  .words div {
+    display: grid;
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .words dt {
+    font-family: var(--font-display);
+    font-stretch: 92%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .words dd {
+    margin: 0;
+    color: var(--text-2);
   }
 
   .cta {
@@ -544,9 +571,10 @@ const placements = [
 
   /* --- Research areas ------------------------------------------------------- */
 
+  /* Five areas on a six-column grid: three across, then two wider ones. */
   .areas {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: clamp(2rem, 3.5vw, 3rem) clamp(1.25rem, 2.5vw, 2rem);
   }
 
@@ -556,27 +584,12 @@ const placements = [
     height: 100%;
   }
 
-  /* One area leads: two columns wide and two rows tall, so the grid is not six equal cards. */
-  @media (min-width: 62.01rem) {
-    .areas .lead {
-      grid-column: span 2;
-      grid-row: span 2;
-    }
-
-    .areas .lead .h3 {
-      font-size: clamp(2rem, 3.2vw, 2.9rem);
-    }
-
-    .areas .lead p {
-      max-width: 36rem;
-      font-size: 1.15rem;
-    }
+  .areas > li {
+    grid-column: span 2;
   }
 
-  @media (min-width: 38.01rem) and (max-width: 62rem) {
-    .areas .lead {
-      grid-column: 1 / -1;
-    }
+  .areas > li:nth-child(n + 4) {
+    grid-column: span 3;
   }
 
   /* The screen lifts off a hard shadow in the area's own color. */
@@ -603,13 +616,6 @@ const placements = [
   .area-text p {
     color: var(--text-2);
     text-wrap: pretty;
-  }
-
-  .area-threads {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.5rem;
   }
 
   .area-count {
@@ -780,9 +786,17 @@ const placements = [
   /* --- Responsive ----------------------------------------------------------- */
 
   @media (max-width: 62rem) {
-    .areas,
     .releases {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .areas > li,
+    .areas > li:nth-child(n + 4) {
+      grid-column: span 3;
+    }
+
+    .areas > li:last-child {
+      grid-column: 1 / -1;
     }
 
     .stats {
@@ -804,9 +818,18 @@ const placements = [
   }
 
   @media (max-width: 38rem) {
-    .areas,
     .releases {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    .areas > li,
+    .areas > li:nth-child(n + 4) {
+      grid-column: 1 / -1;
+    }
+
+    .words div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.15rem;
     }
 
     .hero-mark {

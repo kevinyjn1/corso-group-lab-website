@@ -9,21 +9,27 @@ import VigilName from './VigilName.astro';
 import { href } from '../lib/site';
 import { vigil } from '../lib/vigil';
 import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
+import vigilMark from '../assets/vigil/vigil-mark.png';
 
 interface Props {
   /** Number shown in the figure's label. */
   figure?: number;
   /** Heading level of the project's name. */
   level?: 'h2' | 'h3';
+  /** The line above the name: by default, that this is the flagship project. */
+  kicker?: string;
 }
-const { figure, level: Heading = 'h2' } = Astro.props;
+const { figure, level: Heading = 'h2', kicker = 'Flagship project' } = Astro.props;
 const { award } = vigil;
 ---
 
 <section class="vigil band--blue" aria-labelledby="vigil-band-title">
   <div class="container">
     <div class="vigil-head" data-reveal>
-      <p class="label label--accent">Flagship project</p>
+      <p class="label label--accent kicker">
+        <Image src={vigilMark} alt="" width={36} height={36} />
+        {kicker}
+      </p>
       <p class="label">
         {award.funder} &middot; {award.program} &middot; {award.amount}
       </p>
@@ -98,6 +104,18 @@ const { award } = vigil;
     gap: 0.5rem 2rem;
     padding-top: 1rem;
     border-top: var(--rule) solid var(--maize);
+  }
+
+  /* The project's own mark sits beside the line that introduces it. */
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .kicker :global(img) {
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .vigil-grid {

@@ -18,6 +18,7 @@ import { RELATED_POSTERS, SYSTEM_POSTERS } from '../lib/vigil-posters';
 import heartScan from '../assets/vigil/demo-day-heart-scan.jpg';
 import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
 import teamPhoto from '../assets/vigil/demo-day-team.jpg';
+import vigilMark from '../assets/vigil/vigil-mark.png';
 
 const { award, services } = vigil;
 const media = (await getMedia()).filter((item) => item.data.project === 'vigil');
@@ -42,7 +43,8 @@ const plate = [
 >
   <header class="page-head">
     <div class="container">
-      <p class="label">
+      <p class="label head-label">
+        <Image src={vigilMark} alt="The VIGIL logo" width={56} height={56} />
         Flagship project &middot; {award.funder} {award.program}
       </p>
       <h1 class="page-title wordmark">
@@ -590,6 +592,17 @@ const plate = [
 
 <style>
   /* --- Header --------------------------------------------------------------- */
+
+  .head-label {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .head-label :global(img) {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
 
   /* The name is the page's poster: as large as the screen allows. */
   .wordmark {

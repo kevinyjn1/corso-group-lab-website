@@ -162,7 +162,7 @@ export const vigil = {
   fullName: 'Vectors of Intelligent Guidance in Long-Reach Rural Healthcare',
   tagline: 'Specialist-level care, anywhere.',
   summary:
-    'VIGIL is an AI agent that sees, hears, and guides. It coaches a nurse or a family doctor, step by step, through exams and procedures that usually need a specialist, so that hospital-level care can travel to the people who live farthest from a hospital.',
+    'VIGIL is physically grounded upskilling at work: an AI agent that sees, hears, and guides. It coaches a nurse or a family doctor, step by step, through exams that usually need a specialist. The aim is to turn generalists into specialists on the fly, so that hospital-level care can travel to the people who live farthest from a hospital.',
   /** The award, as ARPA-H lists it. */
   award: {
     funder: 'ARPA-H',

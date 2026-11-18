@@ -13,8 +13,29 @@ export const FIGURES = {
     alt: 'Animation: a robot seen from above moves through a room, sensing the obstacles ahead of it while it follows spoken directions.',
   },
   human: {
-    title: 'Catching a mistake',
-    alt: 'Animation: an assistant follows a five step task, flags a mistake at the third step, asks a question, and carries on once it is corrected.',
+    loop: 14.5,
+    speaker: 'Instruction',
+    steps: [
+      { at: 0.4, name: 'Watch' },
+      { at: 6.6, name: 'What' },
+      { at: 8.6, name: 'When' },
+      { at: 10.6, name: 'Where' },
+    ],
+    title: 'Mistake attribution',
+    alt: 'Animation: the instruction is "Grab a chain whip". A hand reaches across a bench and picks up a wrench. The mistake is then attributed three ways: what was wrong (the right action on the wrong object), when it became irreversible (the point of no return, 3.2 seconds in), and where (a box around the hand and the wrench).',
+  },
+  oracle: {
+    loop: 14,
+    speaker: 'Person',
+    steps: [
+      { at: 0.4, name: 'Ask' },
+      { at: 2.2, name: 'Weigh' },
+      { at: 4.4, name: 'Ask again' },
+      { at: 6.8, name: 'Rephrase' },
+      { at: 9.6, name: 'Fetch' },
+    ],
+    title: 'The hazy oracle',
+    alt: 'Animation: three mugs on a table, blue, orange, and green. A person says "Please fetch my mug." The robot rates each mug as equally likely, one in three, and asks the person to rephrase. The person says "It\'s the orange one." The robot\'s confidence in the orange mug rises to 96 percent and its gripper picks that mug up.',
   },
   health: {
     title: 'Echo guidance',
@@ -27,6 +48,8 @@ export const FIGURES = {
   vigil: {
     /** How long one telling takes, and when each of its steps begins, in seconds. */
     loop: 15,
+    /** Who the console quotes, unless the figure names someone else as it goes. */
+    speaker: 'VIGIL says',
     steps: [
       { at: 0.3, name: 'Line up' },
       { at: 2, name: 'Place the probe' },
@@ -39,6 +62,7 @@ export const FIGURES = {
   },
   leg: {
     loop: 17,
+    speaker: 'VIGIL says',
     steps: [
       { at: 0.3, name: 'Line up' },
       { at: 1.8, name: 'Groin' },

@@ -22,3 +22,9 @@ playwright-report/
 
 # editors
 .idea/
+
+# private working material: never publish
+# Prof. Corso's slide decks are not public, and the Obsidian vault quotes them.
+*.ppsx
+*.pptx
+vault/
