@@ -3,10 +3,12 @@
  * The group's flagship project, introduced on the home page and the Research page: its name, what
  * it is, a live figure of it at work, and four numbers. The project's own page has the rest.
  */
+import { Image } from 'astro:assets';
 import ResearchFigure from './ResearchFigure.astro';
 import VigilName from './VigilName.astro';
 import { href } from '../lib/site';
 import { vigil } from '../lib/vigil';
+import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
 
 interface Props {
   /** Number shown in the figure's label. */
@@ -51,6 +53,22 @@ const { award } = vigil;
         <p class="note">
           Live: one guided heart exam, start to finish. An illustration, not footage of the system.
         </p>
+        <a class="real" href={href(`${vigil.path}#in-the-room`)}>
+          <Image
+            src={legScan}
+            alt="A clinician scans a patient's leg while VIGIL projects green guidance marks onto it."
+            widths={[240, 480]}
+            sizes="10rem"
+            quality={80}
+          />
+          <span>
+            <strong>The real thing.</strong> VIGIL guiding a leg scan at ARPA-H's PARADIGM meeting,
+            November 2025. The green marks on the leg are projected by the system.{' '}
+            <span class="real-more">
+              See the photos <span aria-hidden="true">&rarr;</span>
+            </span>
+          </span>
+        </a>
       </div>
     </div>
 
@@ -86,7 +104,7 @@ const { award } = vigil;
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     gap: clamp(2rem, 4vw, 4rem);
-    align-items: end;
+    align-items: start;
     margin-top: clamp(1.5rem, 3vw, 2.5rem);
   }
 
@@ -123,6 +141,44 @@ const { award } = vigil;
     font-size: 0.85rem;
     line-height: 1.35;
     color: var(--text-3);
+  }
+
+  /* A photograph of the system itself, so the illustration is not the only evidence. */
+  .real {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1.1rem;
+    padding: 0.6rem;
+    border: 1px solid var(--line-2);
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--text-2);
+    transition: border-color 0.2s var(--ease);
+  }
+
+  .real:hover {
+    border-color: var(--maize);
+  }
+
+  .real :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: 50% 44%;
+  }
+
+  .real strong {
+    color: var(--text);
+  }
+
+  .real-more {
+    color: var(--maize);
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   .vigil-facts {

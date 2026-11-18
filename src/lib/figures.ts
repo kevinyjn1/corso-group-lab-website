@@ -25,10 +25,27 @@ export const FIGURES = {
     alt: 'Animation: data points gather into clusters, and a small, evenly spread subset of them is selected.',
   },
   vigil: {
+    /** How long one telling takes, and when each of its steps begins, in seconds. */
+    loop: 15,
+    steps: [
+      { at: 0.3, name: 'Line up' },
+      { at: 2, name: 'Place the probe' },
+      { at: 5.5, name: 'Correct' },
+      { at: 8.8, name: 'Capture' },
+      { at: 11.2, name: 'Report' },
+    ],
     title: 'Guided ultrasound',
     alt: 'Animation: a patient lies on an exam table, seen from above. Light projected onto the chest marks where an ultrasound probe should go. A clinician brings the probe in, a voice says which way to tilt it, and the ultrasound image beside the table sharpens into a four-chamber view of the heart as the probe reaches the mark.',
   },
   leg: {
+    loop: 17,
+    steps: [
+      { at: 0.3, name: 'Line up' },
+      { at: 1.8, name: 'Groin' },
+      { at: 5.2, name: 'Thigh' },
+      { at: 11.2, name: 'Knee' },
+      { at: 13.6, name: 'Report' },
+    ],
     title: 'Guided leg scan',
     alt: "Animation: a patient's legs seen from above. Green marks projected along one thigh show the path of a vein. A clinician moves an ultrasound probe along it, pressing at each mark, while the ultrasound image beside the table shows the vein flatten under the probe. Three bars fill as the three veins are scanned, and the exam ends with a report.",
   },

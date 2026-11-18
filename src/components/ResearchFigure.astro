@@ -11,6 +11,9 @@ interface Props {
 }
 const { topic, number, wide = false } = Astro.props;
 const figure = FIGURES[topic];
+/** Figures that tell a story in steps get a console: a live reading, and the steps to jump to. */
+const steps = 'steps' in figure ? figure.steps : undefined;
+const loop = 'loop' in figure ? figure.loop : undefined;
 ---
 
 <figure class="figure" data-figure={topic} data-topic={topic} data-wide={wide ? '' : undefined}>
@@ -21,6 +24,24 @@ const figure = FIGURES[topic];
     <span class="sr-only">{figure.alt}</span>
   </figcaption>
 </figure>
+{steps && (
+  <div class="console" data-console data-loop={loop}>
+    <p class="readout">
+      <strong data-readout-value>&nbsp;</strong>
+      <span data-readout-label />
+    </p>
+    <ol class="steps" aria-label="The steps of this exam. Choose one to jump to it.">
+      {steps.map((step, i) => (
+        <li>
+          <button type="button" data-step={step.at}>
+            <span class="step-n">{i + 1}</span>
+            <span class="step-name">{step.name}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+  </div>
+)}
 
 <script>
   import { mountFigures } from '../scripts/figures';
@@ -81,5 +102,113 @@ const figure = FIGURES[topic];
   .num {
     padding-right: 0.6rem;
     border-right: 1.5px solid currentColor;
+  }
+
+  /* --- The console: one reading in real type, and the story's steps ---------- */
+
+  .console {
+    display: grid;
+    grid-template-columns: minmax(9.5rem, auto) minmax(0, 1fr);
+    gap: 0.9rem clamp(1rem, 2.5vw, 2rem);
+    align-items: end;
+    padding: 0.9rem 0.9rem 0.8rem;
+    background: var(--screen);
+    border-top: 1px solid var(--screen-line);
+    color: var(--screen-text);
+  }
+
+  .readout {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .readout strong {
+    font-family: var(--font-display);
+    font-stretch: 66%;
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    font-weight: 800;
+    line-height: 0.82;
+    font-variant-numeric: tabular-nums;
+    color: var(--maize);
+  }
+
+  .readout span {
+    font-size: 0.78rem;
+    line-height: 1.25;
+    color: var(--screen-text-2);
+  }
+
+  .steps {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Each step is a segment of one rail. Finished steps stay lit, and the current one is full. */
+  .steps button {
+    display: grid;
+    gap: 0.3rem;
+    width: 100%;
+    padding-top: 0.5rem;
+    border-top: 3px solid var(--screen-line);
+    font-family: var(--font-display);
+    font-stretch: 90%;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    line-height: 1.2;
+    text-align: left;
+    text-transform: uppercase;
+    color: var(--screen-text-2);
+    cursor: pointer;
+    transition:
+      border-color 0.25s var(--ease),
+      color 0.25s var(--ease);
+  }
+
+  .steps button[data-done] {
+    border-top-color: color-mix(in srgb, var(--maize) 45%, transparent);
+  }
+
+  .steps button[data-on] {
+    border-top-color: var(--maize);
+    color: var(--screen-text);
+  }
+
+  .steps button:hover {
+    color: var(--maize);
+  }
+
+  .step-n {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 40rem) {
+    .console {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* On a narrow screen only the current step is named; the rest are numbers. */
+    .steps button:not([data-on]) .step-name {
+      display: none;
+    }
+
+    .steps {
+      grid-auto-columns: auto;
+      grid-template-columns: repeat(5, auto);
+      justify-content: start;
+      gap: 0.3rem 0.5rem;
+    }
+
+    .steps button {
+      min-width: 2rem;
+    }
   }
 </style>

@@ -53,6 +53,8 @@ interface Stage {
   cell(col: number, row: number, color: string, alpha?: number, size?: number): void;
   /** Small monospace text. */
   text(value: string, x: number, y: number, color?: string, align?: CanvasTextAlign): void;
+  /** The figure's one headline reading, shown in the console under it when it has one. */
+  report(value: string, label: string): void;
 }
 
 type Figure = (stage: Stage) => void;
@@ -923,6 +925,13 @@ const vigil: Figure = (() => {
         s.cell(col0 + k * each + i, barRow, on ? color : PAPER, on ? 0.95 : 0.16, on ? 0.8 : 0.34);
       }
     });
+    // The headline reading: low while the probe is far, rising as it is corrected, and steady
+    // near the top once the view is found.
+    const found = pose === 2 ? 0.14 + 0.02 * Math.sin(s.t * 2) : 0;
+    s.report(
+      `${Math.round((0.28 * contact + 0.5 * correct + found) * (1 - back) * 100)}%`,
+      pose < 0 ? 'View quality: no contact yet' : `View quality: probe ${POSES[pose].name}`,
+    );
     const below = (barRow + 2) * step;
     s.text('probe', left, below, MUTED);
     if (pose >= 0) s.text(POSES[pose].name, right, below, POSES[pose].color, 'right');
@@ -1232,6 +1241,10 @@ const leg: Figure = (() => {
     const overall = Math.round(
       (shares.reduce((sum, share) => sum + share, 0) / VEINS.length) * 100,
     );
+    s.report(
+      `${overall}%`,
+      overall >= 100 ? 'Of the exam scanned: all three veins' : 'Of the exam scanned',
+    );
     const lastY = (row0 + rows + VEINS.length + 1.7) * step;
     if (lastY < bottom + step) {
       s.text('exam', left, lastY, MUTED);
@@ -1292,6 +1305,16 @@ function mount(root: HTMLElement) {
   if (!figure || !canvas || !ctx) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // A figure may have a console beneath it: its headline reading in real type, and the steps of
+  // its story, which can be chosen to jump to them.
+  const next = root.nextElementSibling;
+  const consoleEl = next instanceof HTMLElement && next.matches('[data-console]') ? next : null;
+  const valueEl = consoleEl?.querySelector<HTMLElement>('[data-readout-value]');
+  const labelEl = consoleEl?.querySelector<HTMLElement>('[data-readout-label]');
+  const stepButtons = [...(consoleEl?.querySelectorAll<HTMLButtonElement>('[data-step]') ?? [])];
+  const loop = Number(consoleEl?.dataset.loop) || 0;
+  let reading = '';
+  let stepOn = -2;
   const stage: Stage = {
     ctx,
     w: 0,
@@ -1321,6 +1344,13 @@ function mount(root: HTMLElement) {
       ctx.textBaseline = 'middle';
       ctx.fillStyle = color;
       ctx.fillText(value.toUpperCase(), x, y);
+    },
+    report(value, label) {
+      const text = `${value}|${label}`;
+      if (text === reading) return;
+      reading = text;
+      if (valueEl) valueEl.textContent = value;
+      if (labelEl) labelEl.textContent = label;
     },
   };
   let font = '500 11px monospace';
@@ -1364,6 +1394,21 @@ function mount(root: HTMLElement) {
     }
     figure(stage);
     root.dataset.painted = '';
+    if (consoleEl && loop > 0) {
+      const now = stage.t % loop;
+      let index = -1;
+      stepButtons.forEach((button, i) => {
+        if (now >= Number(button.dataset.step)) index = i;
+      });
+      if (index !== stepOn) {
+        stepOn = index;
+        consoleEl.dataset.on = String(index);
+        stepButtons.forEach((button, i) => {
+          button.toggleAttribute('data-on', i === index);
+          button.toggleAttribute('data-done', i < index);
+        });
+      }
+    }
   }
 
   function frame(now: number) {
@@ -1382,6 +1427,14 @@ function mount(root: HTMLElement) {
       last = performance.now();
       requestAnimationFrame(frame);
     }
+  }
+
+  for (const button of stepButtons) {
+    button.addEventListener('click', () => {
+      // Jump to the start of that step in the current telling of the story.
+      stage.t = Math.floor(stage.t / loop) * loop + Number(button.dataset.step) + 0.02;
+      draw();
+    });
   }
 
   new ResizeObserver(resize).observe(root);

@@ -41,6 +41,12 @@ const featuredMedia = (await getMedia())
   .sort((a, b) => a.data.featured! - b.data.featured!);
 const leadVideo = featuredMedia.find((item) => item.data.youtubeId);
 
+/** The area closest to the group's thesis leads the grid, at twice the size of the others. */
+const LEAD_AREA = 'human';
+const orderedAreas = [...areas].sort(
+  (a, b) => Number(b.id === LEAD_AREA) - Number(a.id === LEAD_AREA),
+);
+
 const latest = publications.slice(0, 6);
 const featuredResources = resources.filter((r) => r.data.featured);
 const current = (role: string) =>
@@ -184,8 +190,8 @@ const placements = [
       </div>
 
       <ul class="areas" data-reveal="stagger">
-        {areas.map((area, i) => (
-          <li>
+        {orderedAreas.map((area, i) => (
+          <li class:list={{ lead: area.id === LEAD_AREA }}>
             <a class="area" href={href(`/research/#${area.id}`)} data-topic={area.id}>
               <div class="area-figure">
                 <ResearchFigure topic={area.id as FigureName} number={i + 3} />
@@ -193,6 +199,13 @@ const placements = [
               <div class="area-text">
                 <h3 class="h3">{area.data.title}</h3>
                 <p>{area.data.summary}</p>
+                {area.id === LEAD_AREA && (
+                  <ul class="area-threads">
+                    {area.data.threads.map((thread) => (
+                      <li class="chip">{thread}</li>
+                    ))}
+                  </ul>
+                )}
                 <span class="area-count">
                   <span class="dot" />
                   {countByTopic(area.id)} papers{' '}
@@ -543,6 +556,29 @@ const placements = [
     height: 100%;
   }
 
+  /* One area leads: two columns wide and two rows tall, so the grid is not six equal cards. */
+  @media (min-width: 62.01rem) {
+    .areas .lead {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .areas .lead .h3 {
+      font-size: clamp(2rem, 3.2vw, 2.9rem);
+    }
+
+    .areas .lead p {
+      max-width: 36rem;
+      font-size: 1.15rem;
+    }
+  }
+
+  @media (min-width: 38.01rem) and (max-width: 62rem) {
+    .areas .lead {
+      grid-column: 1 / -1;
+    }
+  }
+
   /* The screen lifts off a hard shadow in the area's own color. */
   .area-figure {
     transition:
@@ -567,6 +603,13 @@ const placements = [
   .area-text p {
     color: var(--text-2);
     text-wrap: pretty;
+  }
+
+  .area-threads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
   }
 
   .area-count {

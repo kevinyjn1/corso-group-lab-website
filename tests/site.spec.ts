@@ -421,6 +421,24 @@ test('the VIGIL page shows the system at work: photos, both exams, and the demo 
     await expect(figure).toHaveAttribute('data-painted', '');
   }
 
+  // Each exam has one headline reading in real type, and steps that can be chosen.
+  const heart = page.locator('#how [data-figure="vigil"]');
+  const panel = page.locator('#how [data-figure="vigil"] + [data-console]');
+  await heart.scrollIntoViewIfNeeded();
+  await expect(panel.locator('[data-readout-value]')).toHaveText(/^\d{1,3}%$/);
+  await expect(panel.locator('[data-readout-label]')).toContainText('View quality');
+  const steps = panel.locator('[data-step]');
+  await expect(steps).toHaveCount(5);
+  await steps.nth(3).click();
+  await expect(steps.nth(3)).toHaveAttribute('data-on', '');
+  await expect(steps.nth(2)).toHaveAttribute('data-done', '');
+  await expect(panel).toHaveAttribute('data-on', '3');
+  // Capturing happens with the probe on target, so the reading is high by then.
+  await expect(panel.locator('[data-readout-label]')).toContainText('on target');
+  await steps.nth(0).click();
+  await expect(panel).toHaveAttribute('data-on', '0');
+  await expect(panel.locator('[data-readout-label]')).toContainText('no contact');
+
   // What each team showed, and the research shown alongside.
   const posters = page.locator('#demo-day .poster');
   expect(await posters.count()).toBeGreaterThanOrEqual(8);
@@ -457,6 +475,19 @@ test("the home page leads with the group's own thesis, then VIGIL, then the oper
   });
   expect(order.vigil).toBeLessThan(order.scene);
   expect(order.scene).toBeLessThan(order.areas);
+
+  // The band shows the real system beside the illustration, and links to the photographs.
+  const real = page.locator('section.vigil a.real');
+  await expect(real).toHaveAttribute('href', /\/vigil\/#in-the-room$/);
+  await real.scrollIntoViewIfNeeded();
+  await expect
+    .poll(() => real.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBeGreaterThan(0);
+
+  // One research area leads the grid, so it is not six equal cards.
+  await expect(page.locator('.areas > li')).toHaveCount(6);
+  await expect(page.locator('.areas > li.lead')).toHaveCount(1);
+  await expect(page.locator('.areas > li').first()).toHaveClass(/lead/);
 });
 
 test('the header fits at every width where the full navigation shows', async ({
