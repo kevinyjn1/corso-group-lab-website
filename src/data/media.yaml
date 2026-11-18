@@ -22,7 +22,27 @@
   date: '2026-05-09'
   url: 'https://www.youtube.com/watch?v=G77AdX2qapg'
   youtubeId: 'G77AdX2qapg'
-  summary: 'Andrew Krikorian, a Ph.D. student in the group, on how VIGIL is put together: how its visual models and medical reasoning agents produce one coherent stream of guidance, and what latency and robustness demand of them. 22 minutes.'
+  summary: 'Andrew Krikorian, a Ph.D. student in the group, walks through VIGIL: why the project exists, and what the system does at each step of a guided heart exam and of a leg scan for deep vein thrombosis, with an early look at a third task, positioning a patient for an x-ray. 22 minutes.'
+  project: vigil
+
+- id: vigil-demo-task-guidance
+  title: 'VIGIL AI in Rural Healthcare Outreach Project: Nov 2025 Intelligent Task Guidance'
+  kind: video
+  outlet: 'Jason Corso on YouTube'
+  date: '2025-11-25'
+  url: 'https://www.youtube.com/watch?v=7-FjCJlS3gU'
+  youtubeId: '7-FjCJlS3gU'
+  summary: 'The November 2025 demonstration of a guided heart exam, in two and a half minutes. Prof. Corso sets out the problem, then VIGIL lines the patient up with projected light, gives color-coded feedback on the ultrasound view, answers "Hi VIGIL, what''s in this view?", and drafts the health report.'
+  project: vigil
+
+- id: vigil-demo-lower-limb-dvt
+  title: 'VIGIL AI in Rural Healthcare Outreach Project: Nov 2025 Demo of Lower Limb DVT Use Case'
+  kind: video
+  outlet: 'Jason Corso on YouTube'
+  date: '2025-12-01'
+  url: 'https://www.youtube.com/watch?v=qL46iG-To-I'
+  youtubeId: 'qL46iG-To-I'
+  summary: "The second clinical service, in under five minutes: a lower-limb ultrasound scan for deep vein thrombosis. VIGIL tracks the hand and the probe, draws the probe's position and how much of the scan is done on a 3D model of the patient, and indicates the small adjustments needed for a diagnosis-quality image."
   project: vigil
 
 - id: vigil-at-eighteen-months
@@ -111,7 +131,7 @@
   date: '2024-12'
   url: 'https://www.youtube.com/watch?v=Ck3ma6L4lug'
   youtubeId: 'Ck3ma6L4lug'
-  summary: 'Curated recording of his seminar on embeddings, fallible human collaborators and safe cooperative AI.'
+  summary: 'Prof. Corso''s seminar on people and AI working as a team: what the embeddings of a dataset reveal before any model is trained, why the people who work with an AI are "hazy oracles" that a system should be able to ask again, and AI that guides a person through a task. 67 minutes.'
 
 - id: iccv-2013-flattening-supervoxel-hierarchies-by-t
   title: 'ICCV 2013 Flattening Supervoxel Hierarchies by the Uniform Entropy Slice Demo Video'

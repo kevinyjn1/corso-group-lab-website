@@ -99,9 +99,10 @@ const thumb = youtubeId ? thumbs[`../assets/media/${youtubeId}.jpg`]?.default : 
   }
 
   /* A square maize play button, in the corner like a label. */
+  /* Bottom right: the corner that video covers leave clear for the player's own duration badge. */
   .play {
     position: absolute;
-    left: 0;
+    right: 0;
     bottom: 0;
     display: grid;
     place-items: center;

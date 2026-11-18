@@ -552,6 +552,81 @@ test('the VIGIL page has the talk, the coverage, and the papers', async ({ page 
   await expect(page.locator('.team .subteam')).toHaveCount(3);
 });
 
+test('the VIGIL page links the published demonstrations in full and shows the team', async ({
+  page,
+  request,
+}) => {
+  const requested: string[] = [];
+  await page.route(/youtube/, (route) => {
+    requested.push(route.request().url());
+    return route.fulfill({ status: 200, contentType: 'text/html', body: '<title>player</title>' });
+  });
+  await page.goto(at('/vigil/'));
+
+  // The two videos the clips are cut from, each with its own thumbnail and a link to the source.
+  const demos = page.locator('#how .demos .video');
+  await expect(demos).toHaveCount(2);
+  for (const [i, id] of ['7-FjCJlS3gU', 'qL46iG-To-I'].entries()) {
+    const demo = demos.nth(i);
+    await demo.scrollIntoViewIfNeeded();
+    await expect(demo.locator('[data-video]')).toHaveAttribute('data-video', id);
+    await expect(demo.locator('.h3 a')).toHaveAttribute('href', new RegExp(`watch\\?v=${id}$`));
+    await expect(demo.locator('.summary')).toHaveText(/\S.{60,}/);
+    const thumb = demo.locator('img');
+    await expect
+      .poll(() => thumb.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(0);
+  }
+  // The note under the clips says where they come from, and cites both videos.
+  const note = page.locator('#how .note--all').first();
+  await expect(note).toContainText('cut from the two videos');
+  for (const id of ['7-FjCJlS3gU', 'qL46iG-To-I']) {
+    await expect(page.locator(`#sources a[href$="${id}"]`)).toHaveCount(1);
+  }
+  // They are shown once: the list of coverage further down does not repeat them.
+  await expect(
+    page.locator('#watch a[href*="7-FjCJlS3gU"], #watch a[href*="qL46iG-To-I"]'),
+  ).toHaveCount(0);
+  expect(requested).toEqual([]);
+  await demos
+    .nth(1)
+    .getByRole('button', { name: /^Play video/ })
+    .click();
+  await expect(demos.nth(1).locator('iframe')).toHaveAttribute('src', /\/embed\/qL46iG-To-I\?/);
+
+  // The picture of the team: described, loaded, sharp enough to read, and it opens at full size.
+  const wall = page.locator('.team-wall');
+  await wall.scrollIntoViewIfNeeded();
+  const picture = wall.locator('img');
+  await expect(picture).toHaveAttribute('alt', /\S.{80,}/);
+  await expect
+    .poll(() => picture.evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBeGreaterThan(0);
+  // The file the browser chose has enough pixels for the size it is drawn at.
+  const drawn = await picture.evaluate(async (img: HTMLImageElement) => {
+    const file = new Image();
+    file.src = img.currentSrc;
+    await file.decode();
+    const box = img.getBoundingClientRect();
+    return {
+      needed: box.width * window.devicePixelRatio,
+      pixels: file.naturalWidth,
+      ratio: file.naturalWidth / file.naturalHeight,
+      box: box.width / box.height,
+    };
+  });
+  expect(drawn.pixels).toBeGreaterThanOrEqual(Math.min(drawn.needed, 2000) * 0.95);
+  expect(Math.abs(drawn.ratio - drawn.box)).toBeLessThan(0.02);
+  await expect(wall.locator('figcaption')).toContainText('ten institutions');
+  // It names the post it was shared in, as a source the page lists.
+  const cited = await wall.locator('figcaption a[href^="#"]').first().getAttribute('href');
+  await expect(page.locator(`#sources ${cited}`)).toContainText('annual site visit');
+  const full = await wall.locator('> a').getAttribute('href');
+  const response = await request.get(new URL(full!, page.url()).href);
+  expect(response.ok()).toBe(true);
+  expect(response.headers()['content-type']).toMatch(/^image\//);
+});
+
 test('the VIGIL page shows the system at work: photos, both exams, and the demo day', async ({
   page,
 }) => {

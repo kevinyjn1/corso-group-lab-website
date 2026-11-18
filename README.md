@@ -142,8 +142,11 @@ page at `/vigil/`.
   they appear on the Media page and on the VIGIL page.
 - **Related papers** are the publication ids listed under `papers` in `src/lib/vigil.ts`.
 - **Footage** of each part of the system is shown beside the text that describes it, in "How it
-  works" and in the band on the home page. The clips are in `src/assets/clips/`, cut from the
-  team's own demonstration videos, silent, 9 to 12 seconds each and about 1 MB or less. They are
+  works" and in the band on the home page. The clips are in `src/assets/clips/`, silent, 9 to 12
+  seconds each and about 1 MB or less. Four of the five VIGIL clips are cut from the two videos
+  of the November 2025 demonstrations that Prof. Corso published on YouTube; the page shows both
+  videos in full under the clips and cites them as sources (`guidance` and `dvt` in
+  `src/lib/vigil.ts`, and the two `vigil-demo-...` entries in `src/data/media.yaml`). They are
   placed with `src/components/Clip.astro`, which plays a clip only while it is on screen, lets it
   be paused, and keeps it still for visitors who ask for reduced motion. To add one, cut it with
   `ffmpeg -ss <start> -to <end> -i <source> -an -vf scale=1280:-2,fps=24 -c:v libx264 -crf 27

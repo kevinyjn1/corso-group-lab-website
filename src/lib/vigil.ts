@@ -32,6 +32,14 @@ export const SOURCES = {
     label: 'Jason Corso on LinkedIn, November 2025',
     href: 'https://www.linkedin.com/posts/jason-corso_arpah-paradigm-aiinhealthcare-ugcPost-7399133694583529472-7GUC/',
   },
+  guidance: {
+    label: 'Jason Corso on YouTube, November 2025: the demonstration of a guided heart exam',
+    href: 'https://www.youtube.com/watch?v=7-FjCJlS3gU',
+  },
+  dvt: {
+    label: 'Jason Corso on YouTube, December 2025: the demonstration of a guided leg scan',
+    href: 'https://www.youtube.com/watch?v=qL46iG-To-I',
+  },
   goggles: {
     label: 'Jason Corso on LinkedIn, January 2026',
     href: 'https://www.linkedin.com/posts/jason-corso_is-the-dream-of-head-mounted-displays-ugcPost-7416532581472591872-ztyO/',
@@ -93,19 +101,19 @@ const steps: readonly Step[] = [
     name: 'Sense',
     title: 'One shared view of the room',
     body: 'Color cameras, depth cameras, and microphones watch and listen to the exam. The clinician, the patient, and the AI work from the same picture of what is happening, which the team calls a shared perceptual space.',
-    sources: ['cardiac'],
+    sources: ['cardiac', 'guidance'],
   },
   {
     name: 'Understand',
     title: 'Follow the task as it unfolds',
     body: "The agent observes the clinician's actions against the steps of the procedure and recognizes when something unexpected has happened. For a heart exam, a deep network scores the view as it changes, from the ultrasound image alone: on target, close, or far from the standard four-chamber view. A question-answering model answers questions about the image: which view it shows, which chambers are visible, and how to adjust the probe.",
-    sources: ['michigan', 'cardiac'],
+    sources: ['michigan', 'cardiac', 'guidance'],
   },
   {
     name: 'Guide',
     title: 'Put the help where the work is',
-    body: 'Light projected onto the patient shows where to begin. A screen shows what the probe is touching and which way to turn it, and a voice in an earpiece talks the clinician through. After the visit, the system writes the report.',
-    sources: ['detroit'],
+    body: 'Light projected onto the patient shows where to begin. A screen shows what the probe is touching and which way to turn it, and a voice in an earpiece talks the clinician through. The system also drafts the electronic health report, so the clinician can keep their attention on the patient.',
+    sources: ['detroit', 'guidance'],
   },
   {
     name: 'Run anywhere',
@@ -284,7 +292,7 @@ export const vigil = {
         {
           place: 'RTX BBN Technologies',
           people: [
-            'Brian van Voorst (lead scientist and research fellow)',
+            'Brian VanVoorst (lead scientist and research fellow)',
             'Muntaha Samad (principal engineer of research)',
           ],
         },

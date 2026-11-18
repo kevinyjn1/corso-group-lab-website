@@ -70,7 +70,7 @@ export const thesis = {
     {
       when: '1985',
       title: 'A robot that could not help',
-      body: 'The talk opens on an ad for a toy robot that promised to help with "the toughest challenges". Forty years on, little does better.',
+      body: 'A 1985 ad for a toy robot promised help with "the toughest challenges". Forty years on, little does better.',
     },
     {
       when: '2013',

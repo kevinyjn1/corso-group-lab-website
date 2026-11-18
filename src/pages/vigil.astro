@@ -3,7 +3,7 @@
  * VIGIL, the group's flagship project. The facts are in src/lib/vigil.ts, each with its sources,
  * and the videos and press are the media items marked `project: vigil`.
  */
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Cite from '../components/Cite.astro';
 import Clip from '../components/Clip.astro';
@@ -22,6 +22,7 @@ import teamPhoto from '../assets/vigil/demo-day-team.jpg';
 import mockClinic from '../assets/vigil/mock-clinic-empty.jpg';
 import mockClinicExam from '../assets/vigil/mock-clinic-exam.jpg';
 import vigilMark from '../assets/vigil/vigil-mark.png';
+import teamWall from '../assets/vigil/vigil-team.jpg';
 import feedback from '../assets/clips/vigil-feedback.mp4';
 import projection from '../assets/clips/vigil-projection.mp4';
 import question from '../assets/clips/vigil-question.mp4';
@@ -35,15 +36,20 @@ import viewScoringPoster from '../assets/clips/posters/vigil-view-scoring.jpg';
 
 const { award, services } = vigil;
 const media = (await getMedia()).filter((item) => item.data.project === 'vigil');
-const talk = media.find((item) => item.data.youtubeId);
-const coverage = media.filter((item) => item !== talk);
+/** The two demonstration videos that the clips below are cut from, shown in full under them. */
+const DEMOS = ['vigil-demo-task-guidance', 'vigil-demo-lower-limb-dvt'];
+const demos = DEMOS.flatMap((id) => media.filter((item) => item.id === id));
+const talk = media.find((item) => item.data.youtubeId && !DEMOS.includes(item.id));
+const coverage = media.filter((item) => item !== talk && !DEMOS.includes(item.id));
 const publications = await getPublications();
 const papers = vigil.papers.flatMap((id) => publications.filter((pub) => pub.id === id));
 const sources = Object.entries(SOURCES) as [SourceId, (typeof SOURCES)[SourceId]][];
 
 /**
- * The team's own footage of each part of the system, in the order of vigil.steps. The clips are cut
- * from the demonstration videos in Prof. Corso's talks, and any captions inside them are the team's.
+ * The team's own footage of each part of the system, in the order of vigil.steps. Four of the five
+ * clips are cut from the two demonstration videos that Prof. Corso published in November and
+ * December 2025 (the `demos` above); the view-scoring clip is from his 2026 talk. Any captions
+ * inside them are the team's.
  */
 const footage = [
   [
@@ -53,7 +59,7 @@ const footage = [
       alt: "A split screen. On the left, a gray 3D model of a person's legs, with a green patch on the upper thigh and a blue dot that moves as the probe moves. On the right, the camera's view of a real leg from above, with dots tracking the hand that holds the probe.",
       title: 'The room, in 3D.',
       caption:
-        "Left, the probe's position drawn on a 3D model posed like the patient. Right, the camera's view, with the hand on the probe tracked.",
+        "Left, the probe's position and how much of the scan is done, drawn on a 3D model posed like the patient. Right, the camera's view, with the hand on the probe tracked.",
     },
   ],
   [
@@ -102,6 +108,9 @@ const footage = [
     },
   ],
 ] as const;
+
+/** The team picture at the size it was made, for finding a face in it. */
+const teamWallFull = await getImage({ src: teamWall, width: teamWall.width, quality: 88 });
 
 const plate = [
   { name: 'Funder', value: `${award.funderName} (${award.funder})` },
@@ -290,9 +299,20 @@ const plate = [
         ))}
       </ol>
       <p class="note note--all" data-reveal>
-        The clips are cut from the team's own demonstration videos, and the captions inside them are
-        the team's.
+        Four of these clips are cut from the two videos of the November 2025 demonstrations that
+        Prof. Corso published, and the captions inside them are the team's. The view-scoring clip is
+        the group's own recording.
+        <Cite ids={['guidance', 'dvt']} />
       </p>
+
+      <h3 class="h3 exams-head" data-reveal>
+        The demonstrations, in full
+      </h3>
+      <div class="demos" data-reveal="stagger">
+        {demos.map((item) => (
+          <VideoCard item={item} sizes="(min-width: 62rem) 45vw, 92vw" />
+        ))}
+      </div>
 
       <h3 class="h3 exams-head" data-reveal>
         Two exams, start to finish
@@ -633,6 +653,25 @@ const plate = [
         </a>
       </div>
 
+      <figure class="team-wall" data-reveal>
+        <a href={teamWallFull.src} aria-label="Open the picture of the VIGIL team at full size">
+          <Image
+            src={teamWall}
+            alt="A honeycomb of portrait photographs of the people of the VIGIL team, arranged around the VIGIL logo. Each portrait carries the logo of its institution: Michigan, Central Michigan, Colorado State, Cornell Tech, Northeastern, Penn, Purdue, RTX, Rochester, and Stevens."
+            widths={[640, 960, 1280, 1600, 2048]}
+            sizes="(min-width: 86rem) 80rem, 92vw"
+            quality={82}
+          />
+        </a>
+        <figcaption>
+          <strong>The team.</strong> Faculty, clinicians, staff, and students at ten institutions,
+          in the picture Prof. Corso shared for the annual site visit in May 2026. The outline of
+          each portrait marks a role: blue for technical faculty, red for medical and nursing
+          faculty, yellow for graduate students, green and silver for staff.
+          <Cite ids={['sitevisit']} />
+        </figcaption>
+      </figure>
+
       <div class="team" data-reveal="stagger">
         {vigil.team.map((part) => (
           <div class="subteam">
@@ -899,6 +938,13 @@ const plate = [
   .part-media[data-count='1'] {
     grid-template-columns: minmax(0, 1fr);
     max-width: 44rem;
+  }
+
+  .demos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem clamp(1.25rem, 2.5vw, 2rem);
+    align-items: start;
   }
 
   .exams-head {
@@ -1333,6 +1379,42 @@ const plate = [
     align-items: start;
   }
 
+  /* The team's own picture is made on white, so it keeps a white sheet in both themes. */
+  .team-wall {
+    margin: 0 0 clamp(2rem, 4vw, 3rem);
+  }
+
+  .team-wall > a {
+    display: block;
+    padding: clamp(0.4rem, 1vw, 0.75rem);
+    background: #fff;
+    border: var(--rule) solid var(--text);
+    cursor: zoom-in;
+  }
+
+  .team-wall > a:focus-visible {
+    outline: 3px solid var(--maize);
+    outline-offset: 2px;
+  }
+
+  .team-wall :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .team-wall figcaption {
+    max-width: 52rem;
+    margin-top: 0.8rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--text-2);
+  }
+
+  .team-wall figcaption strong {
+    color: var(--text);
+  }
+
   .subteam {
     padding-top: 0.9rem;
     border-top: var(--rule) solid var(--text);
@@ -1472,6 +1554,10 @@ const plate = [
     }
 
     .part-media {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .demos {
       grid-template-columns: minmax(0, 1fr);
     }
 
