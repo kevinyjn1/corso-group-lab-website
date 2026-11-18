@@ -1,25 +1,24 @@
 ---
 /**
  * The group's flagship project, introduced on the home page and the Research page: its name, what
- * it is, a live figure of it at work, and four numbers. The project's own page has the rest.
+ * it is, the team's own footage of it at work, and four numbers. The project's page has the rest.
  */
 import { Image } from 'astro:assets';
-import ResearchFigure from './ResearchFigure.astro';
+import Clip from './Clip.astro';
 import VigilName from './VigilName.astro';
 import { href } from '../lib/site';
 import { vigil } from '../lib/vigil';
-import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
+import projection from '../assets/clips/vigil-projection.mp4';
+import projectionPoster from '../assets/clips/posters/vigil-projection.jpg';
 import vigilMark from '../assets/vigil/vigil-mark.png';
 
 interface Props {
-  /** Number shown in the figure's label. */
-  figure?: number;
   /** Heading level of the project's name. */
   level?: 'h2' | 'h3';
   /** The line above the name: by default, that this is the flagship project. */
   kicker?: string;
 }
-const { figure, level: Heading = 'h2', kicker = 'Flagship project' } = Astro.props;
+const { level: Heading = 'h2', kicker = 'Flagship project' } = Astro.props;
 const { award } = vigil;
 ---
 
@@ -55,26 +54,19 @@ const { award } = vigil;
         </div>
       </div>
       <div class="vigil-figure">
-        <ResearchFigure topic="vigil" number={figure} wide />
-        <p class="note">
-          Live: one guided heart exam, start to finish. An illustration, not footage of the system.
-        </p>
-        <a class="real" href={href(`${vigil.path}#in-the-room`)}>
-          <Image
-            src={legScan}
-            alt="A clinician scans a patient's leg while VIGIL projects green guidance marks onto it."
-            widths={[240, 480]}
-            sizes="10rem"
-            quality={80}
-          />
-          <span>
-            <strong>The real thing.</strong> VIGIL guiding a leg scan at ARPA-H's PARADIGM meeting,
-            November 2025. The green marks on the leg are projected by the system.{' '}
-            <span class="real-more">
-              See the photos <span aria-hidden="true">&rarr;</span>
-            </span>
-          </span>
-        </a>
+        <Clip
+          src={projection}
+          poster={projectionPoster}
+          tag="Footage · VIGIL"
+          alt="Seen from above, a patient in a gown lies on a bed while a clinician stands at the head. Lines of light projected onto the bed show where the patient should lie. A caption reads: VIGIL upskills the medical practitioner by dynamically projecting guidance content in the scene. A close-up then shows a score projected onto the bed beside the patient."
+        >
+          <strong>Guidance, projected into the room.</strong> VIGIL lines the patient up with light
+          on the bed, then projects its reading beside them. From the team's own demonstration
+          video.{' '}
+          <a class="more" href={href(`${vigil.path}#how`)}>
+            See each part at work <span aria-hidden="true">&rarr;</span>
+          </a>
+        </Clip>
       </div>
     </div>
 
@@ -126,14 +118,14 @@ const { award } = vigil;
     margin-top: clamp(1.5rem, 3vw, 2.5rem);
   }
 
-  /* The name is set like a title on a poster: as large as the column allows. */
+  /* The name is a wordmark: a step larger than the section headings around it. */
   .wordmark {
     font-family: var(--font-display);
-    font-stretch: 62%;
+    font-stretch: 66%;
     font-weight: 900;
-    font-size: clamp(6rem, 15.5vw, 14.5rem);
-    line-height: 0.78;
-    letter-spacing: -0.012em;
+    font-size: clamp(3rem, 6.4vw, 5rem);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
     text-transform: uppercase;
     color: var(--maize);
   }
@@ -154,50 +146,23 @@ const { award } = vigil;
     margin-top: 2rem;
   }
 
-  .note {
-    margin-top: 0.7rem;
-    font-size: 0.85rem;
-    line-height: 1.35;
-    color: var(--text-3);
+  /* The clip is footage, so it gets a frame of its own, and its caption reads on the dark band. */
+  .vigil-figure :global(.clip-frame) {
+    border: var(--rule) solid var(--maize);
   }
 
-  /* A photograph of the system itself, so the illustration is not the only evidence. */
-  .real {
-    display: grid;
-    grid-template-columns: 10rem minmax(0, 1fr);
-    gap: 1rem;
-    align-items: center;
-    margin-top: 1.1rem;
-    padding: 0.6rem;
-    background: rgb(0 22 44 / 0.55);
-    border: 1px solid var(--line-2);
-    font-size: 0.92rem;
-    line-height: 1.4;
+  .vigil-figure :global(figcaption) {
     color: var(--text-2);
-    transition: border-color 0.2s var(--ease);
   }
 
-  .real:hover {
-    border-color: var(--maize);
-  }
-
-  .real :global(img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    object-position: 50% 44%;
-  }
-
-  .real strong {
-    color: var(--text);
-  }
-
-  .real-more {
+  .more {
     color: var(--maize);
     font-weight: 600;
     white-space: nowrap;
+  }
+
+  .more:hover {
+    text-decoration: underline;
   }
 
   .vigil-facts {
@@ -215,9 +180,9 @@ const { award } = vigil;
     margin: 0;
     font-family: var(--font-display);
     font-stretch: 66%;
-    font-size: clamp(2.6rem, 6vw, 5.25rem);
+    font-size: clamp(2.1rem, 3.8vw, 3.25rem);
     font-weight: 800;
-    line-height: 0.85;
+    line-height: 0.9;
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -237,24 +202,9 @@ const { award } = vigil;
       align-items: start;
     }
 
-    /* In one column the name has the whole width to itself. */
-    .wordmark {
-      font-size: clamp(6rem, 30vw, 14rem);
-    }
-
     .vigil-facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       row-gap: 2rem;
-    }
-  }
-
-  @media (max-width: 30rem) {
-    .real {
-      grid-template-columns: 6.5rem minmax(0, 1fr);
-    }
-
-    .real-more {
-      white-space: normal;
     }
   }
 

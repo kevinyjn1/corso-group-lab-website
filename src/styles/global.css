@@ -293,7 +293,7 @@ button {
 
 /* --- Type ----------------------------------------------------------------- */
 
-/* Headlines are set heavy, condensed, and in capitals, like a poster. */
+/* Headlines are set heavy, condensed, and in capitals, at sizes that leave room for the page. */
 .display,
 .page-title,
 .h2 {
@@ -305,34 +305,25 @@ button {
 
 .display {
   font-weight: 900;
-  font-stretch: 66%;
-  font-size: clamp(3.6rem, 12.4vw, 11.75rem);
-  line-height: 0.84;
-  letter-spacing: -0.012em;
+  font-stretch: 70%;
+  font-size: clamp(2rem, 5vw, 4.4rem);
+  line-height: 0.96;
+  letter-spacing: -0.008em;
 }
 
 .page-title {
   font-weight: 900;
-  font-stretch: 68%;
-  font-size: clamp(3.2rem, 10vw, 9rem);
-  /* Open enough that a comma on one line clears the capitals on the next. */
-  line-height: 0.92;
-  letter-spacing: -0.01em;
-}
-
-/* On a phone the longest word of a title has to fit on one line. */
-@media (max-width: 30rem) {
-  .page-title {
-    font-stretch: 62%;
-    font-size: clamp(2.4rem, 12vw, 3.2rem);
-  }
+  font-stretch: 70%;
+  font-size: clamp(2.1rem, 4.8vw, 3.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.008em;
 }
 
 .h2 {
-  font-stretch: 72%;
-  font-size: clamp(2.1rem, 5vw, 4.25rem);
-  line-height: 0.92;
-  letter-spacing: -0.005em;
+  font-stretch: 74%;
+  font-size: clamp(1.65rem, 3.1vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.004em;
 }
 
 .h3 {

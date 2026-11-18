@@ -1,14 +1,24 @@
-/** Titles and text alternatives for the animated research figures in src/scripts/figures.ts. */
+/**
+ * Titles and text alternatives for the animated research figures in src/scripts/figures.ts.
+ *
+ * Every figure illustrates a published result of the group, and `after` names it: the ids of the
+ * papers in src/data/publications.yaml that the figure is drawn after. A figure with no paper to
+ * name does not belong on the site. The two VIGIL figures are drawn from the project's public
+ * descriptions instead, and the VIGIL page says so beside them.
+ */
 export const FIGURES = {
   video: {
+    after: ['xu2012streaming'],
     title: 'Supervoxel hierarchy',
     alt: 'Animation: a video frame divided into small regions that merge, step by step, into larger ones and then split again.',
   },
   language: {
+    after: ['zhou2018end'],
     title: 'Dense video captioning',
     alt: 'Animation: the timeline of a cooking video. As the playhead reaches each step, the step is marked and described in a short sentence.',
   },
   robotics: {
+    after: ['banerjee2021robotslang'],
     title: 'Following directions',
     alt: 'Animation: a robot seen from above moves through a room, sensing the obstacles ahead of it while it follows spoken directions.',
   },
@@ -21,6 +31,7 @@ export const FIGURES = {
       { at: 8.6, name: 'When' },
       { at: 10.6, name: 'Where' },
     ],
+    after: ['li2026mistake'],
     title: 'Mistake attribution',
     alt: 'Animation: the instruction is "Grab a chain whip". A hand reaches across a bench and picks up a wrench. The mistake is then attributed three ways: what was wrong (the right action on the wrong object), when it became irreversible (the point of no return, 3.2 seconds in), and where (a box around the hand and the wrench).',
   },
@@ -34,14 +45,17 @@ export const FIGURES = {
       { at: 6.8, name: 'Rephrase' },
       { at: 9.6, name: 'Fetch' },
     ],
+    after: ['lemmer2021ground', 'lemmer2023evaluating'],
     title: 'The hazy oracle',
     alt: 'Animation: three mugs on a table, blue, orange, and green. A person says "Please fetch my mug." The robot rates each mug as equally likely, one in three, and asks the person to rephrase. The person says "It\'s the orange one." The robot\'s confidence in the orange mug rises to 96 percent and its gripper picks that mug up.',
   },
   health: {
+    after: ['guo2026follow'],
     title: 'Echo guidance',
     alt: 'Animation: an ultrasound view of a beating heart, with tracked landmarks and a score for the quality of the view.',
   },
   learning: {
+    after: ['griffin2026zero'],
     title: 'Coreset selection',
     alt: 'Animation: data points gather into clusters, and a small, evenly spread subset of them is selected.',
   },

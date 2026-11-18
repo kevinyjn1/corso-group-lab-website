@@ -4,7 +4,10 @@
  * talk's three claims with a live figure each, and how the group got here. The third claim is the
  * VIGIL band that follows. The words are in src/lib/thesis.ts.
  */
+import Clip from './Clip.astro';
 import ResearchFigure from './ResearchFigure.astro';
+import millyLapse from '../assets/clips/milly-lapse.mp4';
+import millyPoster from '../assets/clips/posters/milly-lapse.jpg';
 import { getPublications } from '../lib/content';
 import { thesis } from '../lib/thesis';
 
@@ -72,15 +75,29 @@ const shown = thesis.claims.filter((claim) => claim.figure);
         <span aria-hidden="true">&darr;</span>
       </a>
     </div>
-    <ol class="arc" data-reveal="stagger">
-      {thesis.arc.map((step) => (
-        <li>
-          <p class="arc-when">{step.when}</p>
-          <h3>{step.title}</h3>
-          <p>{step.body}</p>
-        </li>
-      ))}
-    </ol>
+    <div class="arc-wrap" data-reveal="stagger">
+      <ol class="arc">
+        {thesis.arc.map((step) => (
+          <li>
+            <p class="arc-when">{step.when}</p>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <Clip
+        src={millyLapse}
+        poster={millyPoster}
+        tag="Footage · MILLY"
+        alt="A person at a lab bench starts making coffee while a monitor shows the camera's view and the recipe. A caption reads: 1. Measure 12 ounces of cold water. Then a caption appears: Mistake! Step 4 (weigh beans) detected. Expecting step 2 (assemble cone)."
+      >
+        <strong>MILLY, catching a skipped step.</strong> A person makes coffee while the system
+        follows the recipe. When they weigh the beans before assembling the cone, it says so at
+        once. The captions in the clip are the group's own.
+      </Clip>
+    </div>
   </div>
 </section>
 
@@ -196,33 +213,48 @@ const shown = thesis.claims.filter((claim) => claim.figure);
     color: var(--text);
   }
 
-  .arc {
+  /* The steps run down the left. Beside them is the one that was filmed: MILLY at work. */
+  .arc-wrap {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    margin: 1.5rem 0 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 2rem clamp(2rem, 4.5vw, 4.5rem);
+    align-items: start;
+    margin-top: 1.5rem;
+  }
+
+  .arc {
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
   .arc li {
-    padding: 0 clamp(0.8rem, 1.6vw, 1.4rem) 0.25rem;
-    border-left: 1px solid var(--line-2);
+    display: grid;
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--line-2);
+  }
+
+  .arc li:first-child {
+    padding-top: 0;
+    border-top: 0;
   }
 
   .arc li:last-child {
-    border-left: var(--rule) solid var(--maize);
+    border-top: var(--rule) solid var(--maize);
   }
 
   .arc-when {
     font-family: var(--font-display);
-    font-stretch: 66%;
-    font-size: clamp(2rem, 3.4vw, 3rem);
+    font-stretch: 70%;
+    font-size: clamp(1.5rem, 2.2vw, 1.9rem);
     font-weight: 800;
-    line-height: 0.9;
+    line-height: 1;
   }
 
   .arc h3 {
-    margin-top: 0.6rem;
     font-family: var(--font-display);
     font-stretch: 84%;
     font-size: 1.1rem;
@@ -230,9 +262,9 @@ const shown = thesis.claims.filter((claim) => claim.figure);
     line-height: 1.2;
   }
 
-  .arc li > p:last-child {
-    margin-top: 0.4rem;
-    font-size: 0.92rem;
+  .arc li p:last-child {
+    margin-top: 0.3rem;
+    font-size: 0.95rem;
     line-height: 1.45;
     color: var(--text-2);
     text-wrap: pretty;
@@ -243,17 +275,12 @@ const shown = thesis.claims.filter((claim) => claim.figure);
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .arc {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      row-gap: 1.75rem;
+    .arc-wrap {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
   @media (max-width: 38rem) {
-    .arc {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
     .claim-figure {
       box-shadow: 5px 5px 0 var(--maize);
     }

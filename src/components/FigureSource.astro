@@ -1,0 +1,84 @@
+---
+/**
+ * Names the paper a live figure is drawn after, so that no figure stands without its source.
+ * See the `after` field in src/lib/figures.ts.
+ */
+import { getPublications, type Publication } from '../lib/content';
+import { FIGURES, type FigureName } from '../lib/figures';
+
+interface Props {
+  topic: FigureName;
+  /** Set to false inside a card that is itself a link. */
+  link?: boolean;
+}
+const { topic, link = true } = Astro.props;
+const figure = FIGURES[topic];
+const ids: readonly string[] = 'after' in figure ? figure.after : [];
+const publications = await getPublications();
+const papers = ids.flatMap((id) => publications.filter((pub) => pub.id === id));
+
+const lastName = (name: string) => name.split(' ').at(-1)!;
+/** "Xu et al., ECCV 2012", as a paper would cite it. */
+function cite(pub: Publication) {
+  const names = pub.data.authors.map(lastName);
+  const who =
+    names.length === 1
+      ? names[0]
+      : names.length === 2
+        ? `${names[0]} and ${names[1]}`
+        : `${names[0]} et al.`;
+  return `${who}, ${pub.data.venueShort ?? pub.data.venue} ${pub.data.year}`;
+}
+const url = (pub: Publication) =>
+  pub.data.links?.arxiv ?? pub.data.links?.doi ?? pub.data.links?.pdf;
+---
+
+{papers.length > 0 && (
+  <p class="figure-source">
+    <span class="figure-source-label">Figure after</span>
+    {papers.map((pub, i) => (
+      <span class="figure-source-paper">
+        {link && url(pub) ? (
+          <a href={url(pub)} rel="noopener" title={pub.data.title} set:text={cite(pub)} />
+        ) : (
+          <span title={pub.data.title} set:text={cite(pub)} />
+        )}
+        {i < papers.length - 1 && <span aria-hidden="true">;</span>}
+      </span>
+    ))}
+  </p>
+)}
+
+<style>
+  .figure-source {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    color: var(--text-3);
+  }
+
+  .figure-source-label {
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .figure-source-paper {
+    color: var(--text-2);
+  }
+
+  a {
+    text-decoration: underline;
+    text-decoration-color: var(--line-2);
+    text-underline-offset: 0.2em;
+  }
+
+  a:hover {
+    text-decoration-color: var(--maize);
+  }
+</style>

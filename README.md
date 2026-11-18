@@ -115,9 +115,15 @@ makes them better at it.
   three claims, and the arc from the kitchen to the clinic. The talk's slides are not public, so
   the site quotes only its title, its three claims, and its closing idea, and links every result
   to its published paper.
+- **The first screen** is the title of the talk on one line, the definition, two buttons, and a
+  photograph of VIGIL guiding a heart exam. Everything on it is visible without scrolling on a
+  laptop. The headline is sized from the width of the page so that it always fits one line from
+  a tablet up; a test holds it to 68 pixels or less.
 - **Two live figures** carry the first two claims (`oracle` and `human` in
   `src/scripts/figures.ts`): the hazy oracle, with the group's own three-mugs example, and
   mistake attribution, with the paper's chain whip example. The third claim is the VIGIL band.
+- **The arc** from the kitchen to the clinic runs beside the group's own footage of MILLY catching
+  a skipped step.
 - **Private working material** is kept out of this repository by `.gitignore`: slide decks and
   an Obsidian vault of project notes (`vault/`).
 
@@ -133,28 +139,49 @@ page at `/vigil/`.
 - **Videos and press** are ordinary entries in `src/data/media.yaml` marked `project: vigil`, so
   they appear on the Media page and on the VIGIL page.
 - **Related papers** are the publication ids listed under `papers` in `src/lib/vigil.ts`.
+- **Footage** of each part of the system is shown beside the text that describes it, in "How it
+  works" and in the band on the home page. The clips are in `src/assets/clips/`, cut from the
+  team's own demonstration videos, silent, 9 to 12 seconds each and about 1 MB or less. They are
+  placed with `src/components/Clip.astro`, which plays a clip only while it is on screen, lets it
+  be paused, and keeps it still for visitors who ask for reduced motion. To add one, cut it with
+  `ffmpeg -ss <start> -to <end> -i <source> -an -vf scale=1280:-2,fps=24 -c:v libx264 -crf 27
+-preset slow -pix_fmt yuv420p -movflags +faststart <name>.mp4`, save one frame of it as the
+  poster in `src/assets/clips/posters/`, and describe what it shows in the `alt` text.
 - **The figures** (`vigil` and `leg` in `src/scripts/figures.ts`) are illustrations of a guided
   heart ultrasound and a guided scan of the leg for blood clots, drawn from the team's public
-  descriptions and its demo day posters. They are labeled as illustrations wherever they appear,
-  and the spoken lines in them are examples.
+  descriptions and its demo day posters. They show a whole exam in a few seconds, which no single
+  clip does. They are labeled as illustrations, and the spoken lines in them are examples.
 - **Demo day posters** are in `src/lib/vigil-posters.ts`: what each team showed, in this site's
   words, with a link to the paper where one has been published. Some of that work is not yet
   published, so have each team confirm its entry before the site is made public.
-- **Photos** of the system in use are in `src/assets/vigil/`. They come from Prof. Corso's own
-  posts. Replace them with the original files when you have them: these are screen captures.
+- **Photos** of the system in use are in `src/assets/vigil/`. The two from the group's mock clinic
+  are full-resolution photographs from Prof. Corso's talk. The three of the November 2025
+  demonstration are cut from a collage he posted, about 1,000 pixels wide: replace them with the
+  original files when you have them.
+- **Before the site is made public**, confirm with the group that the people who appear in the
+  photographs and clips agree to it, and who should be credited for the photographs.
 
 ## Design notes
 
 - **Identity** - built from the group's own mark and its university: maize and Michigan blue in
-  large flat fields, heavy condensed headlines set like a poster (Archivo, using its width axis),
-  square corners, and solid rules. The page is light by default with a dark theme behind the
+  large flat fields, heavy condensed headlines (Archivo, using its width axis), square corners,
+  and solid rules. The page is light by default with a dark theme behind the
   toggle; the tokens are at the top of `src/styles/global.css`.
 - **Logo** (`src/components/Logo.astro`, `src/lib/logo.ts`) - a vector redraw of the gear-and-eye
   mark on the group's GitHub organization, measured from the original so it is sharp at any size.
   Its eye follows the pointer, it blinks, and the gear turns as the page scrolls.
-- **The headline** on the home page is Prof. Corso's own summary of what an AI that guides
-  people has to do: understand the task, understand the human, and fill the gap. The source is
-  linked under it. The Research page takes its title from his Toyota Professorship lecture.
+- **Headings are calm.** The typeface is heavy, so the sizes are moderate: a page title is about
+  60 pixels on a desktop, a section heading about 44, and nothing on the site is larger than 84.
+  A test measures every piece of text on every page and fails if anything is. An earlier design
+  set headlines as large as the screen allowed, and it read as shouting.
+- **The headline** on the home page is the title of Prof. Corso's 2026 talk. The thesis section
+  below it opens with his own summary of what an AI that guides people has to do: understand the
+  task, understand the human, and fill the gap, with its source linked. The Research page takes
+  its title from his Toyota Professorship lecture.
+- **Real before drawn.** Where the group has its own photograph or footage of something, the site
+  shows that, and a drawing only where there is none. Every animated figure illustrates a
+  published result and names the paper it is drawn after (`after` in `src/lib/figures.ts`, shown
+  by `src/components/FigureSource.astro`). A figure with no paper to name does not belong here.
 - **Operating room scene** (`src/scripts/hero-scene.ts`, `src/scripts/scene/operation.ts`) - a
   bypass graft being sewn onto a coronary artery, drawn as a dot matrix and read four ways. Each
   reading is published work of the group, listed with its paper in `src/lib/readings.ts`: hand
@@ -171,15 +198,19 @@ page at `/vigil/`.
   being talked through an exam, so what the assistant says is set in large type under the figure,
   beside one headline reading and the steps of the exam. Labels avoid jargon ("camera", not
   "RGB-D"). Anything that moves for more than a few seconds can be paused.
-- **Research figures** (`src/scripts/figures.ts`) - one live figure per research area, each
-  illustrating work the group is known for: a supervoxel hierarchy, dense captioning of a cooking
-  video, a robot following directions, an assistant catching a mistake, an echocardiogram with
-  tracked landmarks, and coreset selection in an embedding space.
-- **Motion** - headline and page-load intros, scroll reveals, rules that draw themselves, count-up
+- **Research figures** (`src/scripts/figures.ts`) - one live figure per research area, each drawn
+  after a named paper of the group: a supervoxel hierarchy (ECCV 2012), dense captioning of a
+  cooking video (CVPR 2018), a robot following directions (RobotSlang), an assistant catching a
+  mistake (CVPR 2026), an echocardiogram with tracked landmarks (ISBI 2026), and coreset
+  selection in an embedding space.
+- **Spaces around links** are tidied by `src/middleware.ts` on every page. The formatter breaks
+  long lines inside links, and in HTML those breaks are spaces: a space at the end of a link is
+  underlined with it, and a space before a full stop shows as a gap. A test checks for both.
+- **Motion** - page-load intros, scroll reveals, rules that draw themselves, count-up
   stats, a reading-progress bar, and cross-page transitions. All of it is switched off for visitors
   who ask their system for reduced motion, and the page is fully readable without JavaScript.
-- **Fonts** - Archivo (variable, from `@fontsource-variable/archivo`) and Geist Mono for readouts
-  inside the scenes, both self-hosted.
+- **Fonts** - Archivo (variable, from `@fontsource-variable/archivo`) and IBM Plex Mono for
+  readouts and figure labels, both self-hosted.
 
 ## Deploying
 

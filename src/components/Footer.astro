@@ -151,15 +151,15 @@ const michigan = [
     background-size: 100% 2px;
   }
 
-  /* The group's name, set as wide as the page, closes every page like a poster. */
+  /* The group's name closes every page. */
   .wordmark {
     font-family: var(--font-display);
-    font-stretch: 62%;
-    /* The name is 5.07em wide in this face: size it so it always spans the page. */
-    font-size: min(calc((100vw - 2 * var(--gutter)) / 5.07), 26rem);
+    font-stretch: 66%;
+    /* The name signs the page off at the size of a heading, not of a poster. */
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
     font-weight: 800;
-    line-height: 0.74;
-    letter-spacing: -0.012em;
+    line-height: 0.9;
+    letter-spacing: -0.008em;
     text-align: center;
     text-transform: uppercase;
     white-space: nowrap;

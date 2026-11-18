@@ -383,9 +383,9 @@ test("the mark's eye follows the pointer and its gear turns with the page", asyn
 
 test('every research figure draws its own picture', async ({ page }) => {
   await page.goto(at('/research/'));
-  // One figure for each of the six areas, and one for the flagship project above them.
+  // One figure for each of the six areas. The flagship project above them is shown in footage.
   const figures = page.locator('[data-figure]');
-  await expect(figures).toHaveCount(7);
+  await expect(figures).toHaveCount(6);
   const names = new Set<string>();
   for (const figure of await figures.all()) {
     await figure.scrollIntoViewIfNeeded();
@@ -406,7 +406,89 @@ test('every research figure draws its own picture', async ({ page }) => {
     await expect.poll(colors, { message: name, timeout: 8_000 }).toBeGreaterThan(1);
     await expect(figure.locator('figcaption')).not.toBeEmpty();
   }
-  expect(names.size).toBe(7);
+  expect(names.size).toBe(6);
+});
+
+test('every research figure names the paper it is drawn after', async ({ page }) => {
+  await page.goto(at('/research/'));
+  const sources = page.locator('.area .figure-source');
+  await expect(sources).toHaveCount(6);
+  for (const source of await sources.all()) {
+    await expect(source).toContainText('Figure after');
+    const link = source.locator('a').first();
+    await expect(link).toHaveAttribute('href', /^https:\/\//);
+    // A citation: who, where, and when.
+    await expect(link).toHaveText(/\S+.*, .+ (19|20)\d\d$/);
+    await expect(link).toHaveAttribute('title', /\S{8,}/);
+  }
+
+  // On the home page the figures sit in cards that are links, so the source is plain text there.
+  await page.goto(at('/'));
+  await expect(page.locator('.areas .figure-source')).toHaveCount(5);
+  await expect(page.locator('.areas .figure-source a')).toHaveCount(0);
+});
+
+/** A clip of the group's footage: silent, looping, described, and held still on request. */
+async function expectClip(clip: import('@playwright/test').Locator) {
+  const video = clip.locator('video');
+  await expect(video).toHaveAttribute('aria-label', /\S.{40,}/);
+  await expect(video).toHaveAttribute('poster', /\S+/);
+  await expect(video).toHaveJSProperty('muted', true);
+  await expect(video).toHaveJSProperty('loop', true);
+  await expect(video).toHaveAttribute('playsinline', '');
+  await expect(video).toHaveAttribute('preload', 'none');
+  await expect(video.locator('source')).toHaveAttribute('src', /\.mp4$/);
+  await expect(clip.locator('.clip-tag')).toContainText('Footage');
+  await expect(clip.locator('figcaption')).not.toBeEmpty();
+}
+
+test('clips of the system play while on screen and can be held still', async ({ page }) => {
+  await page.goto(at('/'));
+  const clip = page.locator('section.vigil [data-clip]');
+  await expectClip(clip);
+  const video = clip.locator('video');
+  const toggle = clip.locator('[data-clip-toggle]');
+  // Nothing is fetched or played before the clip is on screen.
+  await expect(clip).toHaveAttribute('data-playing', 'false');
+  await expect(toggle).toHaveAccessibleName('Play the clip');
+
+  // The clip itself is on the site.
+  const src = await video.locator('source').evaluate((el: HTMLSourceElement) => el.src);
+  const response = await page.request.get(src);
+  expect(response.status()).toBe(200);
+  const bytes = await response.body();
+  // An MP4 file, whatever the server calls it, and small enough to load on a phone.
+  expect(bytes.subarray(4, 8).toString('latin1')).toBe('ftyp');
+  expect(bytes.byteLength).toBeLessThan(1_600_000);
+
+  const canPlay = await video.evaluate(
+    (el: HTMLVideoElement) => el.canPlayType('video/mp4; codecs="avc1.640028"') !== '',
+  );
+  test.skip(!canPlay, 'This browser build cannot decode H.264, so there is nothing to play.');
+
+  await clip.scrollIntoViewIfNeeded();
+  await expect(clip).toHaveAttribute('data-playing', 'true');
+  await expect(toggle).toHaveAccessibleName('Pause the clip');
+  await toggle.click();
+  await expect(clip).toHaveAttribute('data-playing', 'false');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  // Held means held: scrolling away and back does not start it again.
+  await page.locator('footer').scrollIntoViewIfNeeded();
+  await clip.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  await expect(clip).toHaveAttribute('data-playing', 'false');
+  await toggle.click();
+  await expect(clip).toHaveAttribute('data-playing', 'true');
+});
+
+test('clips stay still for visitors who ask for reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(at('/vigil/'));
+  const clip = page.locator('#how [data-clip]').first();
+  await clip.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(600);
+  await expect(clip).toHaveAttribute('data-playing', 'false');
+  await expect(clip.locator('[data-clip-toggle]')).toHaveAccessibleName('Play the clip');
 });
 
 test('the flagship project is introduced on the home page and leads to its own page', async ({
@@ -418,9 +500,10 @@ test('the flagship project is introduced on the home page and leads to its own p
   await expect(band).toContainText(
     'Vectors of Intelligent Guidance in Long-Reach Rural Healthcare',
   );
-  const figure = band.locator('[data-figure="vigil"]');
-  await figure.scrollIntoViewIfNeeded();
-  await expect(figure).toHaveAttribute('data-painted', '');
+  // The band shows the team's own footage of the system, not a drawing of it.
+  await expect(band.locator('[data-figure]')).toHaveCount(0);
+  await expectClip(band.locator('[data-clip]'));
+  await expect(band.locator('[data-clip] figcaption a')).toHaveAttribute('href', /\/vigil\/#how$/);
 
   await band.getByRole('link', { name: /Inside VIGIL/ }).click();
   await expect(page).toHaveURL(/\/vigil\/$/);
@@ -474,9 +557,9 @@ test('the VIGIL page shows the system at work: photos, both exams, and the demo 
 }) => {
   await page.goto(at('/vigil/'));
 
-  // Three photographs of the demonstration, each with a description.
+  // A photograph from the group's mock clinic and three of the demonstration, each described.
   const photos = page.locator('#in-the-room .photo img');
-  await expect(photos).toHaveCount(3);
+  await expect(photos).toHaveCount(4);
   for (const photo of await photos.all()) {
     await photo.scrollIntoViewIfNeeded();
     await expect(photo).toHaveAttribute('alt', /\S{4,}/);
@@ -484,6 +567,22 @@ test('the VIGIL page shows the system at work: photos, both exams, and the demo 
       .poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth))
       .toBeGreaterThan(0);
   }
+
+  // Each part of the system is shown in the team's own footage or photographs.
+  const parts = page.locator('#how .part');
+  await expect(parts).toHaveCount(4);
+  for (const part of await parts.all()) {
+    await expect(part.locator('.h3')).not.toBeEmpty();
+    expect(await part.locator('[data-clip], .photo').count()).toBeGreaterThanOrEqual(1);
+  }
+  const clips = page.locator('#how [data-clip]');
+  await expect(clips).toHaveCount(5);
+  for (const clip of await clips.all()) await expectClip(clip);
+  const still = page.locator('#how .part .photo img');
+  await still.scrollIntoViewIfNeeded();
+  await expect
+    .poll(() => still.evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBeGreaterThan(0);
 
   // The heart exam and the leg exam are both drawn.
   for (const name of ['vigil', 'leg']) {
@@ -550,11 +649,9 @@ test('the home page leads with the thesis, then its proof, then the operating ro
   page,
 }) => {
   await page.goto(at('/'));
-  // The headline is the group's thesis.
+  // The headline is the group's thesis, in the words of the talk's title.
   const headline = page.locator('h1');
-  for (const word of ['Physically', 'grounded', 'upskilling.']) {
-    await expect(headline).toContainText(word);
-  }
+  await expect(headline).toHaveText(/^\s*Physically-grounded agentic\s+upskilling\s*\.\s*$/);
   // It is defined in a sentence, each word is explained, and the talk it comes from is named.
   await expect(page.locator('.hero .lead')).toContainText(
     'guides a person through a physical task',
@@ -582,18 +679,78 @@ test('the home page leads with the thesis, then its proof, then the operating ro
   expect(order.vigil).toBeLessThan(order.scene);
   expect(order.scene).toBeLessThan(order.areas);
 
-  // The band shows the real system beside the illustration, and links to the photographs.
-  const real = page.locator('section.vigil a.real');
-  await expect(real).toHaveAttribute('href', /\/vigil\/#in-the-room$/);
-  await real.scrollIntoViewIfNeeded();
+  // The first picture a visitor sees is a photograph of the system at work.
+  const photo = page.locator('.hero-photo img');
+  await expect(photo).toHaveAttribute('alt', /VIGIL/);
   await expect
-    .poll(() => real.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth))
     .toBeGreaterThan(0);
+  await expect(page.locator('.hero-photo figcaption')).toContainText('VIGIL');
+  await expect(page.locator('.hero-photo a')).toHaveAttribute('href', /\/vigil\/$/);
   await expect(page.locator('section.vigil .kicker')).toContainText('In healthcare delivery');
 
   // Human-AI collaboration is the thesis itself, so the grid below shows the other five areas.
   await expect(page.locator('.areas > li')).toHaveCount(5);
   await expect(page.locator('.areas [data-figure="human"]')).toHaveCount(0);
+});
+
+test('the first screen is calm: one moderate line of headline, with the photograph in view', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'This test sets its own screen sizes.');
+  for (const [width, height] of [
+    [1280, 720],
+    [1440, 900],
+    [1920, 1080],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto(at('/'));
+    await page.evaluate(() => document.fonts.ready);
+    const title = await page.locator('h1').evaluate((h1) => {
+      const style = getComputedStyle(h1);
+      const range = document.createRange();
+      range.selectNodeContents(h1);
+      return {
+        size: parseFloat(style.fontSize),
+        lines:
+          range.getClientRects().length > 0
+            ? Math.round(h1.clientHeight / parseFloat(style.lineHeight))
+            : 0,
+        width: range.getBoundingClientRect().width,
+        room: h1.clientWidth,
+      };
+    });
+    // A third of what it once was: no more than 68 pixels, on one line that fits its column.
+    expect(title.size, `${width}`).toBeLessThanOrEqual(68);
+    expect(title.lines, `${width}`).toBe(1);
+    expect(title.width, `${width}`).toBeLessThanOrEqual(title.room + 1);
+    // The definition, the buttons, and the photograph are all visible without scrolling.
+    for (const selector of ['.hero .lead', '.hero .cta', '.hero-photo img']) {
+      const bottom = await page
+        .locator(selector)
+        .evaluate((el) => el.getBoundingClientRect().bottom);
+      expect(bottom, `${selector} at ${width}x${height}`).toBeLessThanOrEqual(height);
+    }
+  }
+
+  // Nothing on any page is set at poster size: no text is larger than 84 pixels.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (const path of pages) {
+    await page.goto(at(path));
+    const largest = await page.evaluate(() => {
+      const sizes = [...document.querySelectorAll('body *')]
+        .filter((el) =>
+          [...el.childNodes].some((node) => node.nodeType === 3 && node.textContent!.trim()),
+        )
+        .map((el) => ({
+          size: parseFloat(getComputedStyle(el).fontSize),
+          text: el.textContent!.trim().slice(0, 30),
+        }));
+      return sizes.sort((a, b) => b.size - a.size)[0];
+    });
+    expect(largest.size, `${path}: "${largest.text}"`).toBeLessThanOrEqual(84);
+  }
 });
 
 test('the thesis makes its claims with live figures and the papers behind them', async ({
@@ -639,10 +796,40 @@ test('the thesis makes its claims with live figures and the papers behind them',
   await step(mistake, 'Where').click();
   await expect(mistake.locator('[data-says-who]')).toHaveText('Where');
 
-  // The arc ends at the clinic, and the third claim leads on to VIGIL.
+  // The arc ends at the clinic, shows MILLY at work, and the third claim leads on to VIGIL.
   await expect(thesis.locator('.arc > li')).toHaveCount(5);
+  await expectClip(thesis.locator('.arc-wrap [data-clip]'));
+  await expect(thesis.locator('.arc-wrap [data-clip] figcaption')).toContainText('MILLY');
   await thesis.locator('.arc-next').click();
   await expect(page.locator('section.vigil')).toBeInViewport();
+});
+
+test('links carry no stray spaces, and no gap opens before the punctuation after them', async ({
+  page,
+}) => {
+  for (const path of pages) {
+    await page.goto(at(path));
+    const flaws = await page.evaluate(() => {
+      const found: string[] = [];
+      for (const el of document.querySelectorAll('a, em')) {
+        const text = el.textContent ?? '';
+        if (!text.trim()) continue;
+        // An underline or a highlight must not run on under a space: the element's own text,
+        // where it begins or ends with text, has no space at that edge.
+        const first = el.firstChild;
+        const last = el.lastChild;
+        const leads = first?.nodeType === 3 && /^\s/.test(first.textContent ?? '');
+        const trails = last?.nodeType === 3 && /\s$/.test(last.textContent ?? '');
+        if (leads || trails) found.push(`space inside: "${text.trim().slice(0, 40)}"`);
+        const after = el.nextSibling;
+        if (after?.nodeType === 3 && /^\s+[.,;:!?]/.test(after.textContent ?? '')) {
+          found.push(`gap before punctuation after: "${text.trim().slice(0, 40)}"`);
+        }
+      }
+      return found;
+    });
+    expect(flaws, path).toEqual([]);
+  }
 });
 
 test('the header fits at every width where the full navigation shows', async ({

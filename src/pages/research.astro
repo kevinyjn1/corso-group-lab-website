@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import PubItem from '../components/PubItem.astro';
+import FigureSource from '../components/FigureSource.astro';
 import ResearchFigure from '../components/ResearchFigure.astro';
 import VigilBand from '../components/VigilBand.astro';
 import type { FigureName } from '../lib/figures';
@@ -71,6 +72,9 @@ const sections = areas.map((area) => {
         <div class="area-grid" data-reveal="stagger">
           <div class="area-intro">
             <ResearchFigure topic={area.id as FigureName} number={i + 1} />
+            <div class="area-source">
+              <FigureSource topic={area.id as FigureName} />
+            </div>
             <p class="label area-index">
               {String(i + 1).padStart(2, '0')} / {String(sections.length).padStart(2, '0')}
             </p>
@@ -207,6 +211,10 @@ const sections = areas.map((area) => {
   /* Each area opens on its own live figure, a little wider than it is tall. */
   .area-intro :global(.figure) {
     aspect-ratio: 16 / 11;
+  }
+
+  .area-source {
+    margin-top: 0.7rem;
   }
 
   .area-index {

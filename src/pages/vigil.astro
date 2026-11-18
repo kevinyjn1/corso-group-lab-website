@@ -6,6 +6,7 @@
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Cite from '../components/Cite.astro';
+import Clip from '../components/Clip.astro';
 import MediaRow from '../components/MediaRow.astro';
 import PubItem from '../components/PubItem.astro';
 import ResearchFigure from '../components/ResearchFigure.astro';
@@ -18,7 +19,19 @@ import { RELATED_POSTERS, SYSTEM_POSTERS } from '../lib/vigil-posters';
 import heartScan from '../assets/vigil/demo-day-heart-scan.jpg';
 import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
 import teamPhoto from '../assets/vigil/demo-day-team.jpg';
+import mockClinic from '../assets/vigil/mock-clinic-empty.jpg';
+import mockClinicExam from '../assets/vigil/mock-clinic-exam.jpg';
 import vigilMark from '../assets/vigil/vigil-mark.png';
+import feedback from '../assets/clips/vigil-feedback.mp4';
+import projection from '../assets/clips/vigil-projection.mp4';
+import question from '../assets/clips/vigil-question.mp4';
+import sensing from '../assets/clips/vigil-sensing.mp4';
+import viewScoring from '../assets/clips/vigil-view-scoring.mp4';
+import feedbackPoster from '../assets/clips/posters/vigil-feedback.jpg';
+import projectionPoster from '../assets/clips/posters/vigil-projection.jpg';
+import questionPoster from '../assets/clips/posters/vigil-question.jpg';
+import sensingPoster from '../assets/clips/posters/vigil-sensing.jpg';
+import viewScoringPoster from '../assets/clips/posters/vigil-view-scoring.jpg';
 
 const { award, services } = vigil;
 const media = (await getMedia()).filter((item) => item.data.project === 'vigil');
@@ -27,6 +40,68 @@ const coverage = media.filter((item) => item !== talk);
 const publications = await getPublications();
 const papers = vigil.papers.flatMap((id) => publications.filter((pub) => pub.id === id));
 const sources = Object.entries(SOURCES) as [SourceId, (typeof SOURCES)[SourceId]][];
+
+/**
+ * The team's own footage of each part of the system, in the order of vigil.steps. The clips are cut
+ * from the demonstration videos in Prof. Corso's talks, and any captions inside them are the team's.
+ */
+const footage = [
+  [
+    {
+      clip: sensing,
+      poster: sensingPoster,
+      alt: "A split screen. On the left, a gray 3D model of a person's legs, with a green patch on the upper thigh and a blue dot that moves as the probe moves. On the right, the camera's view of a real leg from above, with dots tracking the hand that holds the probe.",
+      title: 'The room, in 3D.',
+      caption:
+        "Left, the probe's position drawn on a 3D model posed like the patient. Right, the camera's view, with the hand on the probe tracked.",
+    },
+  ],
+  [
+    {
+      clip: viewScoring,
+      poster: viewScoringPoster,
+      alt: 'Two copies of a live ultrasound of the heart. The left is plain. On the right, dots trace the wall of the left ventricle, a frame around the image changes between green, yellow, and red, and a reading of LVEF, near 62 percent, updates.',
+      title: 'Reading the view.',
+      caption:
+        'Left, the ultrasound as it arrives. Right, landmarks traced on the heart, a frame whose color scores the view, and an estimate of ejection fraction (LVEF).',
+    },
+    {
+      clip: question,
+      poster: questionPoster,
+      alt: 'A clinician holding an ultrasound probe asks a question, shown as a caption: Hi VIGIL, what is in this view? A monitor behind her shows the ultrasound in a yellow frame, and a caption gives the reply: This appears to be an apical four-chamber (A4C) view with suboptimal visibility.',
+      title: 'Answering a question.',
+      caption:
+        'The clinician asks, "Hi VIGIL, what\'s in this view?" It answers: an apical four-chamber view, with suboptimal visibility.',
+    },
+  ],
+  [
+    {
+      clip: projection,
+      poster: projectionPoster,
+      alt: 'Seen from above, a patient in a gown lies on a bed while a clinician stands at the head. Lines of light projected onto the bed show where the patient should lie. A close-up then shows a score projected onto the bed beside the patient.',
+      title: 'In the room.',
+      caption:
+        'Light on the bed lines the patient up. Then the system projects its reading onto the bed beside them.',
+    },
+    {
+      clip: feedback,
+      poster: feedbackPoster,
+      alt: 'A clinician scans a patient while a monitor shows the ultrasound in a yellow frame. The picture then cuts to the screen itself: the ultrasound with the four chambers of the heart colored in, and beside it a 3D probe drawn at its current angle against the target angle.',
+      title: 'On the screen.',
+      caption:
+        "Color-coded feedback: a frame around the ultrasound view, and the probe's current angle drawn against the target.",
+    },
+  ],
+  [
+    {
+      photo: mockClinic,
+      alt: 'An empty exam bay built from an aluminum frame: a curtained wall with two monitors, an exam table, a large screen showing the bay from above, and a sign reading VIGIL, Michigan Robotics, ARPA-H.',
+      title: 'The mock clinic.',
+      caption:
+        'The team develops VIGIL in a bay built to stand in for the vehicle: a frame carrying its cameras and screens around an exam table.',
+    },
+  ],
+] as const;
 
 const plate = [
   { name: 'Funder', value: `${award.funderName} (${award.funder})` },
@@ -100,12 +175,26 @@ const plate = [
           </p>
         </div>
       </div>
+      <figure class="photo photo--lead" data-reveal>
+        <Image
+          src={mockClinicExam}
+          alt="A team member holds an ultrasound probe to the abdomen of a volunteer lying on an exam table. Behind them, a large screen shows the same exam from above, as the room's camera sees it."
+          widths={[640, 960, 1280, 1600, 2400]}
+          sizes="(min-width: 86rem) 80rem, 92vw"
+          quality={80}
+        />
+        <figcaption>
+          <strong>In the group's mock clinic at Michigan.</strong> A team member scans a volunteer.
+          The screen behind them shows the exam from above: what the room's camera sees, and what
+          VIGIL works from.
+        </figcaption>
+      </figure>
       <div class="photos" data-reveal="stagger">
         <figure class="photo photo--tall">
           <Image
             src={legScan}
             alt="A clinician scans the thigh of a patient lying on a bed. Green light is projected onto the leg, and a screen in front shows a model of the leg with the probe's position marked."
-            widths={[480, 686]}
+            widths={[480, 720, 1008]}
             sizes="(min-width: 62rem) 38vw, 92vw"
             quality={82}
           />
@@ -118,7 +207,7 @@ const plate = [
           <Image
             src={heartScan}
             alt="A clinician holds an ultrasound probe to the chest of a man lying on an exam table, beside three monitors. One shows an ultrasound image of the heart outlined in red."
-            widths={[480, 666]}
+            widths={[480, 720, 978]}
             sizes="(min-width: 62rem) 38vw, 92vw"
             quality={82}
           />
@@ -131,7 +220,7 @@ const plate = [
           <Image
             src={teamPhoto}
             alt="Thirteen members of the VIGIL team, one in a patient gown, around a screen showing the VIGIL logo."
-            widths={[480, 666]}
+            widths={[480, 720, 978]}
             sizes="(min-width: 62rem) 38vw, 92vw"
             quality={82}
           />
@@ -141,11 +230,10 @@ const plate = [
         </figure>
       </div>
       <p class="photo-credit" data-reveal>
-        Photos: Jason Corso, from{' '}
         <a class="link" href={SOURCES.demo.href} rel="noopener">
-          his post about the meeting
-        </a>
-        .
+          Jason Corso's post about the meeting
+        </a>{' '}
+        is the source of its three photos. The mock clinic photo is courtesy of the group.
       </p>
     </div>
   </section>
@@ -161,6 +249,53 @@ const plate = [
         </div>
       </div>
 
+      <ol class="parts">
+        {vigil.steps.map((step, i) => (
+          <li class="part" data-reveal>
+            <div class="part-text">
+              <p class="step-name">
+                <span class="step-index">{String(i + 1).padStart(2, '0')}</span>
+                {step.name}
+              </p>
+              <h3 class="h3">{step.title}</h3>
+              <p class="step-body">
+                {step.body}
+                <Cite ids={step.sources} />
+              </p>
+            </div>
+            <div class="part-media" data-count={footage[i].length}>
+              {footage[i].map((item) =>
+                'clip' in item ? (
+                  <Clip src={item.clip} poster={item.poster} tag="Footage · VIGIL" alt={item.alt}>
+                    <strong>{item.title}</strong> {item.caption}
+                  </Clip>
+                ) : (
+                  <figure class="photo">
+                    <Image
+                      src={item.photo}
+                      alt={item.alt}
+                      widths={[480, 720, 960, 1280]}
+                      sizes="(min-width: 62rem) 44rem, 92vw"
+                      quality={80}
+                    />
+                    <figcaption>
+                      <strong>{item.title}</strong> {item.caption}
+                    </figcaption>
+                  </figure>
+                ),
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p class="note note--all" data-reveal>
+        The clips are cut from the team's own demonstration videos, and the captions inside them are
+        the team's.
+      </p>
+
+      <h3 class="h3 exams-head" data-reveal>
+        Two exams, start to finish
+      </h3>
       <div class="exams" data-reveal="stagger">
         <div>
           <ResearchFigure topic="vigil" number={1} wide />
@@ -180,26 +315,11 @@ const plate = [
         </div>
       </div>
       <p class="note note--all" data-reveal>
-        Both figures are live illustrations drawn from the team's public descriptions and its demo
-        day posters, not footage of the system, and the spoken lines are examples.
+        These two figures are illustrations, drawn from the team's public descriptions and its demo
+        day posters to show a whole exam in a few seconds. They are not footage, and the spoken
+        lines are examples.
         <Cite ids={['detroit', 'posters']} />
       </p>
-
-      <ol class="steps" data-reveal="stagger">
-        {vigil.steps.map((step, i) => (
-          <li>
-            <p class="step-name">
-              <span class="step-index">{String(i + 1).padStart(2, '0')}</span>
-              {step.name}
-            </p>
-            <h3 class="h3">{step.title}</h3>
-            <p class="step-body">
-              {step.body}
-              <Cite ids={step.sources} />
-            </p>
-          </li>
-        ))}
-      </ol>
     </div>
   </section>
 
@@ -604,13 +724,13 @@ const plate = [
     height: 3.5rem;
   }
 
-  /* The name is the page's poster: as large as the screen allows. */
+  /* The name is a wordmark, so it is set a step larger than other page titles, and no more. */
   .wordmark {
-    font-stretch: 62%;
+    font-stretch: 66%;
     font-weight: 900;
-    font-size: clamp(6.5rem, 33vw, 22rem);
-    line-height: 0.76;
-    letter-spacing: -0.015em;
+    font-size: clamp(3rem, 6.4vw, 5rem);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
   }
 
   .head-foot {
@@ -684,6 +804,17 @@ const plate = [
     grid-row: 1 / span 2;
   }
 
+  .photo--lead {
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  /* The lead photograph is wide, so it is cropped to a band that keeps both people and the screen. */
+  .photo--lead :global(img) {
+    aspect-ratio: 16 / 8;
+    object-fit: cover;
+    object-position: 50% 30%;
+  }
+
   .photo :global(img) {
     display: block;
     width: 100%;
@@ -740,17 +871,40 @@ const plate = [
     color: var(--text-3);
   }
 
-  .steps {
+  /* Each part of the system: what it does, beside the team's footage of it doing that. */
+  .parts {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
     padding: 0;
     list-style: none;
   }
 
-  .steps li {
-    padding: 0 clamp(1rem, 2vw, 1.75rem) 0.25rem;
-    border-left: var(--rule) solid var(--maize);
+  .part {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.6fr);
+    gap: 1.5rem clamp(2rem, 4vw, 4rem);
+    align-items: start;
+    padding-top: 1.25rem;
+    border-top: var(--rule) solid var(--maize);
+  }
+
+  .part-media {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem clamp(1.25rem, 2.5vw, 2rem);
+    align-items: start;
+  }
+
+  .part-media[data-count='1'] {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 44rem;
+  }
+
+  .exams-head {
+    margin: clamp(3rem, 6vw, 4.5rem) 0 1.25rem;
+    padding-top: 1.25rem;
+    border-top: var(--rule) solid var(--maize);
   }
 
   .step-name {
@@ -773,7 +927,7 @@ const plate = [
     color: var(--text-3);
   }
 
-  .steps .h3 {
+  .part .h3 {
     margin-top: 0.7rem;
   }
 
@@ -814,9 +968,9 @@ const plate = [
     margin: 0;
     font-family: var(--font-display);
     font-stretch: 66%;
-    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-size: clamp(2.4rem, 4.6vw, 3.75rem);
     font-weight: 800;
-    line-height: 0.82;
+    line-height: 0.9;
     letter-spacing: -0.01em;
   }
 
@@ -1292,9 +1446,8 @@ const plate = [
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .steps {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      row-gap: 2.25rem;
+    .part {
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .scope,
@@ -1313,10 +1466,13 @@ const plate = [
   }
 
   @media (max-width: 38rem) {
-    .steps,
     .reasons {
       grid-template-columns: minmax(0, 1fr);
       row-gap: 1.75rem;
+    }
+
+    .part-media {
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .plate div,
