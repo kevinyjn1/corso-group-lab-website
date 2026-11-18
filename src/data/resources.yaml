@@ -16,7 +16,7 @@
 - id: youcook2
   name: YouCook2
   kind: dataset
-  year: 2017
+  year: 2018
   featured: true
   summary: 2,000 untrimmed cooking videos from YouTube, 176 hours in all, covering 89 recipes. Every procedure step is annotated with temporal boundaries and an imperative English sentence.
   topics: [language, video]
@@ -30,9 +30,10 @@
   kind: dataset
   year: 2019
   featured: true
-  summary: 157.8k bounding boxes that ground the noun phrases of 51.8k ActivityNet Captions segments, one frame per phrase, released with Grounded Video Description (CVPR 2019 oral).
+  summary: About 158,000 bounding boxes that ground the noun phrases of about 52,000 ActivityNet Captions segments, one frame per phrase, released with Grounded Video Description (CVPR 2019 oral).
   topics: [language, video]
   links:
+    - { label: Paper, href: 'https://arxiv.org/abs/1812.06587' }
     - { label: Data, href: 'https://github.com/facebookresearch/ActivityNet-Entities' }
     - { label: Code, href: 'https://github.com/facebookresearch/grounded-video-description' }
 
@@ -80,7 +81,7 @@
 - id: surgical-hands
   name: Surgical Hands
   kind: dataset
-  year: 2021
+  year: 2023
   summary: About 8,100 annotated hand poses in 76 clips from 28 publicly available surgical videos, released with the CondPose tracking method.
   topics: [health, video]
   links:
@@ -112,7 +113,7 @@
   kind: software
   year: 2020
   featured: true
-  summary: The open-source tool for visualizing datasets, analyzing them, and debugging models. Built at Voxel51, the company co-founded by Prof. Corso, with more than three million installs.
+  summary: An open-source tool for visualizing and analyzing datasets and debugging models, with more than three million installs. Built at Voxel51, the company Prof. Corso co-founded.
   topics: [learning]
   links:
     - { label: Code, href: 'https://github.com/voxel51/fiftyone' }
@@ -136,13 +137,14 @@
   summary: A temporally aggregating spatial encoder-decoder network for video saliency detection (ICCV 2019).
   topics: [video]
   links:
+    - { label: Paper, href: 'https://arxiv.org/abs/1908.05786' }
     - { label: Code, href: 'https://github.com/MichiganCOG/TASED-Net' }
 
 - id: a2cl-pt
   name: A2CL-PT
   kind: software
   year: 2020
-  summary: Finds when activities start and end in a video from video-level labels alone. On THUMOS14 it raised average mAP from 27.9% to 30.0% over the best earlier weakly supervised method (ECCV 2020).
+  summary: Finds when activities start and end in a video from video-level labels alone. On THUMOS14 it reached an average mAP of 30.0%, against 27.9% for the best earlier weakly supervised method (ECCV 2020).
   topics: [video]
   links:
     - { label: Code, href: 'https://github.com/MichiganCOG/A2CL-PT' }
@@ -165,6 +167,7 @@
   summary: Unified vision-language pretraining for image captioning and visual question answering (AAAI 2020).
   topics: [language]
   links:
+    - { label: Paper, href: 'https://arxiv.org/abs/1909.11059' }
     - { label: Code, href: 'https://github.com/LuoweiZhou/VLP' }
 
 - id: bubblenets
@@ -174,6 +177,7 @@
   summary: Learns to select the best frame for a person to annotate in video object segmentation (CVPR 2019 oral, best paper finalist).
   topics: [video]
   links:
+    - { label: Paper, href: 'https://arxiv.org/abs/1903.11779' }
     - { label: Code, href: 'https://github.com/griffbr/BubbleNets' }
 
 - id: video-grounding
@@ -183,6 +187,7 @@
   summary: Weakly supervised grounding of objects in video from text, using loss weighting and object interaction (BMVC 2018).
   topics: [language, video]
   links:
+    - { label: Paper, href: 'https://arxiv.org/abs/1805.02834' }
     - { label: Code, href: 'https://github.com/MichiganCOG/Video-Grounding-from-Text' }
 
 - id: dense-captioning
@@ -192,6 +197,7 @@
   summary: End-to-end dense video captioning with a masked transformer (CVPR 2018).
   topics: [language, video]
   links:
+    - { label: Paper, href: 'https://arxiv.org/abs/1804.00819' }
     - { label: Code, href: 'https://github.com/LuoweiZhou/densecap' }
 
 - id: m-pact
@@ -205,12 +211,13 @@
     - { label: Paper, href: 'https://arxiv.org/abs/1804.05879' }
 
 - id: click-here-cnn
-  name: Click-Here CNNs
+  name: Click-Here CNN
   kind: software
   year: 2017
   summary: Human-in-the-loop viewpoint estimation, where a keypoint located by a person guides the network (ICCV 2017).
   topics: [human, video]
   links:
+    - { label: Paper, href: 'https://arxiv.org/abs/1703.09859' }
     - { label: Code, href: 'https://github.com/rszeto/click-here-cnn' }
 
 - id: mint
@@ -227,7 +234,7 @@
   name: LIBSVX
   kind: software
   year: 2012
-  summary: A supervoxel library and benchmark for early video processing. Its journal version compares seven supervoxel methods, five off-line and two streaming, on six video datasets with seven quality metrics.
+  summary: A supervoxel library and benchmark for early video processing. The benchmark compares seven supervoxel methods, five off-line and two streaming, on six video datasets with seven quality metrics.
   topics: [video]
   awards:
     - Best Open Source Code, 3rd Prize, CVPR 2012
@@ -253,7 +260,8 @@
   summary: Tree-structured metric learning that adapts the distance function across the feature space (KDD 2012).
   topics: [learning]
   links:
-    - { label: Code, href: 'https://web.eecs.umich.edu/~jjcorso/pubs/RFD_Package.zip' }
+    - { label: Paper, href: 'https://arxiv.org/abs/1201.0610' }
+    - { label: 'Download (.zip)', href: 'https://web.eecs.umich.edu/~jjcorso/pubs/RFD_Package.zip' }
 
 - id: graph-shifts
   name: Graph-Shifts

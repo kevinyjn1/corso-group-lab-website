@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import { getResources, type Resource } from '../lib/content';
-import { site } from '../lib/site';
+import { href, site } from '../lib/site';
 
 const resources = await getResources();
 const groups: { id: Resource['data']['kind']; title: string; blurb: string }[] = [
@@ -31,8 +31,8 @@ const groups: { id: Resource['data']['kind']; title: string; blurb: string }[] =
     </Fragment>
     <!-- prettier-ignore -->
     <p class="lead">
-      {resources.length} datasets and software releases from the group. Code that accompanies a
-      specific paper is also linked from the publications list, and more lives in the group's
+      Datasets and software releases from the group. Code that accompanies a specific paper is also
+      linked from the <a class="link" href={href('/publications/')}>publications list</a>, and more lives in the group's
       <a class="link" href={site.links.github} rel="noopener">GitHub organization</a>.
     </p>
   </PageHead>
@@ -80,7 +80,7 @@ const groups: { id: Resource['data']['kind']; title: string; blurb: string }[] =
                         rel="noopener"
                         aria-label={`${link.label}: ${item.data.name}`}
                       >
-                        {link.label} <span aria-hidden="true">&nearr;</span>
+                        {link.label}&nbsp;<span aria-hidden="true">&nearr;</span>
                       </a>
                     </li>
                   ))}

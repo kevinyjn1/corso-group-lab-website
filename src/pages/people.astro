@@ -21,7 +21,7 @@ const groups = [
   {
     title: researchers.length > 0 ? 'Researchers and staff' : 'Staff',
     list: [...researchers, ...current('staff')],
-    note: (p: Person) => (p.data.role === 'researcher' ? 'Research scientist' : undefined),
+    note: (p: Person) => (p.data.role === 'researcher' ? 'Research scientist' : 'Staff'),
   },
   {
     title: 'Collaborators',
@@ -41,6 +41,12 @@ const profileLinks = [
   { label: 'Essays', href: site.links.essays },
   { label: 'Voxel51', href: site.links.voxel51 },
 ];
+/** Small counts are written as words, as in the rest of the site's prose. */
+const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+const inWords = (n: number) => WORDS[n] ?? String(n);
+/** A program's catalog code, as a name a visitor from outside Michigan can read. */
+const PROGRAMS: Record<string, string> = { ROB: 'Robotics' };
+const programName = (code: string) => PROGRAMS[code] ?? code;
 ---
 
 <Base
@@ -52,9 +58,9 @@ const profileLinks = [
       The <em>group</em>.
     </Fragment>
     <p class="lead">
-      One principal investigator, {students.length} Ph.D. students, a team of undergraduate
-      researchers, staff, and collaborators, and {phd.length} Ph.D. alumni now working across
-      industry research labs and university faculties.
+      One principal investigator, {inWords(students.length)} Ph.D. students, a team of undergraduate
+      researchers, staff, and collaborators, and {phd.length} Ph.D. alumni in industry research labs
+      and on university faculties.
     </p>
   </PageHead>
 
@@ -66,7 +72,7 @@ const profileLinks = [
           {profileLinks.map((link) => (
             <li>
               <a href={link.href} rel="noopener">
-                {link.label} <span aria-hidden="true">&nearr;</span>
+                {link.label}&nbsp;<span aria-hidden="true">&nearr;</span>
               </a>
             </li>
           ))}
@@ -125,7 +131,7 @@ const profileLinks = [
             <div>
               <h3 class="h3">{person.data.name}</h3>
               <p class="label">
-                Ph.D. student{person.data.year && `, expected ${person.data.year}`}
+                Ph.D. student{person.data.year && `, degree expected ${person.data.year}`}
               </p>
               {person.data.focus && <p class="focus">{person.data.focus}</p>}
             </div>
@@ -171,7 +177,7 @@ const profileLinks = [
         <div>
           <p class="label">Alumni</p>
           <h2 class="h2">Ph.D. graduates</h2>
-          <p>Dissertations advised by Prof. Corso at Michigan and, before 2014, at SUNY Buffalo.</p>
+          <p>Dissertations advised by Prof. Corso at Michigan and at SUNY at Buffalo.</p>
         </div>
         <p class="label">{phd.length} dissertations</p>
       </div>
@@ -183,7 +189,7 @@ const profileLinks = [
               <span class="thesis-year">{person.data.year}</span>
               <span class="label">
                 {school(person)}
-                {person.data.program && ` ${person.data.program}`}
+                {person.data.program && ` ${programName(person.data.program)}`}
               </span>
             </div>
             <div>
@@ -214,7 +220,7 @@ const profileLinks = [
     <div class="container more-alumni" data-reveal="stagger">
       {[
         { title: 'M.S.E. graduates', list: ms },
-        { title: 'Undergraduate researchers', list: undergrad },
+        { title: 'Former undergraduate researchers', list: undergrad },
       ].map(({ title, list }) => (
         <div>
           <h2 class="h3">{title}</h2>
@@ -224,7 +230,8 @@ const profileLinks = [
                 <span>{person.data.name}</span>
                 <span class="label">
                   {school(person)}
-                  {person.data.program && ` ${person.data.program}`} &middot; {person.data.year}
+                  {person.data.program && ` ${programName(person.data.program)}`} &middot;{' '}
+                  {person.data.year}
                 </span>
               </li>
             ))}
@@ -444,6 +451,11 @@ const profileLinks = [
     .thesis-where {
       grid-column: 2;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* A graduate with one position listed gives it the full width. */
+    .thesis-where:has(> div:only-child) {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 

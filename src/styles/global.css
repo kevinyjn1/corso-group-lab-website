@@ -319,11 +319,13 @@ button {
   letter-spacing: -0.008em;
 }
 
+/* A little air between words: in condensed capitals a P beside a W nearly closes the gap. */
 .h2 {
   font-stretch: 74%;
   font-size: clamp(1.65rem, 3.1vw, 2.75rem);
   line-height: 1;
   letter-spacing: -0.004em;
+  word-spacing: 0.06em;
 }
 
 .h3 {

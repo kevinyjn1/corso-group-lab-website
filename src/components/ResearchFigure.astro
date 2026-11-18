@@ -341,20 +341,40 @@ const speaker = 'speaker' in figure ? figure.speaker : '';
       border-left: 0;
     }
 
-    /* On a narrow screen only the current step is named; the rest are numbers. */
-    .steps button:not([data-on]) .step-name {
-      display: none;
+    /* On a narrow screen the steps are numbers on one rail, all the same width, so that none of
+       them moves as the story advances. The current step is named on a line of its own above
+       the rail, which is always there, so the console keeps its height. Each number is tall
+       enough for a thumb. */
+    .console {
+      padding-bottom: 0.3rem;
     }
 
     .steps {
-      grid-auto-columns: auto;
-      grid-template-columns: repeat(5, auto);
-      justify-content: start;
-      gap: 0.3rem 0.5rem;
+      position: relative;
+      padding-top: 1.45rem;
     }
 
     .steps button {
-      min-width: 2rem;
+      align-content: start;
+      min-height: 2.75rem;
+    }
+
+    .steps .step-name {
+      display: none;
+    }
+
+    .steps button[data-on] .step-name {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      color: var(--screen-text);
+      white-space: nowrap;
+    }
+
+    /* Room for two lines under the reading, so a longer label does not push the rest down. */
+    .readout span {
+      min-height: 2.5em;
     }
   }
 </style>

@@ -70,22 +70,18 @@ export const thesis = {
     {
       when: '1985',
       title: 'A robot that could not help',
-      body: 'A 1985 ad for a toy robot promised help with "the toughest challenges". Forty years on, little does better.',
+      body: 'An ad for a toy robot promised help with "the toughest challenges". Forty years on, little does better.',
     },
     {
       when: '2013',
       title: 'The kitchen',
-      body: 'Cooking is procedural, messy, and full of ambiguity ("season to taste"): the ideal test bed. The group built YouCook (88 cooking videos, 2013) and then YouCook2 (2,000 videos of 89 recipes, 176 hours in all).',
+      body: 'Cooking is procedural, messy, and full of ambiguity ("season to taste"): the ideal test bed. The group built YouCook (88 cooking videos) and then YouCook2 (2,000 videos of 89 recipes, 176 hours in all).',
     },
     {
       when: '2022',
-      title: 'MILLY',
-      body: 'A DARPA-funded system that follows a cook through a recipe and flags a lapse the moment it happens.',
-    },
-    {
-      when: 'Then',
-      title: 'Battlefield medicine',
-      body: "The same guidance, moved to trauma assessment, pressure dressings, and chest seals. In a published study, 12 people did four tasks with the group's augmented reality guide, from making tea to applying a tourniquet: on a first attempt they succeeded 70% of the time with it, against 20% with no help.",
+      title: 'MILLY, from the kitchen to battlefield medicine',
+      body: "A DARPA-funded system that follows a cook through a recipe and flags a lapse the moment it happens. The same guidance then moved to trauma assessment, pressure dressings, and chest seals. In a study published in 2025, 12 people did four tasks with the group's augmented reality guide, from making tea to applying a tourniquet: on a first attempt they succeeded 70% of the time with it, against 20% with no help.",
+      papers: ['bellos2025effective'],
     },
     {
       when: '2025',

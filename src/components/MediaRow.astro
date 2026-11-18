@@ -19,10 +19,10 @@ const { title, outlet, date, url, summary, kind } = item.data;
   <div>
     <h3>
       <a href={url} rel="noopener">
-        {title} <span aria-hidden="true">&nearr;</span>
+        {title}&nbsp;<span aria-hidden="true">&nearr;</span>
       </a>
     </h3>
-    <p class="summary">{summary}</p>
+    {summary && <p class="summary">{summary}</p>}
   </div>
   {showKind && <span class="chip">{MEDIA_KINDS[kind].one}</span>}
 </li>

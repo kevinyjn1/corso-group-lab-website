@@ -52,7 +52,11 @@ const venues = [...counts.entries()]
     white-space: nowrap;
   }
 
+  /* Positioned, so that the strip's screen-reader text is clipped with the rest of it. Without
+     this, that text is placed against the page and makes the whole page scroll sideways whenever
+     the strip is not moving. */
   .window {
+    position: relative;
     overflow: hidden;
     padding-block: 0.55rem 0.4rem;
   }
@@ -101,9 +105,24 @@ const venues = [...counts.entries()]
     }
   }
 
+  /* Held still, the strip shows one copy of the list, and can be scrolled by hand. */
   @media (prefers-reduced-motion: reduce) {
     .track {
       animation: none;
+    }
+
+    .window {
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--blue) transparent;
+    }
+
+    ul[aria-hidden='true'] {
+      display: none;
+    }
+
+    ul {
+      padding-right: var(--gutter);
     }
   }
 

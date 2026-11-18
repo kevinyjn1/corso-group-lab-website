@@ -10,7 +10,7 @@
   terms: [Fall 2026]
   current: true
   with: Yayuan Li
-  summary: An advanced topics course in robot perception built around debate. After two overview lectures, each session puts two to four recent papers head to head, and any student can be called on to argue a side - from vision-language-action models and world models to agent memory and multi-agent systems.
+  summary: An advanced topics course in robot perception built around debate. After two overview lectures, each session puts two to four recent papers head to head, and any student can be called on to argue a side. Topics run from vision-language-action models and world models to agent memory and multi-agent systems.
   url: 'https://github.com/yayuanli-org/awesome-physical-ai/tree/main/courses/umich-26fall-rob599-physically-grounded-ai-agents'
   links:
     - label: The paper hub behind the course
@@ -33,6 +33,7 @@
   terms: [Fall 2023, Fall 2020, Fall 2018, Winter 2018, Fall 2016, Fall 2015, Fall 2014]
   summary: Computer vision as a search for visual invariants and as mathematical modeling. Covers foundational representations of images and the cross-cutting problems of reduction, estimation, and matching.
   url: 'https://web.eecs.umich.edu/~jjcorso/t/504F16/'
+  urlTerm: Fall 2016
 
 - id: eecs-442
   order: 3
@@ -49,6 +50,7 @@
   terms: [Winter 2017, Winter 2016]
   summary: Structured representations and embeddings for high-level vision - structured prediction, deep learning, and dictionary learning.
   url: 'https://web.eecs.umich.edu/~jjcorso/t/542W17/'
+  urlTerm: Winter 2017
 
 - id: eecs-598-pgm
   order: 5
@@ -84,7 +86,7 @@
 - id: cse-seminars
   order: 9
   code: CSE 7xx
-  title: Graduate seminars
+  title: Graduate Seminars
   institution: buffalo
   terms: [Spring 2014, Fall 2011, Fall 2010, Fall 2009, Fall 2008, Fall 2007]
   summary: Readings in joint visual, lingual, and physical models; computer vision and machine learning; video analysis; image semantics; pattern theory; and medical image segmentation.

@@ -22,7 +22,7 @@
   date: '2026-05-09'
   url: 'https://www.youtube.com/watch?v=G77AdX2qapg'
   youtubeId: 'G77AdX2qapg'
-  summary: 'Andrew Krikorian, a Ph.D. student in the group, walks through VIGIL: why the project exists, and what the system does at each step of a guided heart exam and of a leg scan for deep vein thrombosis, with an early look at a third task, positioning a patient for an x-ray. 22 minutes.'
+  summary: 'A talk on VIGIL by Andrew Krikorian, a Ph.D. student in the group: why the project exists, and what the system does at each step of a guided heart exam and of a leg scan for deep vein thrombosis, with an early look at a third task, positioning a patient for an X-ray. 22 minutes.'
   project: vigil
 
 - id: vigil-demo-task-guidance
@@ -32,7 +32,7 @@
   date: '2025-11-25'
   url: 'https://www.youtube.com/watch?v=7-FjCJlS3gU'
   youtubeId: '7-FjCJlS3gU'
-  summary: 'The November 2025 demonstration of a guided heart exam, in two and a half minutes. Prof. Corso sets out the problem, then VIGIL lines the patient up with projected light, gives color-coded feedback on the ultrasound view, answers "Hi VIGIL, what''s in this view?", and drafts the health report.'
+  summary: 'The November 2025 demonstration of a guided heart exam, in two and a half minutes: VIGIL lines the patient up with projected light, gives color-coded feedback on the ultrasound view, answers "Hi VIGIL, what''s in this view?", and drafts the health report.'
   project: vigil
 
 - id: vigil-demo-lower-limb-dvt
@@ -42,7 +42,7 @@
   date: '2025-12-01'
   url: 'https://www.youtube.com/watch?v=qL46iG-To-I'
   youtubeId: 'qL46iG-To-I'
-  summary: "The second clinical service, in under five minutes: a lower-limb ultrasound scan for deep vein thrombosis. VIGIL tracks the hand and the probe, draws the probe's position and how much of the scan is done on a 3D model of the patient, and indicates the small adjustments needed for a diagnosis-quality image."
+  summary: "VIGIL's second clinical service, in under five minutes: a lower-limb ultrasound scan for deep vein thrombosis. VIGIL tracks the hand and the probe, draws the probe's position and how much of the scan is done on a 3D model of the patient, and indicates the small adjustments needed for a diagnosis-quality image."
   project: vigil
 
 - id: vigil-at-eighteen-months
@@ -87,7 +87,7 @@
   outlet: 'Jason Corso on LinkedIn'
   date: '2025-11-25'
   url: 'https://www.linkedin.com/posts/jason-corso_arpah-paradigm-aiinhealthcare-ugcPost-7399133694583529472-7GUC/'
-  summary: 'A clip of the demonstration: cameras, depth sensors, and microphones give clinician, patient, and AI a shared view, and a network guides the probe to a good image of the heart.'
+  summary: 'A clip of the November 2025 demonstration: cameras, depth sensors, and microphones give clinician, patient, and AI a shared view, and a network guides the probe to a good image of the heart.'
   project: vigil
 
 - id: vigil-michigan-engineering-news
@@ -96,7 +96,7 @@
   outlet: 'Michigan Engineering News'
   date: '2025-02-12'
   url: 'https://news.engin.umich.edu/2025/02/bridging-gaps-in-rural-health-care-with-ai-powered-mobile-clinics'
-  summary: "The announcement of VIGIL: eight universities and RTX BBN, led from Michigan, building the AI agent for ARPA-H's mobile clinic."
+  summary: "The announcement of VIGIL: a team of universities and RTX BBN, led from Michigan, building the AI agent for ARPA-H's mobile clinic."
   project: vigil
 
 - id: vigil-arpa-h-announcement
@@ -109,12 +109,12 @@
   project: vigil
 
 - id: creating-better-datasets-for-training-more-robus
-  title: '"Creating Better Datasets for Training More Robust Models in FiftyOne," a Presentation from Voxel51'
+  title: 'Creating Better Datasets for Training More Robust Models in FiftyOne'
   kind: video
   outlet: 'Edge AI and Vision Alliance'
   date: '2022-07-25'
   url: 'https://www.edge-ai-vision.com/2022/07/creating-better-datasets-for-training-more-robust-models-in-fiftyone-a-presentation-from-voxel51/'
-  summary: 'Embedded Vision Summit 2022 talk page on improving datasets with the FiftyOne toolkit.'
+  summary: 'A talk at the Embedded Vision Summit 2022 on improving datasets with the FiftyOne toolkit.'
 
 - id: voxel51-demonstration-of-visual-dataset-manageme
   title: 'Voxel51 Demonstration of Visual Dataset Management and Analysis with FiftyOne'
@@ -122,32 +122,34 @@
   outlet: 'Edge AI and Vision Alliance'
   date: '2022-11-03'
   url: 'https://www.edge-ai-vision.com/2022/11/voxel51-demonstration-of-visual-dataset-management-and-analysis-with-fiftyone/'
-  summary: 'Demo page showing FiftyOne for managing and analyzing visual datasets.'
+  summary: "A demonstration of FiftyOne, Voxel51's open-source toolkit, for managing and analyzing visual datasets."
 
 - id: curious-embeddings-hazy-oracles-the-path-to-safe
-  title: 'Curious Embeddings, Hazy Oracles, the Path to Safe Cooperative AI - Corso at Penn ASSET Center 12-24'
+  title: 'Curious Embeddings, Hazy Oracles, the Path to Safe Cooperative AI'
   kind: video
-  outlet: 'Penn ASSET Center seminar'
+  outlet: 'Penn ASSET Center'
   date: '2024-12'
   url: 'https://www.youtube.com/watch?v=Ck3ma6L4lug'
   youtubeId: 'Ck3ma6L4lug'
   summary: 'Prof. Corso''s seminar on people and AI working as a team: what the embeddings of a dataset reveal before any model is trained, why the people who work with an AI are "hazy oracles" that a system should be able to ask again, and AI that guides a person through a task. 67 minutes.'
 
 - id: iccv-2013-flattening-supervoxel-hierarchies-by-t
-  title: 'ICCV 2013 Flattening Supervoxel Hierarchies by the Uniform Entropy Slice Demo Video'
+  title: 'Flattening Supervoxel Hierarchies by the Uniform Entropy Slice'
   kind: video
-  outlet: 'UBVPML'
+  outlet: 'UBVPML on YouTube'
+  date: '2013-10'
   url: 'https://www.youtube.com/watch?v=BIPLRljS0d8'
   youtubeId: 'BIPLRljS0d8'
-  summary: "A demo of supervoxel video segmentation from the ICCV 2013 paper, from the group's earlier website."
+  summary: "A demo of supervoxel video segmentation from the group's ICCV 2013 paper."
 
 - id: jason-corso-mind-s-eye-voice-demo-1
-  title: "Jason Corso Mind's Eye VOICE Demo 1"
+  title: "Mind's Eye VOICE Demo 1"
   kind: video
-  outlet: 'UBVPML'
+  outlet: 'UBVPML on YouTube'
+  date: '2013-09'
   url: 'https://www.youtube.com/watch?v=DOmyI-UOkmc'
   youtubeId: 'DOmyI-UOkmc'
-  summary: "A demo from the group's work on DARPA's Mind's Eye program, kept from the group's earlier website."
+  summary: "A demo from the group's work on DARPA's Mind's Eye program."
 
 - id: softening-the-boundaries-the-human-the-physical
   title: 'Softening the boundaries: the human, the physical, and the computational'
@@ -156,32 +158,33 @@
   date: '2026-01'
   url: 'https://www.youtube.com/watch?v=vuMKvR-xGDA'
   youtubeId: 'vuMKvR-xGDA'
-  summary: 'The lecture Prof. Corso gave at Michigan Robotics to mark his appointment as Toyota Professor of Artificial Intelligence, on the human, physical, and computational sides of AI.'
-  featured: 2
+  summary: "Lecture marking Prof. Corso's appointment as Toyota Professor of Artificial Intelligence."
+  featured: 3
 
 - id: toward-autonomous-multi-floor-exploration-ascend
   title: 'Toward Autonomous Multi-Floor Exploration: Ascending Stairway Localization and Modeling'
   kind: video
-  outlet: 'UBVPML'
+  outlet: 'UBVPML on YouTube'
+  date: '2012-04'
   url: 'https://www.youtube.com/watch?v=fGkA7srkgs8'
   youtubeId: 'fGkA7srkgs8'
-  summary: "An early lab video of a robot finding and modeling stairways, from the group's earlier website."
+  summary: 'An early lab video of a robot finding and modeling stairways.'
 
 - id: from-annotation-to-ai-tutor-who-s-training-ai-no
-  title: 'From Annotation to AI Tutor: Who’s Training AI Now? With Jason Corso'
+  title: "From Annotation to AI Tutor: Who's Training AI Now?"
   kind: podcast
   outlet: "ODSC's Ai X Podcast"
   date: '2026-04-15'
   url: 'https://open.spotify.com/episode/042mjPioDyZ4WUC1Y8sSOa'
-  summary: 'Podcast conversation on how annotation is changing and who now trains AI systems.'
+  summary: 'How annotation is changing and who now trains AI systems.'
 
 - id: achieving-99-999-accuracy-for-visual-ai-digital
-  title: 'Achieving 99.999% Accuracy for Visual AI - Digital CxO Podcast EP110 - Techstrong TV | Techstrong.tv'
+  title: 'Achieving 99.999% Accuracy for Visual AI'
   kind: podcast
   outlet: 'Techstrong TV, Digital CxO Podcast'
   date: '2025-02-13'
   url: 'https://techstrong.tv/videos/digital-cxo-podcast/achieving-99-999-accuracy-for-visual-ai-digital-cxo-podcast-ep110'
-  summary: 'Interview on how to reach very high accuracy in visual AI systems.'
+  summary: 'How to reach very high accuracy in visual AI systems.'
 
 - id: zero-shot-auto-labeling-the-end-of-annotation-fo
   title: 'Zero-Shot Auto-Labeling: The End of Annotation for Computer Vision'
@@ -189,7 +192,7 @@
   outlet: 'The TWIML AI Podcast'
   date: '2025-06-10'
   url: 'https://twimlai.com/podcast/twimlai/zero-shot-auto-labeling-the-end-of-annotation-for-computer-vision'
-  summary: 'Interview on using foundation models to label data automatically with far less human annotation.'
+  summary: 'Using foundation models to label data automatically, with far less human annotation.'
   featured: 4
 
 - id: computer-vision-in-action
@@ -198,7 +201,7 @@
   outlet: 'UX Magazine, Invisible Machines'
   date: '2024-12-06'
   url: 'https://uxmag.com/podcast/computer-vision-in-action'
-  summary: 'Podcast episode on how computer vision is being applied in practice.'
+  summary: 'How computer vision is being applied in practice.'
 
 - id: image-processing-and-robotics-with-dr-jason-cors
   title: 'Image Processing and Robotics with Dr. Jason Corso'
@@ -206,7 +209,6 @@
   outlet: 'Neural Network Podcast'
   date: '2024-08-30'
   url: 'https://open.spotify.com/episode/5y8A6NYxUXVY5wmTmsNl7L'
-  summary: 'Podcast conversation on image processing and robotics.'
 
 - id: ml-pulse-report-with-voxel51-cso-jason-corso-and
   title: 'ML Pulse Report with Voxel51 CSO Jason Corso and Sama VP Duncan Curtis'
@@ -214,7 +216,7 @@
   outlet: 'How AI Happens'
   date: '2023-11-22'
   url: 'https://podcasts.apple.com/us/podcast/ml-pulse-report-with-voxel51-cso-jason-corso-and-sama/id1568452184?i=1000635708980'
-  summary: 'Episode discussing findings of a machine learning survey report with a Sama executive.'
+  summary: 'The findings of the ML Pulse Report, a machine learning survey, with Duncan Curtis of Sama.'
 
 - id: research-and-tooling-for-computer-vision-systems
   title: 'Research and Tooling for Computer Vision Systems with Jason Corso'
@@ -222,37 +224,38 @@
   outlet: 'Datacast'
   date: '2021-01-08'
   url: 'https://jameskle.com/writes/jason-corso'
-  summary: 'Long interview on his research path, video understanding and building tooling for vision systems.'
+  summary: "Prof. Corso's research path, video understanding, and building tooling for vision systems."
 
 - id: cooperative-systems-data-transparency-quality-an
-  title: 'Cooperative Systems, Data Transparency & Quality and the Year of Small AI | Dr. Jason Corso'
+  title: 'Cooperative Systems, Data Transparency & Quality and the Year of Small AI'
   kind: podcast
-  outlet: 'DataStax'
+  outlet: 'DataStax, Open Source Data'
+  date: '2025-04'
   url: 'https://www.youtube.com/watch?v=zWRXQrO8uK8'
   youtubeId: 'zWRXQrO8uK8'
-  summary: 'Video of his Open Source Data Podcast conversation on cooperative AI systems, data quality and small models.'
+  summary: 'Cooperative AI systems, data quality, and small models.'
 
 - id: jason-corso-voxel51
   title: 'Jason Corso, Voxel51'
   kind: podcast
-  outlet: 'Manufacturing Tomorrow (Ohio State)'
+  outlet: 'Ohio State, Manufacturing Tomorrow'
+  date: '2025-07-14'
   url: 'https://podcast.osu.edu/mfgtmw/2025/07/14/jason-corso-voxel51/'
-  summary: 'Podcast episode on what it takes to put computer vision to work in manufacturing.'
+  summary: 'What it takes to put computer vision to work in manufacturing.'
 
 - id: peggy-smedley-show-the-academic-side-of-ai
-  title: 'Peggy Smedley Show: The Academic Side of AI'
+  title: 'The Academic Side of AI'
   kind: podcast
   outlet: 'The Peggy Smedley Show'
   url: 'https://peggysmedleyshow.com/the-academic-side-of-ai'
-  summary: 'Radio-style interview on the academic side of AI and Voxel51.'
 
 - id: jason-corso-named-toyota-professor-of-artificial
   title: 'Jason Corso named Toyota Professor of Artificial Intelligence'
   kind: press
-  outlet: 'Michigan ECE news'
+  outlet: 'Michigan ECE News'
   date: '2026-01-30'
   url: 'https://ece.engin.umich.edu/stories/jason-corso-named-toyota-professor-of-artificial-intelligence'
-  summary: 'University news story on his appointment as Toyota Professor of Artificial Intelligence.'
+  summary: "Prof. Corso's appointment to the Toyota Professorship, the first named professorship in artificial intelligence at Michigan."
 
 - id: ai-takes-off-in-washtenaw-county
   title: 'AI takes off in Washtenaw County'
@@ -260,7 +263,7 @@
   outlet: 'Concentrate'
   date: '2025-01-08'
   url: 'https://concentratemedia.com/ai-takes-off-in-washtenaw-county/'
-  summary: 'Local feature on the AI scene in Washtenaw County that quotes him and Voxel51.'
+  summary: 'The AI scene in Washtenaw County, with comments from Prof. Corso and Voxel51.'
 
 - id: automotive-ai-applications-that-come-with-challe
   title: 'Automotive AI: Applications that come with challenges in creation'
@@ -268,31 +271,31 @@
   outlet: 'Just Auto'
   date: '2024-12-09'
   url: 'https://www.just-auto.com/interview/automotive-ai-applications-that-come-with-challenges-in-creation/'
-  summary: 'Interview on the difficulties of building AI for cars.'
+  summary: 'Prof. Corso on the difficulties of building AI for cars.'
 
 - id: what-will-trump-s-new-term-mean-for-a-i
-  title: 'What Will Trump’s New Term Mean for A.I.?'
+  title: "What Will Trump's New Term Mean for A.I.?"
   kind: press
   outlet: 'Newsweek'
   date: '2024-11-17'
   url: 'https://www.newsweek.com/what-will-trumps-new-term-mean-ai-1982615'
-  summary: 'Newsweek story on expectations for AI policy that includes his comments.'
+  summary: 'Expectations for AI policy, with comments from Prof. Corso.'
 
 - id: live-public-street-cams-are-tracking-social-dist
   title: 'Live public street cams are tracking social distancing'
   kind: press
-  outlet: 'Michigan ECE news'
+  outlet: 'Michigan ECE News'
   date: '2020-04-08'
   url: 'https://ece.engin.umich.edu/stories/live-public-street-cams-are-tracking-social-distancing'
-  summary: 'News story on a Voxel51 tool that tracks crowding from public street cameras.'
+  summary: 'A Voxel51 tool that tracks crowding from public street cameras.'
 
 - id: computer-vision-finding-the-best-teaching-frame
   title: 'Computer vision: Finding the best teaching frame in a video for fake video fightback'
   kind: press
-  outlet: 'Michigan ECE news'
+  outlet: 'Michigan ECE News'
   date: '2019-06-20'
   url: 'https://ece.engin.umich.edu/stories/computer-vision-finding-the-best-teaching-frame-in-a-video-for-fake-video-fightback'
-  summary: 'News story on BubbleNets, which picks the best video frame for a person to annotate.'
+  summary: 'BubbleNets, which picks the best video frame for a person to annotate.'
 
 - id: the-most-exciting-use-of-ai-focuses-around-a-bet
   title: 'The most exciting use of AI focuses around a better collective use of our available resources'
@@ -300,23 +303,23 @@
   outlet: 'AutoSens'
   date: '2019-05-31'
   url: 'https://auto-sens.com/blog/the-most-exciting-use-of-ai-focuses-around-a-better-collective-use-of-our-available-resources/'
-  summary: 'Speaker interview ahead of AutoSens on AI for automotive and shared resources.'
+  summary: 'Prof. Corso, ahead of speaking at AutoSens, on AI for cars and on making better collective use of resources.'
 
 - id: jason-corso-on-artificial-intelligence
   title: 'Jason Corso on artificial intelligence'
   kind: press
-  outlet: 'Michigan ECE news'
+  outlet: 'Michigan ECE News'
   date: '2018-07-06'
   url: 'https://ece.engin.umich.edu/stories/prof-jason-corso-on-artificial-intelligence'
-  summary: 'Q&A interview on what AI can and cannot do and where it is most useful.'
+  summary: 'Prof. Corso on what AI can and cannot do and where it is most useful.'
 
 - id: beyond-the-check-navigating-the-long-term-geomet
   title: 'Beyond the Check: Navigating the Long-Term Geometry of Your First Term Sheet'
   kind: essay
-  outlet: 'Medium (Jason Corso)'
+  outlet: 'Jason Corso on Medium'
   date: '2026-04-22'
   url: 'https://medium.com/@jasoncorso/valuation-part3-3c87bf073647'
-  summary: 'Medium essay on the long-term consequences of a first startup term sheet.'
+  summary: 'The long-term consequences of a first startup term sheet.'
 
 - id: constructive-confrontation-the-language-of-trust
   title: 'Constructive Confrontation: The Language of Trust in Startups'
@@ -324,47 +327,47 @@
   outlet: 'Startup Stash'
   date: '2026-05-13'
   url: 'https://blog.startupstash.com/constructive-confrontation-f697fd67dd9d'
-  summary: 'Essay on candid, respectful disagreement as a basis for trust in startup teams.'
+  summary: 'Candid, respectful disagreement as a basis for trust in startup teams.'
 
 - id: creatively-consistently-creating-awareness
   title: 'Creatively Consistently Creating Awareness'
   kind: essay
-  outlet: 'Medium (Jason Corso)'
+  outlet: 'Jason Corso on Medium'
   date: '2026-06-24'
   url: 'https://medium.com/@jasoncorso/awareness-a555fd213a4f'
-  summary: 'Medium essay on building steady awareness for a young company.'
+  summary: 'Building steady awareness for a young company.'
 
 - id: measure-what-matters-a-lesson-in-scaling-focus
   title: 'Measure What Matters - A Lesson in Scaling Focus'
   kind: essay
-  outlet: 'Medium (Jason Corso)'
+  outlet: 'Jason Corso on Medium'
   date: '2026-05-06'
   url: 'https://medium.com/@jasoncorso/taf16-measure-62f3b4e8984f'
-  summary: 'Medium essay on choosing metrics while scaling a startup.'
+  summary: 'Choosing metrics while scaling a startup.'
 
 - id: rethinking-the-academic-conference-as-a-startup
   title: 'Rethinking the Academic Conference as a Startup Operator'
   kind: essay
-  outlet: 'Medium (Jason Corso)'
+  outlet: 'Jason Corso on Medium'
   date: '2026-06-10'
   url: 'https://medium.com/@jasoncorso/taf19-booth-presence-e3ab491b07e2'
-  summary: 'Medium essay on how a startup can get more out of academic conferences.'
+  summary: 'How a startup can get more out of academic conferences.'
 
 - id: the-great-data-delusion
   title: 'The Great Data Delusion'
   kind: essay
-  outlet: 'Medium (Jason Corso)'
+  outlet: 'Jason Corso on Medium'
   date: '2026-07-08'
   url: 'https://medium.com/@jasoncorso/the-great-data-delusion-3ea55677d723'
-  summary: 'Medium essay on common misconceptions about data in AI and startups.'
+  summary: 'Common misconceptions about data in AI and startups.'
 
 - id: the-tyranny-of-the-15-minute-sync-going-deep-wit
   title: 'The Tyranny of the 15-Minute Sync: Going Deep with Startup Advisors'
   kind: essay
-  outlet: 'Medium (Jason Corso)'
+  outlet: 'Jason Corso on Medium'
   date: '2026-05-20'
   url: 'https://medium.com/@jasoncorso/deep-talk-2e67c2a49c6e'
-  summary: 'Medium essay on why longer conversations with advisors beat short check-ins.'
+  summary: 'Why longer conversations with advisors beat short check-ins.'
 
 - id: why-i-stopped-fighting-ai-in-my-classroom-and-st
   title: 'Why I Stopped Fighting AI in My Classroom and Started Teaching With It'
@@ -372,8 +375,8 @@
   outlet: 'TIME'
   date: '2026-08-26'
   url: 'https://time.com/article/2026/08/26/why-i-stopped-fighting-ai-in-my-classroom-and-started-teaching-with-it/'
-  summary: 'First-person essay on moving from resisting AI to teaching with it in his courses.'
-  featured: 3
+  summary: 'Moving from resisting AI to teaching with it in his courses.'
+  featured: 2
 
 - id: from-prototype-to-production-what-it-really-take
   title: 'From Prototype to Production: What it Really Takes to Deploy Computer Vision in Manufacturing'
@@ -381,15 +384,15 @@
   outlet: 'Voxel51 blog'
   date: '2025-08-06'
   url: 'https://voxel51.com/blog/deploy-computer-vision-in-manufacturing'
-  summary: 'Voxel51 blog post by Corso on practical lessons for taking computer vision into factory settings.'
+  summary: 'Practical lessons for taking computer vision into factory settings.'
 
 - id: industry-voices-the-road-to-99-999-eliminating-b
-  title: 'Industry Voices | The Road to 99.999%: Eliminating Blind Spots in Automotive Visual AI'
+  title: 'The Road to 99.999%: Eliminating Blind Spots in Automotive Visual AI'
   kind: essay
   outlet: 'WardsAuto'
   date: '2025-02-05'
   url: 'https://www.wardsauto.com/news/industry-voices-the-road-to-99-999-eliminating-blind-spots-in-automotive-visual-ai/798832'
-  summary: 'Industry column on the data and model gaps that stand between automotive vision systems and very high reliability.'
+  summary: 'The data and model gaps that stand between automotive vision systems and very high reliability.'
 
 - id: the-open-source-ai-debate-why-selective-transpar
   title: 'The open-source AI debate: Why selective transparency poses a serious risk'
@@ -397,7 +400,7 @@
   outlet: 'VentureBeat'
   date: '2025-03-22'
   url: 'https://venturebeat.com/ai/the-open-source-ai-debate-why-selective-transparency-poses-a-serious-risk/'
-  summary: 'His guest article arguing that partial openness in AI models carries real risks.'
+  summary: 'Why partial openness in AI models carries real risks.'
   featured: 5
 
 - id: understanding-dataset-difficulty-with-class-wise
@@ -406,4 +409,4 @@
   outlet: 'Voxel51 blog'
   date: '2025-02-04'
   url: 'https://voxel51.com/blog/understanding-dataset-difficulty-with-class-wise-autoencoders'
-  summary: 'Voxel51 blog post by Corso on gauging how hard a dataset is using per-class autoencoders.'
+  summary: 'Gauging how hard a dataset is using per-class autoencoders.'

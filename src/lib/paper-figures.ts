@@ -36,7 +36,7 @@ export const PAPER_FIGURES = {
     image: hazyOracle,
     alt: 'A drawing in two parts. A person tells a robot: Please fetch my mug from the table. Three mugs are on the table. Under standard inference, the robot rates the three mugs as equally likely and picks the green one. Under deferred inference, the robot says: I am not sure, can you try again? The person says: Get the orange one. The robot holds the orange mug.',
     caption:
-      'The idea, as the paper draws it. Asked to "fetch my mug" with three mugs on the table, a model that takes the request as complete has to guess. One that treats the person as a hazy oracle asks again.',
+      'Asked to "fetch my mug" with three mugs on the table, a model that takes the request as complete has to guess. One that treats the person as a hazy oracle asks again.',
     credit:
       'Robot image from Wikimedia Commons (CC-SA) and mug images from freepik.com, as the paper credits them.',
   },
@@ -46,7 +46,7 @@ export const PAPER_FIGURES = {
     image: mistake,
     alt: 'Three first-person video frames of hands at a workbench, beside a bar chart of the probability that each frame is the point of no return. The instruction text reads: Pick up hammer. Three labels follow. What: the predicate "Pick up" is right and the object "hammer" is marked in red. When: point of no return, frame 17. Where: a red box drawn over the hand in the frame.',
     caption:
-      'The task, as the paper draws it. The instruction is "Pick up hammer", and the person picks up a bolt. The attribution names what was violated (the object), when the attempt passed the point of no return (frame 17), and where in the frame (the red box).',
+      'The instruction is "Pick up hammer", and the person picks up a bolt. The attribution names what was violated (the object), when the attempt passed the point of no return (frame 17), and where in the frame (the red box).',
   },
   video: {
     paper: 'xu2015humans',
@@ -54,7 +54,7 @@ export const PAPER_FIGURES = {
     image: a2d,
     alt: 'A grid of video frames, each beside the same frame with colored shapes over the things in it and labels such as adult climbing, dog walking, baby crawling, bird flying, ball rolling, and car jumping.',
     caption:
-      'Labeled videos from A2D, the group\'s dataset of 3,782 YouTube videos marked pixel by pixel with who is acting and what they are doing: "adult climbing", "dog walking", "bird flying".',
+      'Labeled videos from A2D, each marked with who is acting and what they are doing: "adult climbing", "dog walking", "bird flying".',
   },
   language: {
     paper: 'zhou2018automatic',
@@ -62,7 +62,7 @@ export const PAPER_FIGURES = {
     image: youcook2,
     alt: 'A timeline of one cooking video, cut into eight steps with start and end times. Under each step is a frame and a sentence, such as: Grill the tomatoes in a pan and then put them on a plate; Cook bacon until crispy, then drain on paper towel; Place the bacon at the top.',
     caption:
-      'One video from YouCook2: making a BLT sandwich, with every step timed and described in a sentence. The dataset holds 2,000 cooking videos of 89 recipes, 176 hours in all.',
+      'One video from YouCook2: making a BLT sandwich, cut into eight steps, each with its start and end time and a sentence.',
   },
   robotics: {
     paper: 'banerjee2021robotslang',
@@ -70,7 +70,7 @@ export const PAPER_FIGURES = {
     image: robotslang,
     alt: 'Two screens joined by a web server, and a photograph of a small wheeled robot. The commander view shows a map of a maze from above and a picture of the next object to find. The driver view shows what the robot camera sees and the keys that steer it. Both have a chat window.',
     caption:
-      "RobotSlang. The commander sees a map and guides by text chat. The driver sees only the robot's camera and steers it through a tabletop maze. The benchmark holds 169 such trials.",
+      "RobotSlang. The commander sees a map and guides by text chat. The driver sees only the robot's camera and steers it through a tabletop maze.",
   },
   human: {
     paper: 'szeto2017click',

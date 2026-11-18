@@ -2,97 +2,41 @@
  * VIGIL, the group's flagship project, in one place: the facts that the home page band, the
  * Research page, and the project's own page are written from.
  *
- * Every fact here was read on its source in November 2026. Each one names its sources, and the
- * project page lists them all, so a reader can check any line. When a fact changes, update the
- * date in its text as well.
+ * Every fact here was read on its source in November 2026. The page does not cite them: the
+ * record of which source backs which line is kept with the project's notes, not in the site.
+ * When a fact changes, update the date in its text as well.
  */
 
-export const SOURCES = {
-  award: {
-    label: 'ARPA-H, the VIGIL award',
-    href: 'https://arpa-h.gov/explore-funding/awards/3401',
-  },
-  paradigm: {
-    label: 'ARPA-H, the PARADIGM program',
-    href: 'https://arpa-h.gov/explore-funding/programs/paradigm',
-  },
-  release: {
-    label: 'ARPA-H, announcement of the twelve teams, February 2025',
-    href: 'https://arpa-h.gov/news-and-events/arpa-h-works-deliver-advanced-hospital-level-care-rural-areas',
-  },
-  michigan: {
-    label: 'Michigan Engineering News, February 2025',
-    href: 'https://news.engin.umich.edu/2025/02/bridging-gaps-in-rural-health-care-with-ai-powered-mobile-clinics',
-  },
-  detroit: {
-    label: 'The Detroit News, May 2026, as carried by EMS1',
-    href: 'https://www.ems1.com/artificial-intelligence/ai-equipped-rigs-bring-hospital-level-care-to-rural-mich-patients',
-  },
-  cardiac: {
-    label: 'Jason Corso on LinkedIn, November 2025',
-    href: 'https://www.linkedin.com/posts/jason-corso_arpah-paradigm-aiinhealthcare-ugcPost-7399133694583529472-7GUC/',
-  },
-  guidance: {
-    label: 'Jason Corso on YouTube, November 2025: the demonstration of a guided heart exam',
-    href: 'https://www.youtube.com/watch?v=7-FjCJlS3gU',
-  },
-  dvt: {
-    label: 'Jason Corso on YouTube, December 2025: the demonstration of a guided leg scan',
-    href: 'https://www.youtube.com/watch?v=qL46iG-To-I',
-  },
-  goggles: {
-    label: 'Jason Corso on LinkedIn, January 2026',
-    href: 'https://www.linkedin.com/posts/jason-corso_is-the-dream-of-head-mounted-displays-ugcPost-7416532581472591872-ztyO/',
-  },
-  update: {
-    label: 'Jason Corso on LinkedIn, August 2026',
-    href: 'https://www.linkedin.com/posts/jason-corso_delivering-effective-healthcare-anywhere-ugcPost-7495463545971597312-wGDo/',
-  },
-  cornell: {
-    label: 'Cornell Tech, Andrew Owens',
-    href: 'https://www.tech.cornell.edu/people/andrew-owens/',
-  },
-  demo: {
-    label: 'Jason Corso on LinkedIn, November 2025, on the demonstration in Washington',
-    href: 'https://www.linkedin.com/in/jason-corso/recent-activity/all/',
-  },
-  sitevisit: {
-    label: 'Jason Corso on LinkedIn, May 2026, on the annual site visit',
-    href: 'https://www.linkedin.com/in/jason-corso/recent-activity/all/',
-  },
-  posters: {
-    label: 'Posters at the VIGIL demo day, summer 2026, as photographed by the group',
-    href: undefined,
-  },
-} as const satisfies Record<string, { label: string; href: string | undefined }>;
+/** The few outside pages that the project page links to in its text. */
+export const LINKS = {
+  award: 'https://arpa-h.gov/explore-funding/awards/3401',
+  michigan:
+    'https://news.engin.umich.edu/2025/02/bridging-gaps-in-rural-health-care-with-ai-powered-mobile-clinics',
+  sitevisit:
+    'https://www.linkedin.com/posts/jason-corso_the-team-the-team-the-team-the-vigil-share-7461791088459157504-eJ6b/',
+} as const;
 
-export type SourceId = keyof typeof SOURCES;
-
-interface Sourced {
-  sources: readonly SourceId[];
-}
-
-interface Fact extends Sourced {
+interface Fact {
   value: string;
   label: string;
 }
 
-interface Step extends Sourced {
+interface Step {
   name: string;
   title: string;
   body: string;
 }
 
-interface Moment extends Sourced {
+interface Moment {
   when: string;
   what: string;
 }
 
 const facts: readonly Fact[] = [
-  { value: '$24.6M', label: 'ARPA-H award, up to, begun February 2025', sources: ['award'] },
-  { value: '61', label: 'People on the team, at ten institutions', sources: ['sitevisit'] },
-  { value: '4', label: 'Clinical services guided, as of August 2026', sources: ['update'] },
-  { value: '30+', label: 'Publications from the project, by May 2026', sources: ['sitevisit'] },
+  { value: '$24.6M', label: 'Maximum value of the ARPA-H award, made in February 2025' },
+  { value: '61', label: 'People on the team, at ten institutions' },
+  { value: '4', label: 'Clinical services guided, as of August 2026' },
+  { value: '30+', label: 'Publications from the project, as of May 2026' },
 ];
 
 /** How the system works, in the order things happen in the room. */
@@ -101,25 +45,21 @@ const steps: readonly Step[] = [
     name: 'Sense',
     title: 'One shared view of the room',
     body: 'Color cameras, depth cameras, and microphones watch and listen to the exam. The clinician, the patient, and the AI work from the same picture of what is happening, which the team calls a shared perceptual space.',
-    sources: ['cardiac', 'guidance'],
   },
   {
     name: 'Understand',
     title: 'Follow the task as it unfolds',
-    body: "The agent observes the clinician's actions against the steps of the procedure and recognizes when something unexpected has happened. For a heart exam, a deep network scores the view as it changes, from the ultrasound image alone: on target, close, or far from the standard four-chamber view. A question-answering model answers questions about the image: which view it shows, which chambers are visible, and how to adjust the probe.",
-    sources: ['michigan', 'cardiac', 'guidance'],
+    body: "The agent observes the clinician's actions against the steps of the procedure and recognizes when something unexpected has happened. For a heart exam, a deep network scores the view as it changes, from the ultrasound image alone: on target, close, or far from the standard four-chamber view. A second model answers questions about the image: which view it shows, which chambers are visible, and how to adjust the probe.",
   },
   {
     name: 'Guide',
     title: 'Put the help where the work is',
-    body: 'Light projected onto the patient shows where to begin. A screen shows what the probe is touching and which way to turn it, and a voice in an earpiece talks the clinician through. The system also drafts the electronic health report, so the clinician can keep their attention on the patient.',
-    sources: ['detroit', 'guidance'],
+    body: 'Light projected onto the patient shows where to begin. A screen shows what the probe is touching and which way to turn it, and a voice in an earpiece talks the clinician through each step. The system also drafts the electronic health report, so the clinician can keep their attention on the patient.',
   },
   {
     name: 'Run anywhere',
     title: 'No cloud to call',
     body: 'A rural road cannot count on Wi-Fi or 5G. Everything has to run on one workstation in the vehicle, on two to four kilowatts of power instead of a data center.',
-    sources: ['detroit'],
   },
 ];
 
@@ -127,34 +67,27 @@ const timeline: readonly Moment[] = [
   {
     when: 'February 2025',
     what: 'ARPA-H selects twelve teams for PARADIGM. Michigan leads one of the two that build the AI guidance, with an award of up to $24.6 million.',
-    sources: ['release', 'award'],
   },
   {
     when: 'November 2025',
-    what: "Nine months after the award, the team demonstrates VIGIL live at ARPA-H's PARADIGM meeting in Washington, guiding people through ultrasound exams of the heart and the leg.",
-    sources: ['demo', 'cardiac'],
+    what: "The team demonstrates VIGIL live at ARPA-H's PARADIGM meeting in Washington, guiding people through ultrasound exams of the heart and the leg.",
   },
   {
     when: 'January 2026',
     what: 'The team makes its interface decision public: in the clinic, no head-mounted display. Guidance is projected into the room.',
-    sources: ['goggles'],
   },
   {
     when: 'May 2026',
-    what: 'The annual site visit at Michigan, with demonstrations for federal, state, and university officials: a deep vein thrombosis scan, a cardiac ultrasound, and positioning a patient for an X-ray. The team now counts 61 people at ten institutions.',
-    sources: ['detroit', 'sitevisit'],
+    what: 'At the annual site visit at Michigan, the team demonstrates a deep vein thrombosis scan, a cardiac ultrasound, and positioning a patient for an X-ray to federal, state, and university officials. The team counts 61 people at ten institutions.',
   },
   {
     when: 'August 2026',
-    what: 'Eighteen months in, Prof. Corso reported that VIGIL supports four clinical services, and that user studies show generalists reaching significant proficiency with its help.',
-    sources: ['update'],
-  },
-  {
-    when: 'Next',
-    what: 'Testing inside the mobile clinic itself, which the team expected to reach in the third year of the project.',
-    sources: ['michigan'],
+    what: 'VIGIL supports four clinical services, and user studies show generalists reaching significant proficiency with its help.',
   },
 ];
+
+/** What comes after the last dated moment. Kept out of the timeline, whose rows are all dates. */
+const ahead = 'Testing inside the mobile clinic itself, planned for the third year of the project.';
 
 export const vigil = {
   name: 'VIGIL',
@@ -189,8 +122,8 @@ export const vigil = {
   /** Tasks the team has shown or named in public, and what it has said may come next. */
   services: {
     now: [
-      { name: 'Cardiac ultrasound', note: 'Shown to officials, May 2026' },
-      { name: 'Deep vein thrombosis scan', note: 'Shown to officials, May 2026' },
+      { name: 'Cardiac ultrasound', note: 'Demonstrated live, November 2025' },
+      { name: 'Deep vein thrombosis scan', note: 'Demonstrated live, November 2025' },
       { name: 'Positioning for an X-ray', note: 'Shown to officials, May 2026' },
       { name: 'Laryngoscopy', note: 'Named by the team, August 2026' },
     ],
@@ -209,6 +142,7 @@ export const vigil = {
     ],
   },
   timeline,
+  ahead,
   /**
    * The team by sub-team and institution: as announced in February 2025, with Cornell Tech, where
    * Andrew Owens has since moved.
@@ -221,7 +155,7 @@ export const vigil = {
         {
           place: 'University of Michigan',
           people: [
-            'Jason Corso, principal investigator (physical AI)',
+            'Jason J. Corso, principal investigator (physical AI)',
             'Anhong Guo (interactive systems)',
             'Mike Oelke (project management)',
           ],
@@ -262,7 +196,8 @@ export const vigil = {
         {
           place: 'University of Michigan',
           people: [
-            'Prashant Mahajan and Kevin Ward (emergency medicine)',
+            'Prashant Mahajan (emergency medicine)',
+            'Kevin Ward (emergency medicine)',
             'Milisa Manojlovich (nursing)',
             'Donald Likosky (outcomes assessment)',
             'Francis Pagani (cardiac surgery)',
@@ -272,7 +207,7 @@ export const vigil = {
           place: 'University of Pennsylvania',
           people: [
             'Alison Marie Pouch (medical image analysis)',
-            'Emily Mackay (cardiac anesthesia)',
+            'Emily MacKay (cardiac anesthesia)',
           ],
         },
         {

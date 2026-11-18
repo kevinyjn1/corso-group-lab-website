@@ -30,11 +30,8 @@ const michigan = [
           physical world.
         </p>
         <p class="contact">
-          <a class="link" href={`mailto:${user}@${domain}`} data-email>
-            {user}
-            <span>@</span>
-            {domain}
-          </a>
+          {/* prettier-ignore */}
+          <a class="link" href={`mailto:${user}@${domain}`} data-email>{user}<span>@</span>{domain}</a>
           <span>{site.location}</span>
         </p>
       </div>

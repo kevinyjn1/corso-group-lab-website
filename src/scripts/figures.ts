@@ -340,7 +340,13 @@ const robotics: Figure = (() => {
       }
     }
     for (const o of OBSTACLES) {
-      s.text(o.name, (px(o.x + o.w / 2) + 0.2) * s.step, (py(o.y) - 0.9) * s.step, MUTED, 'center');
+      s.text(
+        o.name,
+        (px(o.x + o.w / 2) + 0.2) * s.step,
+        (py(o.y + o.h) + 0.9) * s.step,
+        MUTED,
+        'center',
+      );
     }
 
     // The planned path ahead of the robot, and the place it is heading for.
@@ -712,12 +718,18 @@ const human: Figure = (() => {
       ctx.globalAlpha = when;
       ctx.fillRect(mark - 1.5, railY - step * 1.6, 3, step * 2.4);
       ctx.globalAlpha = 1;
-      s.text('point of no return', mark - step * 0.8, railY - step * 1.9, MAIZE, 'right');
     }
-    // The end labels sit clear of the rail, however small the figure is drawn.
+    // The labels sit under the rail, clear of it however small the figure is drawn. The point of
+    // no return is named under its own mark, and an end label gives way if it would touch it.
     const labelY = Math.min((railRow + 1) * step + 11, s.h - 8);
-    s.text('first frame', step, labelY, MUTED);
-    s.text('last frame', s.w - step, labelY, MUTED, 'right');
+    const half = when > 0 ? ctx.measureText('POINT OF NO RETURN').width / 2 + step : 0;
+    if (when > 0) s.text('point of no return', mark, labelY, MAIZE, 'center');
+    if (when === 0 || mark - half > step + ctx.measureText('FIRST FRAME').width) {
+      s.text('first frame', step, labelY, MUTED);
+    }
+    if (when === 0 || mark + half < s.w - step - ctx.measureText('LAST FRAME').width) {
+      s.text('last frame', s.w - step, labelY, MUTED, 'right');
+    }
 
     // The attribution, in words, in the console.
     if (fade < 0.1 || now < AT.watch) s.say('', 'Instruction');
@@ -1783,8 +1795,11 @@ function mount(root: HTMLElement) {
 
   for (const button of stepButtons) {
     button.addEventListener('click', () => {
-      // Jump to the start of that step in the current telling of the story.
-      stage.t = Math.floor(stage.t / loop) * loop + Number(button.dataset.step) + 0.02;
+      // Jump to that step in the current telling of the story: to its start while the figure
+      // plays, and a little way in while it is held still, so that what the step adds has
+      // finished appearing and is not caught at its first, faint frame.
+      const into = held || reduceMotion ? 0.6 : 0.02;
+      stage.t = Math.floor(stage.t / loop) * loop + Number(button.dataset.step) + into;
       draw();
     });
   }

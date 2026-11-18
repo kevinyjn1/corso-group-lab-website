@@ -17,13 +17,19 @@ interface Props {
   alt: string;
   /** The tag in the corner: where the footage is from. */
   tag?: string;
+  /** Which bottom corner holds the pause button. Use the left when the right one has something to read. */
+  toggle?: 'left' | 'right';
 }
-const { src, poster, alt, tag = 'Footage' } = Astro.props;
+const { src, poster, alt, tag = 'Footage', toggle = 'right' } = Astro.props;
 const still = await getImage({ src: poster, width: poster.width, format: 'webp', quality: 72 });
 ---
 
 <figure class="clip" data-clip>
-  <div class="clip-frame" style={`aspect-ratio: ${poster.width} / ${poster.height}`}>
+  <div
+    class="clip-frame"
+    data-toggle={toggle}
+    style={`aspect-ratio: ${poster.width} / ${poster.height}`}
+  >
     <video
       muted
       loop
@@ -112,6 +118,11 @@ const still = await getImage({ src: poster, width: poster.width, format: 'webp',
     transition:
       border-color 0.2s var(--ease),
       background-color 0.2s var(--ease);
+  }
+
+  .clip-frame[data-toggle='left'] .clip-toggle {
+    right: auto;
+    left: 0.6rem;
   }
 
   .clip-toggle:hover {

@@ -66,12 +66,12 @@ export const FIGURES = {
     speaker: 'VIGIL says',
     steps: [
       { at: 0.3, name: 'Line up' },
-      { at: 2, name: 'Place the probe' },
+      { at: 2, name: 'Place' },
       { at: 5.5, name: 'Correct' },
       { at: 8.8, name: 'Capture' },
       { at: 11.2, name: 'Report' },
     ],
-    title: 'Guided ultrasound',
+    title: 'Guided heart exam',
     alt: 'Animation: a patient lies on an exam table, seen from above. Light projected onto the chest marks where an ultrasound probe should go. A clinician brings the probe in, a voice says which way to tilt it, and the ultrasound image beside the table sharpens into a four-chamber view of the heart as the probe reaches the mark.',
   },
   leg: {

@@ -36,11 +36,12 @@ const peak = Math.max(...columns.map((column) => column.total));
             href={`#year-${column.year}`}
             data-year-link
             aria-label={`${column.year}: ${column.total} publications`}
+            style={`--h: ${column.total / peak}`}
           >
             <span class="tip" aria-hidden="true">
               {column.year} &middot; {column.total}
             </span>
-            <span class="stack" style={`--h: ${column.total / peak}`}>
+            <span class="stack">
               {column.segments.map((segment) => (
                 <span data-topic={segment.id} style={`flex-grow: ${segment.count}`} />
               ))}

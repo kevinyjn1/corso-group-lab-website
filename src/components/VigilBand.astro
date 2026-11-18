@@ -17,8 +17,10 @@ interface Props {
   level?: 'h2' | 'h3';
   /** The line above the name: by default, that this is the flagship project. */
   kicker?: string;
+  /** A number set before that line, when the band is one of a numbered series of claims. */
+  number?: string;
 }
-const { level: Heading = 'h2', kicker = 'Flagship project' } = Astro.props;
+const { level: Heading = 'h2', kicker = 'Flagship project', number } = Astro.props;
 const { award } = vigil;
 ---
 
@@ -27,10 +29,11 @@ const { award } = vigil;
     <div class="vigil-head" data-reveal>
       <p class="label label--accent kicker">
         <Image src={vigilMark} alt="" width={36} height={36} />
+        {number && <span class="kicker-n">{number}</span>}
         {kicker}
       </p>
       <p class="label">
-        {award.funder} &middot; {award.program} &middot; {award.amount}
+        {award.funder} &middot; {award.program}
       </p>
     </div>
 
@@ -49,7 +52,7 @@ const { award } = vigil;
             </span>
           </a>
           <a class="btn" href={href(`${vigil.path}#watch`)}>
-            Watch the talk
+            Watch the walkthrough
           </a>
         </div>
       </div>
@@ -91,11 +94,21 @@ const { award } = vigil;
   .vigil-head {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 0.5rem 2rem;
     padding-top: 1rem;
     border-top: var(--rule) solid var(--maize);
+  }
+
+  /* The number of a claim, set as the claims before it are, in the band's own colors. */
+  .kicker-n {
+    padding: 0.15rem 0.4rem;
+    background: var(--maize);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--blue);
   }
 
   /* The project's own mark sits beside the line that introduces it. */

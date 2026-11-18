@@ -52,7 +52,7 @@ const outreach: Event[] = [
 
 <Base
   title="Teaching"
-  description="Courses taught by Professor Jason J. Corso at the University of Michigan and SUNY Buffalo, with tutorials and outreach."
+  description="Courses taught by Professor Jason J. Corso at the University of Michigan and SUNY at Buffalo, with tutorials and outreach."
 >
   <PageHead label="Teaching">
     <Fragment slot="title">
@@ -70,10 +70,7 @@ const outreach: Event[] = [
         {teachingNow.map((course) => (
           <article class="now-card ticks" data-reveal data-spotlight>
             <div class="now-head">
-              <p class="label label--accent">
-                <span class="now-dot" />
-                Teaching now &middot; {course.data.terms[0]}
-              </p>
+              <p class="label label--accent">Latest course &middot; {course.data.terms[0]}</p>
               <p class="code">{course.data.code}</p>
             </div>
             <h2 class="h2">{course.data.title}</h2>
@@ -83,14 +80,14 @@ const outreach: Event[] = [
               {course.data.url && (
                 <li>
                   <a class="btn btn--primary" href={course.data.url} rel="noopener">
-                    Course materials <span aria-hidden="true">&nearr;</span>
+                    Course materials&nbsp;<span aria-hidden="true">&nearr;</span>
                   </a>
                 </li>
               )}
               {course.data.links.map((link) => (
                 <li>
                   <a class="more" href={link.href} rel="noopener">
-                    {link.label} <span aria-hidden="true">&nearr;</span>
+                    {link.label}&nbsp;<span aria-hidden="true">&nearr;</span>
                   </a>
                 </li>
               ))}
@@ -118,9 +115,9 @@ const outreach: Event[] = [
                 <p class="code">{course.data.code}</p>
                 <div>
                   <h3 class="course-title">
-                    {course.data.url ? (
+                    {course.data.url && !course.data.urlTerm ? (
                       <a href={course.data.url} rel="noopener">
-                        {course.data.title} <span aria-hidden="true">&nearr;</span>
+                        {course.data.title}&nbsp;<span aria-hidden="true">&nearr;</span>
                       </a>
                     ) : (
                       course.data.title
@@ -132,9 +129,17 @@ const outreach: Event[] = [
                   )}
                 </div>
                 <ul class="terms" aria-label="Terms taught">
-                  {course.data.terms.map((term) => (
-                    <li class="chip">{term}</li>
-                  ))}
+                  {course.data.terms.map((term) =>
+                    term === course.data.urlTerm ? (
+                      <li class="chip chip--link">
+                        <a href={course.data.url} rel="noopener">
+                          {term}&nbsp;<span aria-hidden="true">&nearr;</span>
+                        </a>
+                      </li>
+                    ) : (
+                      <li class="chip">{term}</li>
+                    ),
+                  )}
                 </ul>
               </li>
             ))}
@@ -159,7 +164,7 @@ const outreach: Event[] = [
                   <p class="extras-title">
                     {item.url ? (
                       <a class="link" href={item.url} rel="noopener">
-                        {item.title}
+                        {item.title}&nbsp;<span aria-hidden="true">&nearr;</span>
                       </a>
                     ) : (
                       item.title
@@ -177,7 +182,7 @@ const outreach: Event[] = [
 </Base>
 
 <style>
-  /* --- Teaching now --------------------------------------------------------- */
+  /* --- The latest course ---------------------------------------------------- */
 
   .now {
     padding-bottom: 0;
@@ -207,14 +212,6 @@ const outreach: Event[] = [
     gap: 0.6rem;
   }
 
-  .now-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: #ff5d5d;
-    animation: now-pulse 1.6s ease-in-out infinite;
-  }
-
   .now-card .code {
     padding-top: 0;
   }
@@ -240,18 +237,6 @@ const outreach: Event[] = [
     margin-top: 0.75rem;
   }
 
-  @keyframes now-pulse {
-    50% {
-      opacity: 0.25;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .now-dot {
-      animation: none;
-    }
-  }
-
   .course {
     display: grid;
     grid-template-columns: 9rem minmax(0, 1.2fr) minmax(0, 1fr);
@@ -275,6 +260,23 @@ const outreach: Event[] = [
     font-weight: 700;
     font-size: 1.6rem;
     line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  /* The one term whose own page is on the web is a link, marked like every link that leaves. */
+  .chip--link {
+    border-color: var(--text-2);
+    color: var(--text);
+    transition:
+      background-color 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      color 0.2s var(--ease);
+  }
+
+  .chip--link:hover {
+    background: var(--maize);
+    border-color: var(--maize);
+    color: var(--on-maize);
   }
 
   .course-title a span {

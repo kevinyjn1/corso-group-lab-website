@@ -135,9 +135,10 @@ VIGIL has a band on the home page and the Research page, an entry in the navigat
 page at `/vigil/`.
 
 - **The facts** are in `src/lib/vigil.ts`: the award, the four numbers, how it works, what it
-  guides, the timeline, and the team. Every fact names its sources, and the page prints them as
-  numbered references with the list at the foot. When something changes, change it there, with
-  its date and its source.
+  guides, the timeline, and the team. The page states these facts plainly: it has no footnote
+  numbers and no list of sources. It keeps three ordinary links in its text (the award, the
+  article a quotation is from, and the post a picture is from), listed as `LINKS` in that file.
+  When something changes, change it there, with its date.
 - **Videos and press** are ordinary entries in `src/data/media.yaml` marked `project: vigil`, so
   they appear on the Media page and on the VIGIL page.
 - **Related papers** are the publication ids listed under `papers` in `src/lib/vigil.ts`.
@@ -145,8 +146,7 @@ page at `/vigil/`.
   works" and in the band on the home page. The clips are in `src/assets/clips/`, silent, 9 to 12
   seconds each and about 1 MB or less. Four of the five VIGIL clips are cut from the two videos
   of the November 2025 demonstrations that Prof. Corso published on YouTube; the page shows both
-  videos in full under the clips and cites them as sources (`guidance` and `dvt` in
-  `src/lib/vigil.ts`, and the two `vigil-demo-...` entries in `src/data/media.yaml`). They are
+  videos in full under the clips (the two `vigil-demo-...` entries in `src/data/media.yaml`). They are
   placed with `src/components/Clip.astro`, which plays a clip only while it is on screen, lets it
   be paused, and keeps it still for visitors who ask for reduced motion. To add one, cut it with
   `ffmpeg -ss <start> -to <end> -i <source> -an -vf scale=1280:-2,fps=24 -c:v libx264 -crf 27
@@ -179,6 +179,12 @@ page at `/vigil/`.
   60 pixels on a desktop, a section heading about 44, and nothing on the site is larger than 84.
   A test measures every piece of text on every page and fails if anything is. An earlier design
   set headlines as large as the screen allowed, and it read as shouting.
+- **Details.** Four rules, each with a test behind it. Do not say twice what the page already
+  shows right there. A pattern has no exceptions: every row of a timeline is a date, every title
+  of a list is in one case. A link opens the thing its words name: a post is linked as the post,
+  never as a profile, and a link to one term of a course sits on that term. And no running
+  totals: a count of things that keep growing ("48 items in all") is left out unless the number
+  is the point.
 - **The headline** on the home page is the title of Prof. Corso's 2026 talk. The thesis section
   below it opens with his own summary of what an AI that guides people has to do: understand the
   task, understand the human, and fill the gap, with its source linked. The Research page takes

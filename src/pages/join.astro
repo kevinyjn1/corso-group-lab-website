@@ -6,16 +6,13 @@ import { href, site } from '../lib/site';
 const steps = [
   {
     title: 'Read the work',
-    body: 'Start with recent papers and the research areas to see whether the questions the group is asking are the ones you want to spend years on.',
+    body: 'Start with the research areas and the selected papers under each to see whether the questions the group is asking are the ones you want to spend years on.',
     link: { label: 'Research areas', href: href('/research/') },
   },
   {
     title: 'Apply to a Michigan graduate program',
     body: 'Admission is handled by the graduate programs, not by individual faculty. Students in the group come from Robotics, Electrical and Computer Engineering, and Computer Science and Engineering.',
-    link: {
-      label: 'Michigan Robotics graduate programs',
-      href: 'https://robotics.umich.edu/academics/graduate/',
-    },
+    link: { label: 'Graduate programs', href: '#programs' },
   },
   {
     title: 'Name the group in your application',
@@ -27,7 +24,7 @@ const programs = [
   { name: 'Robotics', href: 'https://robotics.umich.edu/academics/graduate/' },
   {
     name: 'Electrical and Computer Engineering',
-    href: 'https://ece.engin.umich.edu/academics/graduate/',
+    href: 'https://ece.engin.umich.edu/academics/graduate-programs/',
   },
   {
     name: 'Computer Science and Engineering',
@@ -42,7 +39,7 @@ const notes = [
   },
   {
     q: 'Are there summer internships?',
-    a: 'The group does not host summer internship students.',
+    a: 'The group does not host summer interns.',
   },
   {
     q: 'I am already a Michigan student. Can I get involved?',
@@ -60,8 +57,8 @@ const notes = [
       Work with <em>us</em>.
     </Fragment>
     <p class="lead">
-      We are always looking for bright, motivated students who want to work on vision, language, and
-      robotics for the physical world.
+      For students who want to work on vision, language, and robotics for the physical world: how to
+      join the group, and what to know before you write.
     </p>
   </PageHead>
 
@@ -98,12 +95,14 @@ const notes = [
       <div>
         <p class="label mark">Good to know</p>
         <h2 class="h2">Before you write</h2>
-        <h3 class="label programs-label">Graduate programs</h3>
+        <h3 class="label programs-label" id="programs">
+          Graduate programs
+        </h3>
         <ul class="programs rows">
           {programs.map((program) => (
             <li>
               <a href={program.href} rel="noopener">
-                {program.name} <span aria-hidden="true">&nearr;</span>
+                {program.name}&nbsp;<span aria-hidden="true">&nearr;</span>
               </a>
             </li>
           ))}
@@ -143,9 +142,8 @@ const notes = [
           <div>
             <dt class="label">Code</dt>
             <dd>
-              <a class="link" href={site.links.github} rel="noopener">
-                github.com/MichiganCOG
-              </a>
+              {/* prettier-ignore */}
+              <a class="link" href={site.links.github} rel="noopener">github.com/<wbr />MichiganCOG</a>
             </dd>
           </div>
         </dl>
@@ -218,6 +216,8 @@ const notes = [
 
   .programs-label {
     margin-block: 2.5rem 1rem;
+    /* The step above jumps here, and the header must not cover it. */
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
   }
 
   .programs a {

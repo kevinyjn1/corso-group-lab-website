@@ -26,7 +26,9 @@ const sections = areas.map((area) => {
     area,
     count: inArea.length,
     picks,
-    releases: resources.filter((r) => (r.data.topics as string[])[0] === area.id).slice(0, 5),
+    releases: area.data.releases
+      ? area.data.releases.flatMap((id) => resources.filter((r) => r.id === id))
+      : resources.filter((r) => (r.data.topics as string[])[0] === area.id).slice(0, 5),
   };
 });
 ---
@@ -40,8 +42,7 @@ const sections = areas.map((area) => {
       The human, the physical, and the <em>computational</em>.
     </Fragment>
     <p class="lead">
-      "Softening the boundaries" between the three was the title of Prof. Corso's Toyota
-      Professorship lecture, and it is what{' '}
+      Softening the boundaries between the three is what{' '}
       <a class="link" href={href('/#thesis')}>
         physically grounded upskilling
       </a>{' '}

@@ -18,10 +18,10 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
   return {
     kind,
     title: MEDIA_KINDS[kind].many,
-    // Videos with a thumbnail are shown as cards; everything else is a line in a list.
-    cards: list.filter((item) => item.data.youtubeId),
-    rows: list.filter((item) => !item.data.youtubeId),
-    count: list.length,
+    // Talks with a thumbnail are shown as cards; everything else is a line in a list. A podcast
+    // that happens to be on video is listed with the other podcasts, not as a card on its own.
+    cards: kind === 'video' ? list.filter((item) => item.data.youtubeId) : [],
+    rows: kind === 'video' ? list.filter((item) => !item.data.youtubeId) : list,
   };
 });
 ---
@@ -35,12 +35,12 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
       Talks, press, and <em>essays</em>.
     </Fragment>
     <p class="lead">
-      Lectures and interviews with Prof. Corso, coverage of the group's work, and his own writing:
-      {items.length} items in all. He also{' '}
+      Lectures and interviews with Prof. Corso, coverage of the group's work, and his own writing.
+      He also posts updates on{' '}
       <a class="link" href={site.links.linkedin} rel="noopener">
-        posts on LinkedIn
-      </a>{' '}
-      about the group's work.
+        his LinkedIn profile
+      </a>
+      .
     </p>
   </PageHead>
 
@@ -68,27 +68,20 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
   <nav class="jump" aria-label="Kinds of media">
     <div class="container">
       <ul>
-        {kinds.map(({ kind, title, count }) => (
+        {kinds.map(({ kind, title }) => (
           <li>
-            <a href={`#${kind}`}>
-              {title} <span>{count}</span>
-            </a>
+            <a href={`#${kind}`}>{title}</a>
           </li>
         ))}
       </ul>
     </div>
   </nav>
 
-  {kinds.map(({ kind, title, cards, rows, count }) => (
+  {kinds.map(({ kind, title, cards, rows }) => (
     <section class="section" id={kind}>
       <div class="container">
         <div class="section-head" data-reveal>
-          <div>
-            <p class="label">
-              {count} {count === 1 ? 'item' : 'items'}
-            </p>
-            <h2 class="h2">{title}</h2>
-          </div>
+          <h2 class="h2">{title}</h2>
         </div>
         {cards.length > 0 && (
           <ul class="cards" data-reveal="stagger">
@@ -154,9 +147,6 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
   }
 
   .jump a {
-    display: flex;
-    align-items: baseline;
-    gap: 0.45rem;
     font-family: var(--font-display);
     font-stretch: 88%;
     font-size: 0.85rem;
@@ -170,13 +160,6 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
     text-decoration: underline;
     text-decoration-thickness: 2px;
     text-underline-offset: 0.25em;
-  }
-
-  .jump span {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-3);
   }
 
   .section {

@@ -59,7 +59,7 @@ const shown = thesis.claims.filter((claim) => claim.figure);
             {papersOf(claim.papers).map((pub) => (
               <li>
                 <a href={pub.data.links?.arxiv ?? pub.data.links?.doi} rel="noopener">
-                  {pub.data.title} <span aria-hidden="true">&nearr;</span>
+                  {pub.data.title}&nbsp;<span aria-hidden="true">&nearr;</span>
                 </a>
                 <span class="venue">
                   {pub.data.venueShort ?? pub.data.venue} {pub.data.year}
@@ -73,11 +73,6 @@ const shown = thesis.claims.filter((claim) => claim.figure);
 
     <div class="arc-head" data-reveal>
       <p class="label">How the group got here</p>
-      <a class="arc-next" href="#vigil-band-title">
-        <span class="claim-n">03</span>
-        And it is being proven {thesis.claims[2].quote}
-        <span aria-hidden="true">&darr;</span>
-      </a>
     </div>
     <div class="arc-wrap" data-reveal="stagger">
       <ol class="arc">
@@ -86,7 +81,17 @@ const shown = thesis.claims.filter((claim) => claim.figure);
             <p class="arc-when">{step.when}</p>
             <div>
               <h3>{step.title}</h3>
-              <p>{step.body}</p>
+              <p class="arc-body">{step.body}</p>
+              {papersOf('papers' in step ? step.papers : []).map((pub) => (
+                <p class="arc-paper">
+                  <a href={pub.data.links?.arxiv ?? pub.data.links?.doi} rel="noopener">
+                    {pub.data.title}&nbsp;<span aria-hidden="true">&nearr;</span>
+                  </a>
+                  <span class="venue">
+                    {pub.data.venueShort ?? pub.data.venue} {pub.data.year}
+                  </span>
+                </p>
+              ))}
             </div>
           </li>
         ))}
@@ -99,7 +104,7 @@ const shown = thesis.claims.filter((claim) => claim.figure);
       >
         <strong>MILLY, catching a skipped step.</strong> A person makes coffee while the system
         follows the recipe. When they weigh the beans before assembling the cone, it flags the
-        lapse. The captions in the clip are the group's own.
+        lapse.
       </Clip>
     </div>
   </div>
@@ -120,8 +125,7 @@ const shown = thesis.claims.filter((claim) => claim.figure);
   }
 
   /* The claim in the talk's own words, numbered like a proposition. */
-  .claim-quote,
-  .arc-next {
+  .claim-quote {
     display: flex;
     align-items: baseline;
     gap: 0.7rem;
@@ -190,7 +194,7 @@ const shown = thesis.claims.filter((claim) => claim.figure);
   }
 
   .claim-papers a:hover,
-  .arc-next:hover {
+  .arc-paper a:hover {
     background: color-mix(in srgb, var(--maize) 45%, transparent);
   }
 
@@ -205,7 +209,7 @@ const shown = thesis.claims.filter((claim) => claim.figure);
     color: var(--text-3);
   }
 
-  /* --- The arc: five steps, the last of which is the band that follows. ------- */
+  /* --- The arc: four steps, the last of which is the band that follows. ------- */
 
   .arc-head {
     display: flex;
@@ -216,10 +220,6 @@ const shown = thesis.claims.filter((claim) => claim.figure);
     margin-top: clamp(3rem, 6vw, 5rem);
     padding-top: 1rem;
     border-top: var(--rule) solid var(--text);
-  }
-
-  .arc-next {
-    color: var(--text);
   }
 
   /* The steps run down the left. Beside them is the one that was filmed: MILLY at work. */
@@ -271,12 +271,30 @@ const shown = thesis.claims.filter((claim) => claim.figure);
     line-height: 1.2;
   }
 
-  .arc li p:last-child {
+  .arc-body {
     margin-top: 0.3rem;
     font-size: 0.95rem;
     line-height: 1.45;
     color: var(--text-2);
     text-wrap: pretty;
+  }
+
+  /* The paper behind a step, where the step reports a result. */
+  .arc-paper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+
+  /* With room for it, a paper's venue stays at the right of its row, whatever the title's length. */
+  @media (min-width: 62rem) {
+    .claim-papers li {
+      flex-wrap: nowrap;
+    }
   }
 
   @media (max-width: 62rem) {

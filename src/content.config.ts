@@ -83,6 +83,11 @@ const areas = defineCollection({
     body: z.array(z.string()).min(1),
     /** Short phrases describing what the group works on in this area. */
     threads: z.array(z.string()).min(1),
+    /**
+     * Ids of the releases to list under this area on the research page, in order: the ones its
+     * text is written around. Without it, the area lists its five newest releases.
+     */
+    releases: z.array(z.string()).optional(),
   }),
 });
 
@@ -114,6 +119,11 @@ const courses = defineCollection({
     terms: z.array(z.string()).min(1),
     summary: z.string().optional(),
     url: url.optional(),
+    /**
+     * When the page at `url` is that of one offering among several, the term it belongs to. That
+     * term is then the link, and the title is not, so no link promises more than it opens.
+     */
+    urlTerm: z.string().optional(),
     /** True for a course being taught this term: it is featured at the top of the page. */
     current: z.boolean().default(false),
     /** Who the course is taught with, for example "Yayuan Li". */
@@ -141,7 +151,8 @@ const media = defineCollection({
       .string()
       .regex(/^[\w-]{11}$/)
       .optional(),
-    summary: z.string(),
+    /** What the item is about, in a sentence. Left out when it would only repeat the title. */
+    summary: z.string().optional(),
     /** Featured items lead the Media page and the home page, lowest number first. */
     featured: z.number().int().positive().optional(),
     /** The project an item is about. Its own page lists these items. */

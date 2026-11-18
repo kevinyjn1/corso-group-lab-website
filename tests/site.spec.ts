@@ -481,6 +481,32 @@ test('clips of the system play while on screen and can be held still', async ({ 
   await expect(clip).toHaveAttribute('data-playing', 'true');
 });
 
+test('with motion reduced, no page scrolls sideways, and the venue strip is still readable', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const path of pages) {
+    await page.goto(at(path));
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, path).toBe(0);
+  }
+  // The strip of venues does not move, so it shows one copy of the list and scrolls by hand.
+  await page.goto(at('/'));
+  const strip = page.locator('.ticker .window');
+  await strip.scrollIntoViewIfNeeded();
+  await expect(strip.locator('ul:visible')).toHaveCount(1);
+  const reach = await strip.evaluate((el) => {
+    el.scrollLeft = el.scrollWidth;
+    const last = el.querySelector('ul li:last-child')!.getBoundingClientRect();
+    const box = el.getBoundingClientRect();
+    return { scrolled: el.scrollLeft, lastInView: last.right <= box.right + 1 };
+  });
+  expect(reach.scrolled).toBeGreaterThan(0);
+  expect(reach.lastInView).toBe(true);
+});
+
 test('clips stay still for visitors who ask for reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(at('/vigil/'));
@@ -511,27 +537,39 @@ test('the flagship project is introduced on the home page and leads to its own p
   await expect(page.locator('h1')).toContainText('Long-Reach Rural Healthcare');
 });
 
-test('every claim on the VIGIL page points at a source that is listed', async ({ page }) => {
+test('the VIGIL page states its facts plainly: no footnote numbers, and every link goes somewhere exact', async ({
+  page,
+}) => {
   await page.goto(at('/vigil/'));
-  const listed = await page
-    .locator('#sources li')
-    .evaluateAll((items) => items.map((item) => item.id));
-  expect(listed.length).toBeGreaterThanOrEqual(6);
-  for (const link of await page.locator('#sources li a').all()) {
-    await expect(link).toHaveAttribute('href', /^https:\/\//);
+  // The page has no numbered references and no list of sources.
+  await expect(page.locator('.cite, sup, #sources, [href^="#source-"]')).toHaveCount(0);
+
+  // No outside link is a stand-in for the thing it names: a post is linked as the post itself.
+  const outside = await page
+    .locator('main a[href^="http"]')
+    .evaluateAll((links) => links.map((link) => (link as HTMLAnchorElement).href));
+  expect(outside.length).toBeGreaterThan(10);
+  for (const url of outside) {
+    expect(url, url).not.toMatch(/recent-activity|\/feed\/?$|[?&](utm_|rcm=|trk=)/);
+    if (url.includes('linkedin.com')) expect(url, url).toMatch(/linkedin\.com\/posts\/[\w-]+\/$/);
   }
 
-  const cited = await page
-    .locator('.cite a')
-    .evaluateAll((links) => links.map((link) => link.getAttribute('href')!.slice(1)));
-  expect(cited.length).toBeGreaterThan(15);
-  for (const id of cited) expect(listed, id).toContain(id);
-  // And every listed source is used.
-  for (const id of listed) expect(cited, id).toContain(id);
+  // The few links kept in the text: the award, the quoted article, and the post with the picture.
+  await expect(page.locator('.plate-note a')).toHaveAttribute('href', /arpa-h\.gov\/.+awards/);
+  await expect(page.locator('.quote figcaption a')).toHaveAttribute(
+    'href',
+    /news\.engin\.umich\.edu/,
+  );
+  await expect(page.locator('.team-wall figcaption a')).toHaveAttribute(
+    'href',
+    /linkedin\.com\/posts\/jason-corso_the-team-the-team/,
+  );
 
-  // A citation takes the reader to its source.
-  await page.locator('.cite a').first().click();
-  await expect(page.locator('#sources li:target')).toBeVisible();
+  // Every row of the timeline is a date, and what is still ahead is said after it.
+  const whens = await page.locator('.timeline .when').allInnerTexts();
+  expect(whens.length).toBeGreaterThanOrEqual(5);
+  for (const when of whens) expect(when).toMatch(/^[A-Z][a-z]+ 20\d\d$/);
+  await expect(page.locator('.ahead')).toContainText('Still ahead');
 });
 
 test('the VIGIL page has the talk, the coverage, and the papers', async ({ page }) => {
@@ -577,12 +615,9 @@ test('the VIGIL page links the published demonstrations in full and shows the te
       .poll(() => thumb.evaluate((img: HTMLImageElement) => img.naturalWidth))
       .toBeGreaterThan(0);
   }
-  // The note under the clips says where they come from, and cites both videos.
+  // The note under the clips says where they come from.
   const note = page.locator('#how .note--all').first();
   await expect(note).toContainText('cut from the two videos');
-  for (const id of ['7-FjCJlS3gU', 'qL46iG-To-I']) {
-    await expect(page.locator(`#sources a[href$="${id}"]`)).toHaveCount(1);
-  }
   // They are shown once: the list of coverage further down does not repeat them.
   await expect(
     page.locator('#watch a[href*="7-FjCJlS3gU"], #watch a[href*="qL46iG-To-I"]'),
@@ -618,9 +653,6 @@ test('the VIGIL page links the published demonstrations in full and shows the te
   expect(drawn.pixels).toBeGreaterThanOrEqual(Math.min(drawn.needed, 2000) * 0.95);
   expect(Math.abs(drawn.ratio - drawn.box)).toBeLessThan(0.02);
   await expect(wall.locator('figcaption')).toContainText('ten institutions');
-  // It names the post it was shared in, as a source the page lists.
-  const cited = await wall.locator('figcaption a[href^="#"]').first().getAttribute('href');
-  await expect(page.locator(`#sources ${cited}`)).toContainText('annual site visit');
   const full = await wall.locator('> a').getAttribute('href');
   const response = await request.get(new URL(full!, page.url()).href);
   expect(response.ok()).toBe(true);
@@ -762,7 +794,11 @@ test('the home page leads with the thesis, then its proof, then the operating ro
     .toBeGreaterThan(0);
   await expect(page.locator('.hero-photo figcaption')).toContainText('VIGIL');
   await expect(page.locator('.hero-photo a')).toHaveAttribute('href', /\/vigil\/$/);
-  await expect(page.locator('section.vigil .kicker')).toContainText('In healthcare delivery');
+  // The third claim is numbered and worded like the two above it, and is written once.
+  await expect(page.locator('section.vigil .kicker')).toHaveText(
+    /^\s*03\s+It is being proven in healthcare delivery\s*$/,
+  );
+  await expect(page.getByText('And it is being proven')).toHaveCount(0);
 
   // Human-AI collaboration is the thesis itself, so the grid below shows the other five areas.
   await expect(page.locator('.areas > li')).toHaveCount(5);
@@ -874,11 +910,59 @@ test('the thesis makes its claims with live figures and the papers behind them',
   await expect(mistake.locator('[data-says-who]')).toHaveText('Where');
 
   // The arc ends at the clinic, shows MILLY at work, and the third claim leads on to VIGIL.
-  await expect(thesis.locator('.arc > li')).toHaveCount(5);
+  // Every step is dated with a year, and a step that reports a result links its paper.
+  await expect(thesis.locator('.arc > li')).toHaveCount(4);
+  for (const when of await thesis.locator('.arc-when').allInnerTexts()) {
+    expect(when).toMatch(/^(19|20)\d\d$/);
+  }
+  await expect(thesis.locator('.arc-paper a')).toHaveAttribute(
+    'href',
+    /arxiv\.org\/abs\/2507\.18374/,
+  );
   await expectClip(thesis.locator('.arc-wrap [data-clip]'));
   await expect(thesis.locator('.arc-wrap [data-clip] figcaption')).toContainText('MILLY');
-  await thesis.locator('.arc-next').click();
-  await expect(page.locator('section.vigil')).toBeInViewport();
+  // No row repeats in its sentence the year that labels it.
+  for (const row of await thesis.locator('.arc > li').all()) {
+    const year = (await row.locator('.arc-when').innerText()).trim();
+    expect(await row.locator('.arc-body').innerText(), year).not.toContain(year);
+  }
+});
+
+test('the steps under a live figure stay where they are while the figure plays', async ({
+  page,
+}) => {
+  await page.goto(at('/'));
+  for (const name of ['oracle', 'human']) {
+    const panel = page.locator(`#thesis [data-figure="${name}"] + [data-console]`);
+    await panel.scrollIntoViewIfNeeded();
+    // Long enough for the story to move through several steps.
+    const seen = new Set<string>();
+    const steps = new Set<string>();
+    for (let i = 0; i < 24; i += 1) {
+      const sample = await panel.evaluate((el) => ({
+        on: el.getAttribute('data-on') ?? '',
+        layout: JSON.stringify([
+          Math.round(el.getBoundingClientRect().height),
+          ...[...el.querySelectorAll('[data-step]')].map((step) => {
+            const box = step.getBoundingClientRect();
+            return [Math.round(box.left), Math.round(box.width), Math.round(box.height)];
+          }),
+        ]),
+      }));
+      seen.add(sample.layout);
+      steps.add(sample.on);
+      await page.waitForTimeout(250);
+    }
+    expect(steps.size, `${name}: the story advanced`).toBeGreaterThan(1);
+    expect([...seen], `${name}: one layout throughout`).toHaveLength(1);
+    // Each step is wide and tall enough to press.
+    for (const step of await panel.locator('[data-step]').all()) {
+      const box = (await step.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(40);
+    }
+    // The current step is named.
+    await expect(panel.locator('[data-step][data-on] .step-name')).toBeVisible();
+  }
 });
 
 test('figures from the papers are shown as published, each with its paper', async ({ page }) => {
@@ -988,15 +1072,96 @@ test('a video plays in place only after the visitor asks for it', async ({ page 
   await expect.poll(() => requested.length).toBeGreaterThan(0);
 });
 
-test('the course being taught now leads the teaching page', async ({ page }) => {
+test('the latest course leads the teaching page, and a link to one term sits on that term', async ({
+  page,
+}) => {
   await page.goto(at('/teaching/'));
   const now = page.locator('.now-card');
-  await expect(now).toContainText('Teaching now');
+  // Named so that it stays true after the term ends.
+  await expect(now).toContainText(/Latest course · (Fall|Winter|Spring|Summer) 20\d\d/);
+  // A course taught in several terms links the one term whose page it has, not its title.
+  const row = page.locator('.course', { hasText: 'Foundations of Computer Vision' });
+  await expect(row.locator('.course-title a')).toHaveCount(0);
+  await expect(row.getByRole('link', { name: /Fall 2016/ })).toHaveAttribute('href', /504F16/);
   await expect(now.getByRole('heading')).toBeVisible();
   await expect(now.getByRole('link', { name: /Course materials/ })).toHaveAttribute(
     'href',
     /^https:/,
   );
+});
+
+test('the media page keeps one form: no running totals, plain titles, summaries that say what an item is about', async ({
+  page,
+}) => {
+  await page.goto(at('/media/'));
+  // No count of items anywhere in the page's furniture: the list keeps growing.
+  await expect(page.locator('.lead')).not.toContainText(/\d+ items/);
+  for (const text of await page.locator('nav.jump a').allInnerTexts()) {
+    expect(text.trim()).not.toMatch(/\d/);
+  }
+  await expect(page.locator('main .section-head .label', { hasText: /\d+ items?/ })).toHaveCount(0);
+
+  const titles = await page.locator('main h3 a').allInnerTexts();
+  expect(titles.length).toBeGreaterThan(30);
+  for (const title of titles) {
+    // A title is the item's own name, not the browser tab's: no site name after a bar.
+    expect(title, title).not.toMatch(/ \| |Techstrong\.tv|[‘’“”]/);
+  }
+  for (const outlet of await page
+    .locator('main .outlet, main .where > span:first-child')
+    .allInnerTexts()) {
+    expect(outlet, outlet).not.toMatch(/[()]/);
+  }
+  for (const summary of await page.locator('main .summary').allInnerTexts()) {
+    // A summary starts with its subject, not with a label for the kind of thing it is.
+    expect(summary, summary).not.toMatch(
+      /^(Medium essay|Essay on|Podcast|Episode|Interview on|Long interview|Radio-style|News story|University news|Newsweek story|Local feature|Video of|Demo page|Voxel51 blog post|Industry column|His )/,
+    );
+    expect(summary, summary).toMatch(/[.?!"]$/);
+  }
+});
+
+test('the publications list is set in one form', async ({ page }) => {
+  await page.goto(at('/publications/'));
+  const titles = await page.locator('[data-pub] .title').allInnerTexts();
+  expect(titles.length).toBeGreaterThan(200);
+  for (const title of titles) expect(title, title).not.toMatch(/[$\\{}]|\s{2,}|\.$/);
+  // Every link button says where it goes.
+  await expect(page.locator('[data-pub] .links a', { hasText: /^link$/i })).toHaveCount(0);
+  // A consortium paper names three authors and counts the rest; the search still finds them all.
+  const brats = page.locator('[id="menze2015multimodal"]');
+  await expect(brats.locator('.authors')).toHaveText(
+    /^\s*B\. H\. Menze, A\. Jakab, S\. Bauer, and \d+ others, including J\. J\. Corso\s*$/,
+  );
+  await expect(brats).toHaveAttribute('data-search', /kalpathy-cramer/);
+  // A preprint does not say "arXiv" a third time under its authors.
+  await expect(
+    page.locator('[data-pub][data-type="preprint"] .where', { hasText: /arXiv preprint/ }),
+  ).toHaveCount(0);
+});
+
+test('a bar of the publications chart shows its count just above itself', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'hovering needs a pointer');
+  await page.goto(at('/publications/'));
+  const bars = page.locator('.timeline .bar');
+  // The shortest bar is the telling one: its count belongs near it, not at the top of the chart.
+  const heights = await bars.evaluateAll((els) =>
+    els.map((el) => el.querySelector('.stack')!.getBoundingClientRect().height),
+  );
+  const shortest = heights.indexOf(Math.min(...heights));
+  const bar = bars.nth(shortest);
+  await bar.scrollIntoViewIfNeeded();
+  await bar.hover();
+  const gap = await bar.evaluate(async (el) => {
+    await new Promise((done) => setTimeout(done, 400));
+    const tip = el.querySelector('.tip')!.getBoundingClientRect();
+    const stack = el.querySelector('.stack')!.getBoundingClientRect();
+    return stack.top - tip.bottom;
+  });
+  expect(gap).toBeGreaterThanOrEqual(0);
+  expect(gap).toBeLessThan(24);
 });
 
 test('unknown pages show the 404 page', async ({ page }) => {

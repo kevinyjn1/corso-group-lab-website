@@ -1,5 +1,5 @@
 ---
-import { LINK_LABELS, TYPE_LABELS, type Publication } from '../lib/content';
+import { getAreas, LINK_LABELS, TYPE_LABELS, type Publication } from '../lib/content';
 import { pi } from '../lib/site';
 
 interface Props {
@@ -13,6 +13,18 @@ const { data } = pub;
 const badge = data.venueShort ?? TYPE_LABELS[data.type];
 const piName = pi.name.replace(/^(\w)\w+ (\w)\. /, '$1. $2. ');
 const links = Object.entries(data.links) as [string, string][];
+/** The name of each research area, as the legend and the filters show it. */
+const areaNames = new Map((await getAreas()).map((area) => [area.id, area.data.short]));
+/**
+ * A paper by a large consortium names its first three authors and counts the rest, so one row
+ * does not run to ten lines. The search still covers every author.
+ */
+const MANY_AUTHORS = 12;
+const named = data.authors.length > MANY_AUTHORS ? data.authors.slice(0, 3) : data.authors;
+const others = data.authors.length - named.length;
+const piAmongOthers = others > 0 && !named.includes(piName) && data.authors.includes(piName);
+/** A preprint's tag and its link already say where it is, so its venue line is left out. */
+const showVenue = data.type !== 'preprint' || Boolean(data.note);
 const search = [
   data.title,
   data.authors.join(' '),
@@ -41,23 +53,29 @@ const search = [
   </div>
   <div class="body">
     <Title class="title">{data.title}</Title>
-    <p class="authors">
-      {data.authors.flatMap((author, i) => [
-        i > 0 ? ', ' : '',
-        author === piName ? <span class="pi">{author}</span> : author,
-      ])}
+    <p class="authors" title={others > 0 ? data.authors.join(', ') : undefined}>
+      {[
+        ...named.flatMap((author, i) => [
+          i > 0 ? ', ' : '',
+          <span class:list={['author', { pi: author === piName }]}>{author}</span>,
+        ]),
+        others > 0 ? `, and ${others} others` : '',
+        ...(piAmongOthers ? [', including ', <span class="author pi">{piName}</span>] : []),
+      ]}
     </p>
-    <p class="where">
-      {data.venue}
-      {data.note && <span class="note">{data.note}</span>}
-    </p>
+    {showVenue && (
+      <p class="where">
+        <span>{data.venue}</span>
+        {data.note && <span class="note">{data.note}</span>}
+      </p>
+    )}
   </div>
   <div class="side">
     <ul class="topics" aria-label="Research areas">
       {data.topics.map((t) => (
-        <li data-topic={t}>
+        <li data-topic={t} title={areaNames.get(t)}>
           <span class="dot" />
-          <span class="sr-only">{t}</span>
+          <span class="sr-only">{areaNames.get(t) ?? t}</span>
         </li>
       ))}
     </ul>
@@ -78,7 +96,7 @@ const search = [
 <style>
   .pub {
     display: grid;
-    grid-template-columns: 7.5rem minmax(0, 1fr) minmax(8rem, auto);
+    grid-template-columns: 9.5rem minmax(0, 1fr) minmax(8rem, auto);
     gap: 0.5rem 2rem;
     align-items: start;
     padding-block: 1.4rem;
@@ -123,12 +141,22 @@ const search = [
     color: var(--text-2);
   }
 
+  /* A name stays whole: initials never end one line with the surname on the next. */
+  .author {
+    white-space: nowrap;
+  }
+
   .pi {
     color: var(--text);
     font-weight: 500;
   }
 
+  /* A badge that does not fit after the venue starts the next line at the left edge. */
   .where {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.6rem;
     margin-top: 0.2rem;
     font-size: 0.85rem;
     line-height: 1.5;
@@ -137,7 +165,6 @@ const search = [
 
   .note {
     display: inline-block;
-    margin-left: 0.6rem;
     padding: 0.1rem 0.4rem;
     border: 1px solid var(--accent);
     border-radius: 2px;
@@ -167,7 +194,7 @@ const search = [
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 0.4rem;
-    max-width: 14rem;
+    max-width: 18.5rem;
   }
 
   .links a {

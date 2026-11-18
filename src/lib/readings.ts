@@ -16,7 +16,7 @@ export const READINGS = [
   {
     id: 'language',
     label: 'Language',
-    what: 'What each thing is, which step this is, and answers to questions about it: SurgAtlas pairs 15,291 public videos of open and minimally invasive surgery, 2,391 hours across 18 specialties, with captions, step descriptions, summaries, and questions.',
+    what: 'What each thing is, which step this is, and answers to questions about it: SurgAtlas pairs 15,291 public surgical videos across 18 specialties with captions, step descriptions, summaries, and questions.',
     paper:
       'SurgAtlas: A Large-Scale Surgical Video-Language Dataset with 2,391 Hours of Open and Minimally Invasive Surgery',
     venue: 'arXiv 2026',

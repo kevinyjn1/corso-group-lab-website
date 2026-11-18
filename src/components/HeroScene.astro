@@ -67,7 +67,7 @@ import { READINGS } from '../lib/readings';
         <p class="reading-what">{reading.what}</p>
         <p class="reading-paper">
           <a href={reading.href} rel="noopener">
-            {reading.paper} <span aria-hidden="true">&nearr;</span>
+            {reading.paper}&nbsp;<span aria-hidden="true">&nearr;</span>
           </a>
           <span class="reading-venue">{reading.venue}</span>
         </p>
@@ -462,7 +462,9 @@ import { READINGS } from '../lib/readings';
   }
 
   @media (max-width: 30rem) {
-    .status-text {
+    /* Without its word, the light beside it would read as a recording light, so both go. */
+    .status-text,
+    .live {
       display: none;
     }
 

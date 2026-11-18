@@ -85,9 +85,8 @@ const placements = [
       <div class="hero-body">
         <div class="hero-text">
           <p class="lead">
-            {thesis.definition} That is the work of the {site.name} at the {site.university}: put
-            the person and the AI on one team, and ground the AI in reality, not in text from the
-            web.
+            {thesis.definition} That is the aim of the {site.name} at the {site.university}: put the
+            person and the AI on one team, and ground the AI in reality.
           </p>
           <div class="cta">
             <a class="btn btn--primary" href="#thesis">
@@ -97,7 +96,7 @@ const placements = [
               </span>
             </a>
             <a class="btn" href={href('/vigil/')}>
-              See it in a clinic
+              See it at work
             </a>
           </div>
         </div>
@@ -138,6 +137,7 @@ const placements = [
             <a class="link" href={thesis.recording.href} rel="noopener">
               {thesis.recording.label}
             </a>
+            .
           </p>
         </div>
       </div>
@@ -146,7 +146,7 @@ const placements = [
 
   <Thesis />
 
-  <VigilBand kicker="03 · In healthcare delivery" />
+  <VigilBand number="03" kicker="It is being proven in healthcare delivery" />
 
   <section class="numbers">
     <div class="container">
@@ -179,7 +179,7 @@ const placements = [
       </div>
       <p class="stage-label">
         <span class="num">Fig. 3</span>
-        Live, and an illustration, not footage. Pick a reading, or move over the scene.
+        An animated illustration, not footage. Pick a reading.
       </p>
       <HeroScene />
     </div>
@@ -232,11 +232,11 @@ const placements = [
     <div class="container">
       <div class="section-head" data-reveal>
         <div>
-          <p class="label">Latest work</p>
-          <h2 class="h2">Recent publications</h2>
+          <p class="label">Publications</p>
+          <h2 class="h2">The latest work</h2>
         </div>
         <a class="more" href={href('/publications/')}>
-          All {publications.length} publications{' '}
+          All publications{' '}
           <span class="arrow" aria-hidden="true">
             &rarr;
           </span>
@@ -287,12 +287,11 @@ const placements = [
           <h2 class="h2">Built in the open</h2>
           <p>
             Datasets, benchmarks, and software released by the group, from instructional video to
-            surgical video, along with FiftyOne, the open-source data tool built at Voxel51, the
-            company Prof. Corso co-founded.
+            surgical video, along with FiftyOne.
           </p>
         </div>
         <a class="more" href={href('/resources/')}>
-          All {resources.length} releases{' '}
+          All releases{' '}
           <span class="arrow" aria-hidden="true">
             &rarr;
           </span>
@@ -348,7 +347,6 @@ const placements = [
             <div>
               <dt class="label">Principal investigator</dt>
               <dd>{pi.name}</dd>
-              <dd class="roster-note">{pi.titles[0]}</dd>
             </div>
             <div>
               <dt class="label">Ph.D. students</dt>
@@ -795,16 +793,6 @@ const placements = [
     line-height: 1.22;
   }
 
-  .roster .roster-note {
-    margin-top: 0.35rem;
-    font-family: var(--font-sans);
-    font-stretch: 100%;
-    font-size: 0.95rem;
-    font-weight: 400;
-    line-height: 1.4;
-    color: var(--text-2);
-  }
-
   .people-side > div {
     padding-top: 1.5rem;
   }
@@ -875,6 +863,15 @@ const placements = [
   }
 
   @media (max-width: 38rem) {
+    /* On a phone the roster is one column, so no count or title is squeezed onto two lines. */
+    .roster {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .roster div:nth-child(2) {
+      grid-row: auto;
+    }
+
     .releases {
       grid-template-columns: minmax(0, 1fr);
     }

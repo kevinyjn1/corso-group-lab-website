@@ -56,8 +56,8 @@ export const SYSTEM_POSTERS: readonly Poster[] = [
     people: 'Filippos Bellos, Yayuan Li, Andrew Krikorian, Jason J. Corso',
     what: 'Name a procedure, and an agent builds a model that can answer questions about it. It finds narrated videos on the web, transcribes and filters them, and turns them into captions and questions at three levels of detail. The first test was endotracheal intubation.',
     result: {
-      value: '28.2 to 53.7',
-      label: 'Accuracy on intubation questions, before and after, in percent',
+      value: '28.2% to 53.7%',
+      label: 'Accuracy on intubation questions, from the base model to the one the agent built',
     },
   },
   {
@@ -67,7 +67,7 @@ export const SYSTEM_POSTERS: readonly Poster[] = [
     what: 'Writes the report after the exam from the ultrasound video and the conversation in the room. Each finding is linked to the stretch of video that supports it, so a clinician can check it with a click.',
   },
   {
-    title: 'Probe tip tracking',
+    title: 'Probe Tip Tracking',
     team: 'University of Michigan and Cornell Tech',
     people: 'Ayush Shrivastava, Sanyam Mehta, Daniel Geng, Andrew Owens',
     what: 'Predicts where the tip of the ultrasound probe is in three dimensions, from color and depth images, so that the system knows where the probe is when it tells the user where to move it.',
@@ -91,7 +91,7 @@ export const RELATED_POSTERS: readonly Poster[] = [
     team: 'University of Michigan, Corso Group',
     people: 'Yayuan Li, Chenglin Li, Jingying Wang, Filippos Bellos, Anhong Guo, Jason J. Corso',
     what: "Instructional videos rarely match the room the learner is standing in. In a lab study of two first-aid and two cooking tasks, videos recorded to match each learner's own setup beat popular web videos, taking the four tasks together.",
-    result: { value: '+11.1%', label: 'Quality of the finished task, and 15.5% less time' },
+    result: { value: '+11.1%', label: 'In quality of the finished task, and 15.5% less time' },
     href: 'https://arxiv.org/abs/2605.17184',
     venue: 'arXiv 2026',
   },
@@ -105,7 +105,7 @@ export const RELATED_POSTERS: readonly Poster[] = [
   },
   {
     title: 'Point Prompting: Counterfactual Tracking with Video Diffusion Models',
-    team: 'University of Michigan and Cornell University',
+    team: 'University of Michigan and Cornell Tech',
     people: 'Ayush Shrivastava, Sanyam Mehta, Daniel Geng, Andrew Owens',
     what: 'Mark a point in a video with a colored dot, and a video diffusion model carries the dot forward: point tracking from a model that was never trained to track.',
     href: 'https://arxiv.org/abs/2510.11715',

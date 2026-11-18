@@ -1,11 +1,10 @@
 ---
 /**
- * VIGIL, the group's flagship project. The facts are in src/lib/vigil.ts, each with its sources,
- * and the videos and press are the media items marked `project: vigil`.
+ * VIGIL, the group's flagship project. The facts are in src/lib/vigil.ts, and the videos and press
+ * are the media items marked `project: vigil`.
  */
 import { getImage, Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Cite from '../components/Cite.astro';
 import Clip from '../components/Clip.astro';
 import MediaRow from '../components/MediaRow.astro';
 import PubItem from '../components/PubItem.astro';
@@ -14,7 +13,7 @@ import VideoCard from '../components/VideoCard.astro';
 import VigilName from '../components/VigilName.astro';
 import { getMedia, getPublications } from '../lib/content';
 import { href } from '../lib/site';
-import { SOURCES, vigil, type SourceId } from '../lib/vigil';
+import { LINKS, vigil } from '../lib/vigil';
 import { RELATED_POSTERS, SYSTEM_POSTERS } from '../lib/vigil-posters';
 import heartScan from '../assets/vigil/demo-day-heart-scan.jpg';
 import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
@@ -43,7 +42,6 @@ const talk = media.find((item) => item.data.youtubeId && !DEMOS.includes(item.id
 const coverage = media.filter((item) => item !== talk && !DEMOS.includes(item.id));
 const publications = await getPublications();
 const papers = vigil.papers.flatMap((id) => publications.filter((pub) => pub.id === id));
-const sources = Object.entries(SOURCES) as [SourceId, (typeof SOURCES)[SourceId]][];
 
 /**
  * The team's own footage of each part of the system, in the order of vigil.steps. Four of the five
@@ -68,6 +66,8 @@ const footage = [
       poster: viewScoringPoster,
       alt: 'Two copies of a live ultrasound of the heart. The left is plain. On the right, dots trace the wall of the left ventricle, a frame around the image changes between green, yellow, and red, and a reading of LVEF, near 62 percent, updates.',
       title: 'Reading the view.',
+      // The reading this caption explains is in the clip's bottom right corner.
+      toggle: 'left',
       caption:
         "Left, the ultrasound as it arrives. Right, landmarks traced on the heart, a frame that turns green, yellow, or red as the probe is on, near, or far from the four-chamber view, and an estimate of ejection fraction (LVEF), the share of the left ventricle's blood pumped out with each beat.",
     },
@@ -147,7 +147,7 @@ const plate = [
               </span>
             </a>
             <a class="btn" href="#watch">
-              Watch the talk
+              Watch the walkthrough
             </a>
           </div>
         </div>
@@ -161,8 +161,10 @@ const plate = [
             ))}
           </dl>
           <p class="plate-note">
-            As listed by ARPA-H
-            <Cite ids={['award']} />
+            As listed by{' '}
+            <a class="link" href={LINKS.award} rel="noopener">
+              ARPA-H
+            </a>
           </p>
         </div>
       </div>
@@ -180,7 +182,6 @@ const plate = [
           <p>
             In November 2025, nine months after the award, the team demonstrated VIGIL live at
             ARPA-H's PARADIGM meeting in Washington, guiding people through ultrasound exams.
-            <Cite ids={['demo']} />
           </p>
         </div>
       </div>
@@ -235,15 +236,12 @@ const plate = [
             quality={82}
           />
           <figcaption>
-            <strong>The team</strong> at the demonstration, including the day's patients.
+            <strong>The team.</strong> At the demonstration, including the day's patients.
           </figcaption>
         </figure>
       </div>
       <p class="photo-credit" data-reveal>
-        <a class="link" href={SOURCES.demo.href} rel="noopener">
-          Jason Corso's post about the meeting
-        </a>{' '}
-        is the source of its three photos. The mock clinic photo is courtesy of the group.
+        Photos of the demonstration: Jason J. Corso. Photo of the mock clinic: the Corso Group.
       </p>
     </div>
   </section>
@@ -268,15 +266,18 @@ const plate = [
                 {step.name}
               </p>
               <h3 class="h3">{step.title}</h3>
-              <p class="step-body">
-                {step.body}
-                <Cite ids={step.sources} />
-              </p>
+              <p class="step-body">{step.body}</p>
             </div>
             <div class="part-media" data-count={footage[i].length}>
               {footage[i].map((item) =>
                 'clip' in item ? (
-                  <Clip src={item.clip} poster={item.poster} tag="Footage · VIGIL" alt={item.alt}>
+                  <Clip
+                    src={item.clip}
+                    poster={item.poster}
+                    tag="Footage · VIGIL"
+                    alt={item.alt}
+                    toggle={'toggle' in item ? item.toggle : undefined}
+                  >
                     <strong>{item.title}</strong> {item.caption}
                   </Clip>
                 ) : (
@@ -299,10 +300,9 @@ const plate = [
         ))}
       </ol>
       <p class="note note--all" data-reveal>
-        Four of these clips are cut from the two videos of the November 2025 demonstrations that
-        Prof. Corso published, and the captions inside them are the team's. The view-scoring clip is
+        Four of these clips are cut from the two videos of the November 2025 demonstrations, shown
+        in full below, and the captions inside them are the team's. The "Reading the view" clip is
         the group's own recording.
-        <Cite ids={['guidance', 'dvt']} />
       </p>
 
       <h3 class="h3 exams-head" data-reveal>
@@ -338,7 +338,6 @@ const plate = [
         These two figures are illustrations, drawn from the team's public descriptions and its demo
         day posters to show a whole exam in a few seconds. They are not footage, and the spoken
         lines are examples.
-        <Cite ids={['detroit', 'posters']} />
       </p>
     </div>
   </section>
@@ -359,9 +358,8 @@ const plate = [
           <p>
             Over the past ten years, more than 100 hospitals in mostly rural parts of the United
             States have closed, and at least 600 more, about 30% of all rural hospitals, are at risk
-            of closing.
-            <Cite ids={['paradigm']} />
-            When one closes, the people it served travel farther for the same care, or go without.
+            of closing. When one closes, the people it served travel farther for the same care, or
+            go without.
           </p>
           <p>
             {award.funder}'s {award.program} program is building a different model: a vehicle that
@@ -370,14 +368,12 @@ const plate = [
             devices into one system. <strong>VIGIL is the fifth: intelligent task guidance</strong>,
             the part that lets the clinician on board do work that would otherwise wait for a
             specialist.
-            <Cite ids={['paradigm', 'release']} />
           </p>
           <p>
             The person VIGIL works beside is a generalist: a family doctor, a nurse practitioner, a
             physician assistant. They have deep foundational knowledge and no specialist down the
             hall. The agent observes what they do, walks them through what is unfamiliar, and
             adjusts when something unexpected happens.
-            <Cite ids={['michigan']} />
           </p>
         </div>
 
@@ -388,7 +384,7 @@ const plate = [
               <dt>Rural hospitals closed in ten years</dt>
             </div>
             <div>
-              <dd>600</dd>
+              <dd>600+</dd>
               <dt>More at risk: about 30% of all rural hospitals</dt>
             </div>
           </dl>
@@ -397,8 +393,10 @@ const plate = [
               <p>We want to bring the hospital to the house, or to the church parking lot.</p>
             </blockquote>
             <figcaption>
-              Jason Corso, in Michigan Engineering News
-              <Cite ids={['michigan']} />
+              Jason J. Corso, in{' '}
+              <a class="link" href={LINKS.michigan} rel="noopener">
+                Michigan Engineering News
+              </a>
             </figcaption>
           </figure>
         </div>
@@ -421,12 +419,11 @@ const plate = [
             it. In the clinic, VIGIL projects its guidance onto the patient and the room and speaks
             through an earpiece, so nothing sits between the clinician and the person they are
             caring for.
-            <Cite ids={['goggles', 'detroit']} />
           </p>
           <ul class="reasons">
             <li>
-              <h3 class="h3">Nothing to wear</h3>
-              <p>No heavy headset, and none of the motion sickness that comes with one.</p>
+              <h3 class="h3">No headset</h3>
+              <p>Nothing heavy to wear, and none of the motion sickness a headset brings.</p>
             </li>
             <li>
               <h3 class="h3">Eye contact stays</h3>
@@ -440,7 +437,6 @@ const plate = [
           <p class="credit">
             The move to projected guidance was led by Anhong Guo, of Computer Science and
             Engineering at Michigan.
-            <Cite ids={['goggles']} />
           </p>
         </div>
       </div>
@@ -454,19 +450,15 @@ const plate = [
           <p class="label">Scope</p>
           <h2 class="h2">What it guides</h2>
           <p>
-            In August 2026, eighteen months into the project, Prof. Corso counted four clinical
-            services that VIGIL supports, among them ultrasound, X-ray, and laryngoscopy.
-            <Cite ids={['update']} />
+            As of August 2026, eighteen months into the project, VIGIL supports four clinical
+            services, among them ultrasound, X-ray, and laryngoscopy.
           </p>
         </div>
       </div>
 
       <div class="scope" data-reveal="stagger">
         <div>
-          <h3 class="label">
-            Shown or named so far
-            <Cite ids={['detroit', 'update']} />
-          </h3>
+          <h3 class="label">Shown or named so far</h3>
           <ul class="services">
             {services.now.map((service) => (
               <li>
@@ -477,10 +469,7 @@ const plate = [
           </ul>
         </div>
         <div>
-          <h3 class="label">
-            Named as possible next steps
-            <Cite ids={['detroit']} />
-          </h3>
+          <h3 class="label">Named as possible next steps</h3>
           <ul class="plain">
             {services.next.map((item) => (
               <li>{item}</li>
@@ -488,10 +477,7 @@ const plate = [
           </ul>
         </div>
         <div>
-          <h3 class="label">
-            Also built
-            <Cite ids={['detroit']} />
-          </h3>
+          <h3 class="label">Also built</h3>
           <ul class="plain">
             {services.forms.map((item) => (
               <li>{item}</li>
@@ -516,13 +502,13 @@ const plate = [
         {vigil.timeline.map((moment) => (
           <li>
             <p class="when">{moment.when}</p>
-            <p class="what">
-              {moment.what}
-              <Cite ids={moment.sources} />
-            </p>
+            <p class="what">{moment.what}</p>
           </li>
         ))}
       </ol>
+      <p class="ahead" data-reveal>
+        <strong>Still ahead.</strong> {vigil.ahead}
+      </p>
     </div>
   </section>
 
@@ -562,7 +548,6 @@ const plate = [
           <p>
             VIGIL is built in parts, by different teams, that meet in one room. These are the parts
             as the teams presented them on posters at the demo day.
-            <Cite ids={['posters']} />
           </p>
         </div>
       </div>
@@ -574,7 +559,7 @@ const plate = [
             <h3 class="h3">
               {poster.href ? (
                 <a href={poster.href} rel="noopener">
-                  {poster.title} <span aria-hidden="true">&nearr;</span>
+                  {poster.title}&nbsp;<span aria-hidden="true">&nearr;</span>
                 </a>
               ) : (
                 poster.title
@@ -608,7 +593,7 @@ const plate = [
             <div>
               <h4>
                 <a href={poster.href} rel="noopener">
-                  {poster.title} <span aria-hidden="true">&nearr;</span>
+                  {poster.title}&nbsp;<span aria-hidden="true">&nearr;</span>
                 </a>
               </h4>
               <p class="related-what">
@@ -616,7 +601,7 @@ const plate = [
                 {poster.result && (
                   <span class="related-result">
                     {' '}
-                    {poster.result.value}: {poster.result.label.toLowerCase()}.
+                    {poster.result.value} {poster.result.label.toLowerCase()}.
                   </span>
                 )}
               </p>
@@ -628,7 +613,7 @@ const plate = [
     </div>
   </section>
 
-  <section class="section">
+  <section class="section team-section">
     <div class="container">
       <div class="section-head" data-reveal>
         <div>
@@ -637,16 +622,11 @@ const plate = [
             Nine universities and RTX BBN, <em>one</em> team.
           </h2>
           <p>
-            The team as it was announced in February 2025, in its three sub-teams,
-            <Cite ids={['michigan']} />
-            with Cornell Tech, where Andrew Owens has since moved.
-            <Cite ids={['cornell', 'posters']} />
             The program manager at {award.funder} is {award.manager}.
-            <Cite ids={['paradigm']} />
           </p>
         </div>
         <a class="more" href={href('/people/')}>
-          The Corso Group{' '}
+          Meet the Corso Group{' '}
           <span class="arrow" aria-hidden="true">
             &rarr;
           </span>
@@ -665,13 +645,18 @@ const plate = [
         </a>
         <figcaption>
           <strong>The team.</strong> Faculty, clinicians, staff, and students at ten institutions,
-          in the picture Prof. Corso shared for the annual site visit in May 2026. The outline of
-          each portrait marks a role: blue for technical faculty, red for medical and nursing
-          faculty, yellow for graduate students, green and silver for staff.
-          <Cite ids={['sitevisit']} />
+          in the picture Prof. Corso{' '}
+          <a class="link" href={LINKS.sitevisit} rel="noopener">
+            shared for the annual site visit
+          </a>{' '}
+          in May 2026. The outline of each portrait marks a role: blue for technical faculty, red
+          for medical and nursing faculty, yellow for graduate students, green and silver for staff.
         </figcaption>
       </figure>
 
+      <p class="team-note" data-reveal>
+        The team as it was announced in February 2025, in its three sub-teams.
+      </p>
       <div class="team" data-reveal="stagger">
         {vigil.team.map((part) => (
           <div class="subteam">
@@ -701,9 +686,9 @@ const plate = [
             <p class="label">From the group</p>
             <h2 class="h2">Papers on the same problems</h2>
             <p>
-              Published work from the group: EchoVQA, 74,819 questions and answers on 14,299 heart
-              ultrasound images; a network that scores, from the image alone, how close the probe is
-              to the standard heart view; and an AI agent that guides people through physical tasks.
+              EchoVQA, 74,819 questions and answers on 14,299 heart ultrasound images; a network
+              that scores, from the image alone, how close the probe is to the standard heart view;
+              and an AI agent that guides people through physical tasks.
             </p>
           </div>
           <a class="more" href={href('/publications/')}>
@@ -721,32 +706,6 @@ const plate = [
       </div>
     </section>
   )}
-
-  <section class="section sources" id="sources">
-    <div class="container sources-grid">
-      <div>
-        <p class="label">Sources</p>
-        <h2 class="h3">Where each fact comes from</h2>
-        <p class="sources-note">
-          The numbers in boxes on this page point here. Every source was read in November 2026.
-        </p>
-      </div>
-      <ol>
-        {sources.map(([id, source], i) => (
-          <li id={`source-${id}`}>
-            <span class="source-index">{i + 1}</span>
-            {source.href ? (
-              <a class="link" href={source.href} rel="noopener">
-                {source.label}
-              </a>
-            ) : (
-              <span>{source.label}</span>
-            )}
-          </li>
-        ))}
-      </ol>
-    </div>
-  </section>
 </Base>
 
 <style>
@@ -882,8 +841,7 @@ const plate = [
   /* --- How it works --------------------------------------------------------- */
 
   .how,
-  #watch,
-  .sources {
+  #watch {
     scroll-margin-top: var(--header-h);
   }
 
@@ -1055,9 +1013,10 @@ const plate = [
     color: var(--maize);
   }
 
+  /* The link to the article is set in the box's light text, not the page's dark text. */
   .quote figcaption {
     --line-2: rgb(255 255 255 / 0.42);
-    --text-2: #bccadb;
+    --text: #f6f3ea;
     margin-top: 1rem;
     font-size: 0.9rem;
     color: #bccadb;
@@ -1182,8 +1141,17 @@ const plate = [
     line-height: 1.1;
   }
 
-  .timeline li:last-child .when {
-    color: var(--text-3);
+  .ahead {
+    max-width: 44rem;
+    margin-top: 1.2rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+
+  .ahead strong {
+    font-weight: 700;
+    color: var(--text);
   }
 
   .what {
@@ -1226,8 +1194,18 @@ const plate = [
   /* --- Demo day ------------------------------------------------------------- */
 
   .demo {
-    padding-top: 0;
     scroll-margin-top: var(--header-h);
+  }
+
+  /* The team follows a plain section, so one gap between them is enough. */
+  .team-section {
+    padding-top: 0;
+  }
+
+  .team-note {
+    max-width: 44rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-2);
   }
 
   .posters {
@@ -1463,58 +1441,6 @@ const plate = [
     padding-top: 0;
   }
 
-  /* --- Sources -------------------------------------------------------------- */
-
-  .sources {
-    background: var(--bg-2);
-  }
-
-  .sources-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
-    gap: 2rem clamp(2rem, 6vw, 6rem);
-    align-items: start;
-  }
-
-  .sources .label {
-    margin-bottom: 0.7rem;
-  }
-
-  .sources-note {
-    max-width: 22rem;
-    margin-top: 0.8rem;
-    font-size: 0.95rem;
-    color: var(--text-2);
-  }
-
-  .sources ol {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border-top: 2px solid var(--text);
-  }
-
-  .sources li {
-    display: grid;
-    grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.75rem;
-    align-items: baseline;
-    padding-block: 0.7rem;
-    border-bottom: 1px solid var(--line);
-    scroll-margin-top: calc(var(--header-h) + 1.5rem);
-  }
-
-  .sources li:target {
-    background: color-mix(in srgb, var(--maize) 40%, transparent);
-  }
-
-  .source-index {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-3);
-  }
-
   /* --- Narrow screens ------------------------------------------------------- */
 
   @media (max-width: 62rem) {
@@ -1523,8 +1449,7 @@ const plate = [
     .exams,
     .why,
     .room-grid,
-    .record,
-    .sources-grid {
+    .record {
       grid-template-columns: minmax(0, 1fr);
     }
 

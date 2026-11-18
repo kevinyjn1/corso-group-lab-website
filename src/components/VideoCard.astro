@@ -34,16 +34,16 @@ const thumb = youtubeId ? thumbs[`../assets/media/${youtubeId}.jpg`]?.default : 
     </div>
   )}
   <div class="meta">
-    <p class="label">
-      {outlet}
-      {date && <span> &middot; {formatDate(date)}</span>}
+    <p class="label where">
+      <span>{outlet}</span>
+      {date && <span class="when">{formatDate(date)}</span>}
     </p>
     <h3 class="h3">
       <a href={url} rel="noopener">
-        {title} <span aria-hidden="true">&nearr;</span>
+        {title}&nbsp;<span aria-hidden="true">&nearr;</span>
       </a>
     </h3>
-    <p class="summary">{summary}</p>
+    {summary && <p class="summary">{summary}</p>}
   </div>
 </article>
 
@@ -118,8 +118,17 @@ const thumb = youtubeId ? thumbs[`../assets/media/${youtubeId}.jpg`]?.default : 
     width: clamp(3.75rem, 7.5vw, 5.25rem);
   }
 
-  .label span {
+  /* Where it appeared and when, set as the rows of a list set them: no dot between the two, so
+     that a date that wraps never starts its line with one. */
+  .where {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.75rem;
+  }
+
+  .when {
     white-space: nowrap;
+    opacity: 0.72;
   }
 
   .h3 {
