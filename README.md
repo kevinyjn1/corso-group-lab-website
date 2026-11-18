@@ -145,6 +145,11 @@ page at `/vigil/`.
   pose tracking, surgical video and language, the surface of the beating heart, and the path of
   each hand. It is an illustration, not footage, drawn on a canvas with no dependencies, and it
   pauses when off screen.
+- **Type and texture.** Headlines are set at the heaviest weight and lead paragraphs at a light
+  one, so the two contrast instead of competing. Readouts and figure labels use IBM Plex Mono.
+  No color field is a flat fill: maize carries a halftone of blue dots that gathers toward one
+  corner, blue carries the figures' dot grid with a little maize light, and the page itself has a
+  faint grid, like a lab notebook. The tokens are at the top of `src/styles/global.css`.
 - **What every visualization has to pass.** One message a visitor can get at first glance, said
   in plain words, with the most important thing the largest. The VIGIL figures are about someone
   being talked through an exam, so what the assistant says is set in large type under the figure,

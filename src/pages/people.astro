@@ -418,17 +418,15 @@ const profileLinks = [
     margin-top: 1.5rem;
   }
 
+  /* A name and where the person is. On a narrow screen the place drops under the name. */
   .names li {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.15rem 1rem;
     padding-block: 0.75rem;
     font-size: 0.95rem;
-  }
-
-  .names .label {
-    flex: none;
   }
 
   /* --- Responsive ----------------------------------------------------------- */

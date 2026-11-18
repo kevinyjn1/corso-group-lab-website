@@ -16,9 +16,11 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.fontsource(),
-      name: 'Geist Mono',
-      cssVariable: '--font-geist-mono',
-      weights: ['100 900'],
+      // Readouts and figure labels. Plex Mono is an instrument face: it suits a lab better than
+      // the monospace every generated page reaches for.
+      name: 'IBM Plex Mono',
+      cssVariable: '--font-plex-mono',
+      weights: [400, 500, 600],
       styles: ['normal'],
       subsets: ['latin'],
       fallbacks: ['ui-monospace', 'monospace'],

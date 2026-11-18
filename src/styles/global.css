@@ -44,7 +44,7 @@
 
   --font-display: 'Archivo Variable', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
   --font-sans: 'Archivo Variable', system-ui, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
   --container: 80rem;
   --gutter: clamp(1.25rem, 4vw, 3rem);
@@ -52,6 +52,9 @@
   --radius-lg: 0;
   --header-h: 4.5rem;
   --rule: 3px;
+
+  /* The dot grid that every figure is drawn on, as a faint texture for the page itself. */
+  --grain: rgb(0 39 76 / 0.06);
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -70,6 +73,7 @@
   --text-3: #8a9db4;
   --accent: var(--maize);
   --focus: #8fc2ff;
+  --grain: rgb(255 255 255 / 0.045);
 
   --solid: var(--maize);
   --on-solid: var(--blue);
@@ -102,7 +106,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  /* Paper with a grid on it, like the page of a lab notebook, not a flat fill. */
+  background:
+    radial-gradient(circle at center, var(--grain) 1px, transparent 1.6px) 0 0 / 16px 16px,
+    var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 1.0625rem;
@@ -233,7 +240,17 @@ button {
   border: 0;
 }
 
-/* Full-width color fields. Inside one, text and rules take the field's own ink. */
+/*
+ * Full-width color fields. Inside one, text and rules take the field's own ink. Neither field is
+ * a flat fill: maize carries a halftone of blue dots that gathers toward one corner, as on a
+ * printed poster, and blue carries the dot grid of the figures.
+ */
+:root {
+  --halftone:
+    linear-gradient(118deg, var(--maize) 46%, transparent 96%),
+    radial-gradient(circle at center, rgb(0 39 76 / 0.22) 1.7px, transparent 2.3px) 0 0 / 13px 13px;
+}
+
 .band--maize {
   --text: var(--blue);
   --text-2: rgb(0 39 76 / 0.82);
@@ -245,7 +262,7 @@ button {
   --on-solid: var(--maize);
   --mark: var(--blue);
   --on-mark: var(--maize);
-  background: var(--maize);
+  background: var(--halftone), var(--maize);
   color: var(--text);
 }
 
@@ -258,12 +275,20 @@ button {
   --accent: var(--maize);
   --solid: var(--maize);
   --on-solid: var(--blue);
-  background: var(--blue);
+  --band: var(--blue);
+  /* Depth, from the top down: a little maize light from one corner, then the dot grid, which
+     thins out toward the left so that it never sits behind the text that starts there. */
+  background:
+    radial-gradient(110% 85% at 100% 0%, rgb(255 203 5 / 0.09), transparent 62%),
+    linear-gradient(100deg, var(--band) 28%, transparent 88%),
+    radial-gradient(circle at center, rgb(255 255 255 / 0.11) 1px, transparent 1.6px) 0 0 / 16px
+      16px,
+    var(--band);
   color: var(--text);
 }
 
 :root[data-theme='dark'] .band--blue {
-  background: var(--bg-2);
+  --band: var(--bg-2);
 }
 
 /* --- Type ----------------------------------------------------------------- */
@@ -279,6 +304,7 @@ button {
 }
 
 .display {
+  font-weight: 900;
   font-stretch: 66%;
   font-size: clamp(3.6rem, 12.4vw, 11.75rem);
   line-height: 0.84;
@@ -286,10 +312,20 @@ button {
 }
 
 .page-title {
+  font-weight: 900;
   font-stretch: 68%;
   font-size: clamp(3.2rem, 10vw, 9rem);
-  line-height: 0.86;
+  /* Open enough that a comma on one line clears the capitals on the next. */
+  line-height: 0.92;
   letter-spacing: -0.01em;
+}
+
+/* On a phone the longest word of a title has to fit on one line. */
+@media (max-width: 30rem) {
+  .page-title {
+    font-stretch: 62%;
+    font-size: clamp(2.4rem, 12vw, 3.2rem);
+  }
 }
 
 .h2 {
@@ -322,8 +358,10 @@ button {
   -webkit-box-decoration-break: clone;
 }
 
+/* Set light, so that it stands against the headline above it instead of competing with it. */
 .lead {
   font-size: clamp(1.15rem, 1.7vw, 1.45rem);
+  font-weight: 300;
   line-height: 1.42;
   color: var(--text);
   text-wrap: pretty;
@@ -552,6 +590,21 @@ button {
   white-space: nowrap;
 }
 
+/* On a phone a long chip or link wraps instead of running off the screen. */
+@media (max-width: 30rem) {
+  .chip {
+    height: auto;
+    min-height: 1.6rem;
+    padding-block: 0.3rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .more {
+    white-space: normal;
+  }
+}
+
 .chip--solid {
   background: var(--maize);
   border-color: var(--maize);
@@ -594,10 +647,13 @@ button {
   --text-3: rgb(0 39 76 / 0.66);
   --line-2: rgb(0 39 76 / 0.5);
   --accent: var(--blue);
+  --solid: var(--blue);
+  --on-solid: var(--maize);
+  --line: rgb(0 39 76 / 0.22);
   --mark: var(--blue);
   --on-mark: var(--maize);
   padding-block: clamp(2.5rem, 6vw, 5rem) clamp(2rem, 4.5vw, 3.5rem);
-  background: var(--maize);
+  background: var(--halftone), var(--maize);
   color: var(--text);
 }
 

@@ -151,6 +151,7 @@ const { award } = vigil;
     align-items: center;
     margin-top: 1.1rem;
     padding: 0.6rem;
+    background: rgb(0 22 44 / 0.55);
     border: 1px solid var(--line-2);
     font-size: 0.92rem;
     line-height: 1.4;
@@ -226,6 +227,16 @@ const { award } = vigil;
     .vigil-facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       row-gap: 2rem;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .real {
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+    }
+
+    .real-more {
+      white-space: normal;
     }
   }
 

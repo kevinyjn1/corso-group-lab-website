@@ -37,6 +37,12 @@ for (const path of pages) {
     await expect(page.locator('h1')).toBeVisible();
     await expect(page).toHaveTitle(/Corso Group/);
 
+    // The title fits: no word of it runs past the edge of its own box.
+    const spill = await page
+      .locator('h1')
+      .evaluate((title) => title.scrollWidth - title.clientWidth);
+    expect(spill, 'title overflow').toBeLessThanOrEqual(1);
+
     // Nothing may push the page wider than the screen.
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -212,6 +218,53 @@ test.describe('home page scene', () => {
       );
     expect(hidden).toBe(0);
   });
+});
+
+test('every page title fits on the narrowest phones', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'This test sets its own screen widths.');
+  // 320 is the narrowest phone in use, and 390 the commonest: both are narrower than the Pixel
+  // the other tests run on.
+  for (const width of [320, 360, 390]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const path of pages) {
+      await page.goto(at(path));
+      await page.evaluate(() => document.fonts.ready);
+      const spill = await page.evaluate(() => {
+        const title = document.querySelector('h1')!;
+        return {
+          title: title.scrollWidth - title.clientWidth,
+          page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        };
+      });
+      expect(spill.title, `${path} title at ${width}px`).toBeLessThanOrEqual(1);
+      expect(spill.page, `${path} page at ${width}px`).toBeLessThanOrEqual(0);
+    }
+  }
+});
+
+test('primary buttons stand out from the field they sit on, in both themes', async ({ page }) => {
+  for (const theme of ['light', 'dark']) {
+    await page.addInitScript((value) => localStorage.setItem('theme', value), theme);
+    await page.goto(at('/vigil/'));
+    const colors = await page.locator('.page-head .btn--primary').evaluate((button) => ({
+      button: getComputedStyle(button).backgroundColor,
+      field: getComputedStyle(button.closest('.page-head')!).backgroundColor,
+      ink: getComputedStyle(button).color,
+    }));
+    expect(colors.button, theme).not.toBe(colors.field);
+    expect(colors.ink, theme).not.toBe(colors.button);
+  }
+});
+
+test('color fields are textured, not flat fills', async ({ page }) => {
+  await page.goto(at('/vigil/'));
+  for (const selector of ['.page-head', '.band--blue', '.band--maize']) {
+    const image = await page
+      .locator(selector)
+      .first()
+      .evaluate((field) => getComputedStyle(field).backgroundImage);
+    expect(image, selector).toContain('gradient');
+  }
 });
 
 test('scrolling reveals content that starts hidden', async ({ page }) => {
