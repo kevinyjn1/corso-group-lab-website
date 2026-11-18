@@ -55,6 +55,8 @@ interface Stage {
   text(value: string, x: number, y: number, color?: string, align?: CanvasTextAlign): void;
   /** The figure's one headline reading, shown in the console under it when it has one. */
   report(value: string, label: string): void;
+  /** What is being said to the person in the figure right now, or '' for silence. */
+  say(words: string): void;
 }
 
 type Figure = (stage: Stage) => void;
@@ -629,11 +631,11 @@ const vigil: Figure = (() => {
     reset: 13.8,
   };
   const SPOKEN: readonly (readonly [number, string])[] = [
-    [AT.light, 'line the patient up with the light'],
-    [AT.mark, 'place the probe on the mark'],
-    [AT.close + 0.3, 'close. tilt toward the left shoulder'],
-    [AT.capture, 'on target. hold still'],
-    [AT.done, 'four-chamber view captured. report ready'],
+    [AT.light, 'Line the patient up with the light.'],
+    [AT.mark, 'Place the probe on the mark.'],
+    [AT.close + 0.3, 'Close. Tilt toward the left shoulder.'],
+    [AT.onTarget, 'On target. Hold still.'],
+    [AT.done, 'Four-chamber view captured. The report is ready.'],
   ];
   /** The four chambers as an apical view shows them, in units of the fan's radius. */
   const CHAMBERS = [
@@ -670,7 +672,7 @@ const vigil: Figure = (() => {
 
     // The figure's title bar is the same height at every size, so the top margin has a floor.
     const top = Math.max(step * 3.4, 38);
-    const bottom = s.h - step * 2.8;
+    const bottom = s.h - step * 1.4;
     const split = Math.round((s.w * 0.6) / step) * step;
     const roomy = s.w >= 460;
 
@@ -788,8 +790,8 @@ const vigil: Figure = (() => {
       ctx.fillRect(camera.x - step * 0.4, camera.y - step * 0.4, step * 0.8, step * 0.8);
     }
     if (roomy) {
-      s.text('rgb-d', cameras[0].x + step * 0.9, cameras[0].y, MUTED);
-      s.text('rgb-d', cameras[1].x - step * 0.9, cameras[1].y, MUTED, 'right');
+      s.text('camera', cameras[0].x + step * 0.9, cameras[0].y, MUTED);
+      s.text('camera', cameras[1].x - step * 0.9, cameras[1].y, MUTED, 'right');
     }
 
     // The ring around the mark: it pulses while it waits and fills while the view is captured.
@@ -907,7 +909,7 @@ const vigil: Figure = (() => {
       for (const c of chambers) s.text(c.name, c.cx, c.cy, PAPER, 'center');
     }
     s.text(
-      contact > 0 ? 'apical 4-chamber' : 'no contact',
+      contact > 0 ? 'four-chamber view' : 'no contact',
       right,
       top - step * 0.9,
       MUTED,
@@ -936,26 +938,10 @@ const vigil: Figure = (() => {
     s.text('probe', left, below, MUTED);
     if (pose >= 0) s.text(POSES[pose].name, right, below, POSES[pose].color, 'right');
 
-    // --- The voice in the earpiece ------------------------------------------
+    // What the assistant is saying. It is shown in the console under the figure, in real type,
+    // because it is the point of the figure: someone is being talked through the exam.
     const line = [...SPOKEN].reverse().find(([at]) => now >= at);
-    if (line && fade > 0.1) {
-      const [at, words] = line;
-      const said = typed(words, now - at, 26);
-      const y = s.h - step * 1.3;
-      const speaking = said.length < words.length;
-      ctx.fillStyle = MAIZE;
-      for (let k = 0; k < 3; k++) {
-        const level = speaking ? 0.3 + 0.7 * Math.abs(Math.sin(s.t * 9 + k * 1.3)) : 0.25;
-        ctx.fillRect(
-          step * (1 + k * 0.5),
-          y - level * step * 0.55,
-          step * 0.28,
-          level * step * 1.1,
-        );
-      }
-      s.text(said, step * 3, y, PAPER);
-      if (s.w >= 560) s.text('earpiece', right, y, MUTED, 'right');
-    }
+    s.say(line && fade > 0.1 ? line[1] : '');
   };
 })();
 
@@ -972,18 +958,18 @@ const leg: Figure = (() => {
   const AT = { light: 0.3, start: 1.8, scan: 2.6, done: 13.6, reset: 15.6 };
   /** The three veins, and the share of the path from groin to knee that each one covers. */
   const VEINS = [
-    { name: 'common femoral', short: 'CFV', to: 0.22, color: BLUE },
-    { name: 'femoral', short: 'FV', to: 0.8, color: GREEN },
-    { name: 'popliteal', short: 'PV', to: 1, color: PINK },
+    { name: 'common femoral', short: 'groin', to: 0.22, color: BLUE },
+    { name: 'femoral', short: 'thigh', to: 0.8, color: GREEN },
+    { name: 'popliteal', short: 'knee', to: 1, color: PINK },
   ];
   /** Places along the path where the probe is pressed down. */
   const PRESSES = [0.06, 0.2, 0.38, 0.56, 0.74, 0.94];
   const SPOKEN: readonly (readonly [number, string])[] = [
-    [AT.light, 'line the leg up with the light'],
-    [AT.start, 'start at the groin. press, and release'],
-    [5.2, 'follow the vein down the thigh'],
-    [11.2, 'behind the knee: the last vein'],
-    [AT.done, 'all three veins scanned. report ready'],
+    [AT.light, 'Line the leg up with the light.'],
+    [AT.start, 'Start at the groin. Press, and release.'],
+    [5.2, 'Follow the vein down the thigh.'],
+    [11.2, 'Behind the knee: the last vein.'],
+    [AT.done, 'All three veins scanned. The report is ready.'],
   ];
   /**
    * Both legs, from the hips at the left edge to the feet: each part runs from (x0, y0) to
@@ -1010,7 +996,7 @@ const leg: Figure = (() => {
     const fade = 1 - span(AT.reset, LOOP - 0.4, now);
     const snap = (v: number) => (Math.round(v / step - 0.5) + 0.5) * step;
     const top = Math.max(step * 3.4, 38);
-    const bottom = s.h - step * 2.8;
+    const bottom = s.h - step * 1.4;
     const split = Math.round((s.w * 0.6) / step) * step;
 
     // --- The room, from above: the legs on the table, hips to the left ------
@@ -1119,8 +1105,8 @@ const leg: Figure = (() => {
       ctx.fillRect(camera.x - step * 0.4, camera.y - step * 0.4, step * 0.8, step * 0.8);
     }
     if (s.w >= 460) {
-      s.text('rgb-d', cameras[0].x + step * 0.9, cameras[0].y, MUTED);
-      s.text('rgb-d', cameras[1].x - step * 0.9, cameras[1].y, MUTED, 'right');
+      s.text('camera', cameras[0].x + step * 0.9, cameras[0].y, MUTED);
+      s.text('camera', cameras[1].x - step * 0.9, cameras[1].y, MUTED, 'right');
     }
 
     // Pressing down: a ring closes on the probe.
@@ -1213,8 +1199,8 @@ const leg: Figure = (() => {
       const from = k === 0 ? 0 : VEINS[k - 1].to;
       return span(from, vein_.to, scanned) * (1 - back);
     });
-    const labelW = step * 3.4;
-    const barCols = Math.max(4, Math.floor((image.w - labelW) / step) - 4);
+    const labelW = step * 4.8;
+    const barCols = Math.max(4, Math.floor((right - left - labelW) / step) - 4);
     VEINS.forEach((vein_, k) => {
       const row = row0 + rows + 1 + k;
       const y = (row + 0.5) * step;
@@ -1251,26 +1237,10 @@ const leg: Figure = (() => {
       s.text(`${overall}%`, right, lastY, overall >= 100 ? GREEN : PAPER, 'right');
     }
 
-    // --- The voice in the earpiece ------------------------------------------
+    // What the assistant is saying. It is shown in the console under the figure, in real type,
+    // because it is the point of the figure: someone is being talked through the exam.
     const line = [...SPOKEN].reverse().find(([at]) => now >= at);
-    if (line && fade > 0.1) {
-      const [at, words] = line;
-      const said = typed(words, now - at, 26);
-      const y = s.h - step * 1.3;
-      const speaking = said.length < words.length;
-      ctx.fillStyle = MAIZE;
-      for (let k = 0; k < 3; k++) {
-        const level = speaking ? 0.3 + 0.7 * Math.abs(Math.sin(s.t * 9 + k * 1.3)) : 0.25;
-        ctx.fillRect(
-          step * (1 + k * 0.5),
-          y - level * step * 0.55,
-          step * 0.28,
-          level * step * 1.1,
-        );
-      }
-      s.text(said, step * 3, y, PAPER);
-      if (s.w >= 560) s.text('earpiece', right, y, MUTED, 'right');
-    }
+    s.say(line && fade > 0.1 ? line[1] : '');
   };
 })();
 
@@ -1311,10 +1281,15 @@ function mount(root: HTMLElement) {
   const consoleEl = next instanceof HTMLElement && next.matches('[data-console]') ? next : null;
   const valueEl = consoleEl?.querySelector<HTMLElement>('[data-readout-value]');
   const labelEl = consoleEl?.querySelector<HTMLElement>('[data-readout-label]');
+  const saysEl = consoleEl?.querySelector<HTMLElement>('[data-says]');
+  const pauseButton = consoleEl?.querySelector<HTMLButtonElement>('[data-pause]');
   const stepButtons = [...(consoleEl?.querySelectorAll<HTMLButtonElement>('[data-step]') ?? [])];
   const loop = Number(consoleEl?.dataset.loop) || 0;
   let reading = '';
+  let said = '';
   let stepOn = -2;
+  /** True while the visitor has paused the figure. */
+  let held = false;
   const stage: Stage = {
     ctx,
     w: 0,
@@ -1351,6 +1326,12 @@ function mount(root: HTMLElement) {
       reading = text;
       if (valueEl) valueEl.textContent = value;
       if (labelEl) labelEl.textContent = label;
+    },
+    say(words) {
+      if (words === said) return;
+      said = words;
+      if (saysEl) saysEl.textContent = words;
+      consoleEl?.toggleAttribute('data-speaking', words !== '');
     },
   };
   let font = '500 11px monospace';
@@ -1420,7 +1401,7 @@ function mount(root: HTMLElement) {
   }
 
   function setRunning(next: boolean) {
-    const allowed = next && !reduceMotion && !document.hidden;
+    const allowed = next && !reduceMotion && !document.hidden && !held;
     if (allowed === running) return;
     running = allowed;
     if (running) {
@@ -1434,6 +1415,18 @@ function mount(root: HTMLElement) {
       // Jump to the start of that step in the current telling of the story.
       stage.t = Math.floor(stage.t / loop) * loop + Number(button.dataset.step) + 0.02;
       draw();
+    });
+  }
+
+  if (pauseButton) {
+    // Nothing moves for visitors who ask for reduced motion, so there is nothing to pause.
+    pauseButton.hidden = reduceMotion;
+    pauseButton.addEventListener('click', () => {
+      held = !held;
+      pauseButton.setAttribute('aria-pressed', String(held));
+      pauseButton.setAttribute('aria-label', held ? 'Play the animation' : 'Pause the animation');
+      consoleEl?.toggleAttribute('data-held', held);
+      setRunning(visible);
     });
   }
 

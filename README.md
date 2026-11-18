@@ -145,6 +145,11 @@ page at `/vigil/`.
   pose tracking, surgical video and language, the surface of the beating heart, and the path of
   each hand. It is an illustration, not footage, drawn on a canvas with no dependencies, and it
   pauses when off screen.
+- **What every visualization has to pass.** One message a visitor can get at first glance, said
+  in plain words, with the most important thing the largest. The VIGIL figures are about someone
+  being talked through an exam, so what the assistant says is set in large type under the figure,
+  beside one headline reading and the steps of the exam. Labels avoid jargon ("camera", not
+  "RGB-D"). Anything that moves for more than a few seconds can be paused.
 - **Research figures** (`src/scripts/figures.ts`) - one live figure per research area, each
   illustrating work the group is known for: a supervoxel hierarchy, dense captioning of a cooking
   video, a robot following directions, an assistant catching a mistake, an echocardiogram with

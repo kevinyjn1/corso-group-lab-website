@@ -17,13 +17,29 @@ import { READINGS } from '../lib/readings';
           </button>
         ))}
       </div>
-      <p class="status" aria-hidden="true">
-        <span class="live"></span>
-        <span class="status-text">Illustration</span>
-        <span class="frame">
-          Frame <span data-frame>000000</span>
-        </span>
-      </p>
+      <div class="hud-right">
+        <p class="status" aria-hidden="true">
+          <span class="live"></span>
+          <span class="status-text">Illustration</span>
+          <span class="frame">
+            Frame <span data-frame>000000</span>
+          </span>
+        </p>
+        <button
+          type="button"
+          class="hold"
+          data-pause
+          aria-pressed="false"
+          aria-label="Pause the scene"
+        >
+          <svg class="icon-pause" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+            <path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z" fill="currentColor"></path>
+          </svg>
+          <svg class="icon-play" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+            <path d="M4 2.5v11l9.5-5.5z" fill="currentColor"></path>
+          </svg>
+        </button>
+      </div>
     </div>
     <div class="caption" aria-hidden="true">
       <span class="caption-tag">Caption</span>
@@ -169,6 +185,48 @@ import { READINGS } from '../lib/readings';
 
   .modes button:not([aria-pressed='true'])::after {
     transform: scaleX(0);
+  }
+
+  .hud-right {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .hold {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: rgb(5 8 15 / 0.72);
+    border: 1px solid var(--screen-line);
+    color: var(--screen-text-2);
+    cursor: pointer;
+    pointer-events: auto;
+    transition:
+      color 0.2s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+
+  .hold:hover,
+  .hold[aria-pressed='true'] {
+    border-color: var(--maize);
+    color: var(--maize);
+  }
+
+  .hold .icon-play,
+  .hold[aria-pressed='true'] .icon-pause {
+    display: none;
+  }
+
+  .hold[aria-pressed='true'] .icon-play {
+    display: block;
+  }
+
+  /* While the scene is held, the light that says it is live stops blinking. */
+  .viewport[data-held] .live {
+    animation: none;
+    opacity: 0.4;
   }
 
   .status {

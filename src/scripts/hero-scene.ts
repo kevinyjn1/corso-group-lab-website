@@ -147,6 +147,8 @@ export function mountHeroScene(root: HTMLElement): void {
   let captionShown = 0;
 
   const pointer = { x: 0, y: 0, active: false };
+  /** True while the visitor has paused the scene. */
+  let held = false;
 
   const cells = Object.fromEntries(PARTS.map((key) => [key, [] as number[]])) as Record<
     PartKey,
@@ -743,8 +745,9 @@ export function mountHeroScene(root: HTMLElement): void {
   }
 
   function setRunning(next: boolean) {
-    if (reduceMotion || next === running) return;
-    running = next;
+    const want = next && !held;
+    if (reduceMotion || want === running) return;
+    running = want;
     if (running) {
       last = performance.now();
       requestAnimationFrame(tick);
@@ -756,6 +759,19 @@ export function mountHeroScene(root: HTMLElement): void {
   }
   root.dataset.view = mode;
   root.dataset.keypoints = String(HAND_KEYPOINTS * 2);
+
+  const pauseButton = root.querySelector<HTMLButtonElement>('[data-pause]');
+  if (pauseButton) {
+    // Nothing moves for visitors who ask for reduced motion, so there is nothing to pause.
+    pauseButton.hidden = reduceMotion;
+    pauseButton.addEventListener('click', () => {
+      held = !held;
+      pauseButton.setAttribute('aria-pressed', String(held));
+      pauseButton.setAttribute('aria-label', held ? 'Play the scene' : 'Pause the scene');
+      root.toggleAttribute('data-held', held);
+      setRunning(onScreen && !document.hidden);
+    });
+  }
 
   new ResizeObserver(resize).observe(root);
   resize();

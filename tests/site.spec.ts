@@ -174,6 +174,24 @@ test.describe('home page scene', () => {
     await expect(scene).toHaveAttribute('data-view', 'surface');
   });
 
+  test('can be paused and started again', async ({ page }) => {
+    await page.goto(at('/'));
+    const scene = page.locator('[data-hero-scene]');
+    await scene.scrollIntoViewIfNeeded();
+    await expect(scene.locator('[data-caption]')).not.toBeEmpty({ timeout: 10_000 });
+    const frame = scene.locator('[data-frame]');
+
+    await scene.getByRole('button', { name: 'Pause the scene' }).click();
+    await expect(scene).toHaveAttribute('data-held', '');
+    const stopped = await frame.innerText();
+    await page.waitForTimeout(1200);
+    await expect(frame).toHaveText(stopped);
+
+    await scene.getByRole('button', { name: 'Play the scene' }).click();
+    await expect(scene).not.toHaveAttribute('data-held', '');
+    await expect.poll(() => frame.innerText(), { timeout: 5_000 }).not.toBe(stopped);
+  });
+
   test('the operation moves forward, one stitch at a time', async ({ page }) => {
     await page.goto(at('/'));
     const scene = page.locator('[data-hero-scene]');
@@ -435,9 +453,30 @@ test('the VIGIL page shows the system at work: photos, both exams, and the demo 
   await expect(panel).toHaveAttribute('data-on', '3');
   // Capturing happens with the probe on target, so the reading is high by then.
   await expect(panel.locator('[data-readout-label]')).toContainText('on target');
+  // What the assistant says is shown in words, and it matches the moment.
+  await expect(panel.locator('[data-says]')).toHaveText('On target. Hold still.');
   await steps.nth(0).click();
   await expect(panel).toHaveAttribute('data-on', '0');
   await expect(panel.locator('[data-readout-label]')).toContainText('no contact');
+  await expect(panel.locator('[data-says]')).toHaveText('Line the patient up with the light.');
+
+  // The animation can be held still to read it, and started again.
+  const pause = panel.getByRole('button', { name: 'Pause the animation' });
+  await pause.click();
+  const held = panel.getByRole('button', { name: 'Play the animation' });
+  await expect(held).toHaveAttribute('aria-pressed', 'true');
+  const frozen = await panel.locator('[data-readout-value]').innerText();
+  await page.waitForTimeout(1500);
+  await expect(panel.locator('[data-readout-value]')).toHaveText(frozen);
+  await expect(panel).toHaveAttribute('data-on', '0');
+  // A step can still be chosen while it is held.
+  await steps.nth(4).click();
+  await expect(panel.locator('[data-says]')).toContainText('report is ready');
+  await held.click();
+  await expect(panel.getByRole('button', { name: 'Pause the animation' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
 
   // What each team showed, and the research shown alongside.
   const posters = page.locator('#demo-day .poster');
