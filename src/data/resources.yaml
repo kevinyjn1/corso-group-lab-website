@@ -18,7 +18,7 @@
   kind: dataset
   year: 2017
   featured: true
-  summary: 2,000 long, untrimmed instructional cooking videos covering 89 recipes. Every procedure step is annotated with temporal boundaries and an imperative English sentence.
+  summary: 2,000 untrimmed cooking videos from YouTube, 176 hours in all, covering 89 recipes. Every procedure step is annotated with temporal boundaries and an imperative English sentence.
   topics: [language, video]
   links:
     - { label: Website, href: 'http://youcook2.eecs.umich.edu/' }
@@ -30,7 +30,7 @@
   kind: dataset
   year: 2019
   featured: true
-  summary: Bounding boxes that ground the noun phrases of ActivityNet Captions in video, released with Grounded Video Description (CVPR 2019 oral).
+  summary: 157.8k bounding boxes that ground the noun phrases of 51.8k ActivityNet Captions segments, one frame per phrase, released with Grounded Video Description (CVPR 2019 oral).
   topics: [language, video]
   links:
     - { label: Data, href: 'https://github.com/facebookresearch/ActivityNet-Entities' }
@@ -41,7 +41,7 @@
   kind: dataset
   year: 2015
   featured: true
-  summary: 3,782 videos with seven actor classes and eight action classes labeled at the pixel level, built for joint actor-action recognition and semantic segmentation.
+  summary: 3,782 YouTube videos of seven kinds of actor doing eight actions, with pixel-level actor and action labels on three to five frames of each video, built for joint actor-action recognition and semantic segmentation.
   topics: [video]
   links:
     - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/a2d/' }
@@ -51,7 +51,7 @@
   name: RobotSlang
   kind: dataset
   year: 2020
-  summary: A benchmark of 169 natural language dialogs between a human driver controlling a physical robot and a human commander guiding it toward navigation goals.
+  summary: A benchmark of 169 text dialogs, nearly 5,000 utterances, in which a human driver steers a small physical robot through 116 tabletop mazes while a human commander guides it, with over 1,000 minutes of robot camera and control streams.
   topics: [robotics, language]
   links:
     - { label: Code, href: 'https://github.com/MichiganCOG/RobotSlangBenchmark' }
@@ -61,7 +61,7 @@
   name: DEVIL
   kind: dataset
   year: 2022
-  summary: A diagnostic benchmark for video inpainting that controls for attributes such as camera and scene motion, so that failure modes can be isolated and compared.
+  summary: 'A diagnostic benchmark for video inpainting: 1,250 clips, labeled by attributes such as camera and scene motion and scored on ten slices with five metrics, so that failure modes can be isolated and compared.'
   topics: [video, learning]
   links:
     - { label: Code, href: 'https://github.com/MichiganCOG/devil' }
@@ -71,7 +71,7 @@
   name: ForcePose
   kind: dataset
   year: 2022
-  summary: Data and code for estimating ground reaction forces from video of human motion, without force plates or physical markers.
+  summary: Eight people doing five movements, effectively 1,344 videos, with pose detections and synchronized force plate data, for estimating ground reaction forces from video alone.
   topics: [video]
   links:
     - { label: Code, href: 'https://github.com/MichiganCOG/ForcePose' }
@@ -81,7 +81,7 @@
   name: Surgical Hands
   kind: dataset
   year: 2021
-  summary: Data and models for articulated hand pose tracking in surgical videos, released with the CondPose tracking method.
+  summary: About 8,100 annotated hand poses in 76 clips from 28 publicly available surgical videos, released with the CondPose tracking method.
   topics: [health, video]
   links:
     - { label: Code, href: 'https://github.com/MichiganCOG/Surgical_Hands_RELEASE' }
@@ -91,7 +91,7 @@
   name: YouCook
   kind: dataset
   year: 2013
-  summary: 88 third-person cooking videos from the open web with multiple natural language descriptions and object and action annotations for each.
+  summary: 88 third-person cooking videos from YouTube in six cooking styles, each with several human descriptions. The 49 training videos also have object annotations.
   topics: [language, video]
   links:
     - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/youcook/' }
@@ -99,8 +99,8 @@
 - id: chen-xiph
   name: Chen Xiph.org
   kind: dataset
-  year: 2011
-  summary: Eight videos labeled frame by frame into the 21 MSRC classes, built to evaluate video label propagation and semantic video segmentation.
+  year: 2010
+  summary: Eight xiph.org videos labeled pixel by pixel with the 24 MSRC semantic classes, 638 labeled frames in all, built to evaluate label propagation and later used to benchmark supervoxel methods.
   topics: [video]
   links:
     - { label: Website, href: 'https://web.eecs.umich.edu/~jjcorso/r/labelprop.html' }
@@ -142,7 +142,7 @@
   name: A2CL-PT
   kind: software
   year: 2020
-  summary: An adversarial background-aware loss for weakly supervised temporal activity localization (ECCV 2020).
+  summary: Finds when activities start and end in a video from video-level labels alone. On THUMOS14 it raised average mAP from 27.9% to 30.0% over the best earlier weakly supervised method (ECCV 2020).
   topics: [video]
   links:
     - { label: Code, href: 'https://github.com/MichiganCOG/A2CL-PT' }
@@ -227,7 +227,7 @@
   name: LIBSVX
   kind: software
   year: 2012
-  summary: A supervoxel library and benchmark for early video processing - a suite of segmentation methods with quantitative 2D and 3D metrics for comparing them fairly.
+  summary: A supervoxel library and benchmark for early video processing. Its journal version compares seven supervoxel methods, five off-line and two streaming, on six video datasets with seven quality metrics.
   topics: [video]
   awards:
     - Best Open Source Code, 3rd Prize, CVPR 2012

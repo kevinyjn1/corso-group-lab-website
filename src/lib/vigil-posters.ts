@@ -90,7 +90,7 @@ export const RELATED_POSTERS: readonly Poster[] = [
       'Substantial, Decomposable, and Invisible: Visual Context Misalignment in Instructional Videos for Physical Tasks',
     team: 'University of Michigan, Corso Group',
     people: 'Yayuan Li, Chenglin Li, Jingying Wang, Filippos Bellos, Anhong Guo, Jason J. Corso',
-    what: "Instructional videos rarely match the room the learner is standing in. Videos made to match the learner's own setting beat ordinary web videos on tasks from applying a tourniquet to making a sandwich.",
+    what: "Instructional videos rarely match the room the learner is standing in. In a lab study of two first-aid and two cooking tasks, videos recorded to match each learner's own setup beat popular web videos, taking the four tasks together.",
     result: { value: '+11.1%', label: 'Quality of the finished task, and 15.5% less time' },
     href: 'https://arxiv.org/abs/2605.17184',
     venue: 'arXiv 2026',

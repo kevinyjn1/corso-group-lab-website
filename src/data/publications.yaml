@@ -64,7 +64,7 @@
 
 - id: sohn2026snow
   title: "SNOW: Spatio-Temporal Scene Understanding with World Knowledge for Open-World Embodied Reasoning"
-  authors: ["T. S. Sohn", "M. Dillitzer", "J. J. Corso", "J. Bach", "E. Sax"]
+  authors: ["T. S. Sohn", "M. Dillitzer", "J. J. Corso", "E. Sax"]
   year: 2026
   date: "2026-09"
   type: conference
@@ -99,8 +99,8 @@
     arxiv: "https://arxiv.org/abs/2602.18873"
 
 - id: song2026tdmm
-  title: "Bridging Facial Understanding and Animation via Language Models"
-  authors: ["L. Song", "P. Liu", "H. Liu", "Z. Jin", "Y. Y. Tang", "Z. Xu", "S. Liang", "J. Bi", "J. J. Corso", "C. Xu"]
+  title: "TDMM-LM: Bridging Facial Understanding and Animation via Language Models"
+  authors: ["L. Song", "P. Liu", "H. Liu", "Z. Jin", "Y. Tang", "Z. Xu", "S. Liang", "J. Bi", "J. J. Corso", "C. Xu"]
   year: 2026
   date: "2026-06"
   type: conference
@@ -162,7 +162,7 @@
 
 - id: bi2026think
   title: "When to Think and When to Look: Uncertainty-Guided Lookback"
-  authors: ["J. Bi", "F. Bellos", "J. Guo", "Y. Li", "C. Huang", "Y. Y. Tang", "L. Song", "S. Liang", "Z. M. Zhang", "J. J. Corso", "C. Xu"]
+  authors: ["J. Bi", "F. Bellos", "J. Guo", "Y. Li", "C. Huang", "Y. Tang", "L. Song", "S. Liang", "Z. Zhang", "J. J. Corso", "C. Xu"]
   year: 2026
   date: "2026-06"
   type: conference
@@ -224,19 +224,19 @@
 
 - id: liang2026omni
   title: "Omni-Judge: Can Omni-LLMs Serve as Human-Aligned Judges for Text-Conditioned Audio-Video Generation?"
-  authors: ["S. Liang", "C. Huang", "F. Bellos", "Y. Y. Tang", "Q. Shen", "J. Bi", "L. Song", "Z. Zhang", "J. J. Corso", "C. Xu"]
+  authors: ["S. Liang", "C. Huang", "F. Bellos", "Y. Tang", "Q. Shen", "J. Bi", "L. Song", "Z. Zhang", "J. J. Corso", "C. Xu"]
   year: 2026
   date: "2026-02"
   type: preprint
   venue: "arXiv preprint"
   venueShort: "arXiv"
-  topics: [language, learning]
+  topics: [language, video, learning]
   links:
     arxiv: "https://arxiv.org/abs/2602.01623"
 
 - id: sohn2025embodied4c
   title: "Embodied4C: Measuring What Matters for Embodied Vision-Language Navigation"
-  authors: ["T. S. Sohn", "M. Dillitzer", "J. J. Corso", "E. Sax"]
+  authors: ["T. S. Sohn", "M. Dillitzer", "C. Kandil", "J. J. Corso", "E. Sax"]
   year: 2025
   date: "2025-12"
   type: preprint
@@ -324,7 +324,7 @@
 
 - id: liu2025intentional
   title: "Intentional Gesture: Deliver Your Intentions with Gestures for Speech"
-  authors: ["P. Liu", "H. Liu", "L. Song", "J. J. Corso", "C. Xu"]
+  authors: ["P. Liu", "H. Liu", "L. Song", "Y. Tang", "J. J. Corso", "C. Xu"]
   year: 2025
   date: "2025-05"
   type: preprint
@@ -383,7 +383,7 @@
     doi: "https://doi.org/10.18653/v1/2024.scalellm-1.3"
 
 - id: louis2024measuring
-  title: "Measuring Physical Plausibility of 3D Human Poses Using Physical Simulation"
+  title: "Measuring Physical Plausibility of 3D Human Poses Using Physics Simulation"
   authors: ["N. Louis", "M. Khoshlessan", "J. J. Corso"]
   year: 2024
   type: conference
@@ -441,7 +441,7 @@
   authors: ["N. Louis", "L. Zhou", "S. J. Yule", "R. D. Dias", "M. Manojlovich", "F. D. Pagani", "D. S. Likosky", "J. J. Corso"]
   year: 2023
   type: journal
-  venue: "International Journal of Computer Aided Radiology and Surgery"
+  venue: "International Journal of Computer Assisted Radiology and Surgery"
   venueShort: "IJCARS"
   topics: [health, video]
   links:
@@ -486,7 +486,7 @@
 
 - id: liu2021cross
   title: "Cross-View Exocentric to Egocentric Video Synthesis"
-  authors: ["G. Liu", "H. Tang", "H. Latapie", "J. J. Corso", "Yan Yan"]
+  authors: ["G. Liu", "H. Tang", "H. Latapie", "J. J. Corso", "Y. Yan"]
   year: 2021
   type: conference
   venue: "ACM International Conference on Multimedia"
@@ -501,7 +501,7 @@
   authors: ["S. J. Lemmer", "J. Y. Song", "J. J. Corso"]
   year: 2021
   type: conference
-  venue: "ACM Conference on Computer Human Interaction"
+  venue: "ACM CHI Conference on Human Factors in Computing Systems"
   venueShort: "CHI"
   topics: [human, video]
   links:
@@ -567,7 +567,7 @@
 
 - id: mathis2021impact
   title: "The Impact of Team Familiarity on Intra and Postoperative Cardiac Surgical Outcomes"
-  authors: ["M. R. Mathis", "S. Yule", "X. Wu", "R. D. Dias", "A. M. Janda", "S. L. Krein", "M. Manojlovich", "M. D. Caldwell", "K. Stakich-Alpirez", "M. Zhang", "J. J. Corso", "N. Louis", "T. Xu", "J. Wolverton", "F. D. Pagani", "D. Likosky"]
+  authors: ["M. R. Mathis", "S. Yule", "X. Wu", "R. D. Dias", "A. M. Janda", "S. L. Krein", "M. Manojlovich", "M. D. Caldwell", "K. Stakich-Alpirez", "M. Zhang", "J. J. Corso", "N. Louis", "T. Xu", "J. Wolverton", "F. D. Pagani", "D. S. Likosky"]
   year: 2021
   type: journal
   venue: "Surgery"
@@ -577,22 +577,13 @@
 - id: banerjee2021robotslang
   title: "The RobotSlang Benchmark: Dialog-guided Robot Localization and Navigation"
   authors: ["S. Banerjee", "J. Thomason", "J. J. Corso"]
-  year: 2021
+  year: 2020
   type: conference
   venue: "Conference on Robot Learning"
   venueShort: "CoRL"
   topics: [language, robotics]
   links:
     arxiv: "https://arxiv.org/abs/2010.12639"
-
-- id: mathis2021video
-  title: "Video Assessment of Cardiac Surgery Quality"
-  authors: ["M. Mathis", "S. Yule", "X. Wu", "R. D. Dias", "A. M. Janda", "S. L. Krein", "M. Manojlovich", "M. D. Caldwell", "K. Stakich-Alpirez", "M. Zhang", "J. J. Corso", "N. Louis", "T. Xu", "J. Wolverton", "F. D. Pagani", "D. S. Likosky"]
-  year: 2021
-  type: journal
-  venue: "Surgery"
-  venueShort: "Surgery"
-  topics: [health]
 
 - id: szeto2020temporally
   title: "A Temporally-Aware Interpolation Network for Video Frame Inpainting"
@@ -645,7 +636,7 @@
   authors: ["M. R. Ganesh", "J. J. Corso", "S. Y. Sekeh"]
   year: 2020
   type: conference
-  venue: "IEEE Conference on Pattern Recognition"
+  venue: "International Conference on Pattern Recognition"
   venueShort: "ICPR"
   topics: [learning]
   links:
@@ -705,7 +696,7 @@
   type: conference
   venue: "IEEE Winter Conference on Applications of Computer Vision"
   venueShort: "WACV"
-  topics: [robotics]
+  topics: [robotics, video]
   links:
     arxiv: "https://arxiv.org/abs/1903.08336"
     doi: "https://doi.org/10.1109/WACV45572.2020.9093335"
@@ -717,7 +708,7 @@
   type: conference
   venue: "IEEE Conference on Automatic Face and Gesture Recognition"
   venueShort: "FG"
-  topics: [video]
+  topics: [learning]
   links:
     arxiv: "https://arxiv.org/abs/1901.09774"
     doi: "https://doi.org/10.1109/FG.2019.8756586"
@@ -763,13 +754,13 @@
 
 - id: tang2019multi
   title: "Multi-Channel Attention Selection GAN with Cascaded Semantic Guidance for Cross-View Image Translation"
-  authors: ["H. Tang", "D. Xu", "Y. Yan", "Y. Wang", "J. J. Corso", "N. Sebe"]
+  authors: ["H. Tang", "D. Xu", "N. Sebe", "Y. Wang", "J. J. Corso", "Y. Yan"]
   year: 2019
   type: conference
   venue: "IEEE Conference on Computer Vision and Pattern Recognition"
   venueShort: "CVPR"
   note: "Oral"
-  topics: [video]
+  topics: [learning]
   links:
     pdf: "https://openaccess.thecvf.com/content_CVPR_2019/papers/Tang_Multi-Channel_Attention_Selection_GAN_With_Cascaded_Semantic_Guidance_for_Cross-View_CVPR_2019_paper.pdf"
     arxiv: "https://arxiv.org/abs/1904.06807"
@@ -782,7 +773,7 @@
   type: conference
   venue: "ACM International Conference on Intelligent User Interfaces"
   venueShort: "IUI"
-  topics: [human, learning]
+  topics: [human, video, learning]
   links:
     doi: "https://doi.org/10.1145/3301275.3302305"
     link: "https://dl.acm.org/authorize?N677509"
@@ -845,7 +836,7 @@
   topics: [video]
   links:
     arxiv: "https://arxiv.org/abs/1803.07218"
-    doi: "https://doi.org/10.1109/TPAMI.2019.2951667"
+    doi: "https://doi.org/10.1007/978-3-030-20893-6_16"
     code: "https://github.com/sunxm2357/TAI_video_frame_inpainting"
     project: "https://ryanszeto.com/projects/tai.html"
 
@@ -882,7 +873,7 @@
   type: journal
   venue: "IEEE Transactions on Pattern Analysis and Machine Intelligence"
   venueShort: "TPAMI"
-  topics: [language, human]
+  topics: [language, learning]
   links:
     doi: "https://doi.org/10.1109/TPAMI.2017.2693987"
     code: "https://bitbucket.org/surenkum/bimodal_sparse"
@@ -917,7 +908,7 @@
   type: preprint
   venue: "arXiv preprint"
   venueShort: "arXiv"
-  topics: [video, robotics]
+  topics: [robotics, learning]
   links:
     arxiv: "https://arxiv.org/abs/1801.04340"
 
@@ -983,7 +974,7 @@
     arxiv: "https://arxiv.org/abs/1402.1783"
 
 - id: szeto2017click
-  title: "Click-Here: Human-Localized Keypoints as Guidance for Viewpoint Estimation"
+  title: "Click Here: Human-Localized Keypoints as Guidance for Viewpoint Estimation"
   authors: ["R. Szeto", "J. J. Corso"]
   year: 2017
   type: conference
@@ -1017,7 +1008,7 @@
   type: journal
   venue: "IEEE Transactions on Medical Imaging"
   venueShort: "TMI"
-  topics: [health]
+  topics: [health, video]
   links:
     arxiv: "https://arxiv.org/abs/2008.00936"
     doi: "https://doi.org/10.1109/TMI.2017.2665671"
@@ -1040,7 +1031,7 @@
   type: conference
   venue: "Thematic Workshops of ACM Multimedia"
   venueShort: "ACM MM Workshops"
-  topics: [video, language]
+  topics: [language]
   links:
     doi: "https://doi.org/10.1145/3126686.3126717"
 
@@ -1067,7 +1058,7 @@
     doi: "https://doi.org/10.1109/CVPR.2016.469"
 
 - id: xu2016actor
-  title: "Actor-Action Semantic Segmentation with Grouping-Process Models"
+  title: "Actor-Action Semantic Segmentation with Grouping Process Models"
   authors: ["C. Xu", "J. J. Corso"]
   year: 2016
   type: conference
@@ -1104,7 +1095,7 @@
     link: "http://proceedings.spiedigitallibrary.org/proceeding.aspx?articleid=2505910"
 
 - id: ding2016real
-  title: "Real-Time Model Predictive Control for Keeping a Quadrotor Vehicle on the Camera Field-of-View of a Ground Robot"
+  title: "Real-Time Model Predictive Control for Keeping a Quadrotor Visible on the Camera Field-of-View of a Ground Robot"
   authors: ["W. Ding", "M. R. Ganesh", "R. N. Severinghaus", "J. J. Corso", "D. Panagou"]
   year: 2016
   type: conference
@@ -1206,7 +1197,7 @@
   authors: ["S. Kumar", "N. Ahmidi", "G. Hager", "P. Singhal", "J. J. Corso", "V. Krovi"]
   year: 2015
   type: journal
-  venue: "ASME Dynamics Systems and Control Magazine"
+  venue: "ASME Dynamic Systems and Control Magazine"
   venueShort: "DSC Magazine"
   topics: [health]
   links:
@@ -1215,7 +1206,7 @@
 
 - id: menze2015multimodal
   title: "The multimodal brain tumor image segmentation benchmark (BRATS)"
-  authors: ["B. H. Menze", "A. Jakab", "S. Bauer", "J. Kalpathy-Cramer", "K. Farahani", "J. Kirby", "Y. Burren", "N. Porz", "J. Slotboom", "R. Wiest", "L. Lanczi", "R. Gerstner", "M.-A. Weber", "T. Arbel", "B. B. Avants", "N. Ayache", "P. Buendia", "D. L. Collins", "N. Cordier", "J. J. Corso", "A. Criminisi", "T. Das", "H. Delingette", "C. Demi-ralp", "C. R. Durst", "M. Dojat", "S. Doyle", "J. Festa", "F. Forbes", "E. Geremia", "B. Glocker", "P. Golland", "X. Guo", "A. Hamamci", "K. M. Iftekharuddin", "R. Jena", "N. M. John", "E. Konukoglu", "D. Lashkari", "J. A. Mariz", "R. Meier", "S. Pereira", "D. Precup", "S. J. Price", "T. Riklin Raviv", "S. Reza", "M. Ryan", "D. Sarikaya", "L. Schwartz", "H.-C. Shin", "J. Shotton", "C. A. Silva", "N. Sousa", "N. K. Subbanna", "G. Szekely", "T. J. Taylor", "O. M. Thomas", "N. J. Tustison", "G. Unal", "F. Vasseur", "M. Wintermark", "D. H. Ye", "L. Zhao", "B. Zhao", "D. Zikic", "M. Prastawa", "M. Reyes", "K. Van Leemput"]
+  authors: ["B. H. Menze", "A. Jakab", "S. Bauer", "J. Kalpathy-Cramer", "K. Farahani", "J. Kirby", "Y. Burren", "N. Porz", "J. Slotboom", "R. Wiest", "L. Lanczi", "E. Gerstner", "M.-A. Weber", "T. Arbel", "B. B. Avants", "N. Ayache", "P. Buendia", "D. L. Collins", "N. Cordier", "J. J. Corso", "A. Criminisi", "T. Das", "H. Delingette", "C. Demiralp", "C. R. Durst", "M. Dojat", "S. Doyle", "J. Festa", "F. Forbes", "E. Geremia", "B. Glocker", "P. Golland", "X. Guo", "A. Hamamci", "K. M. Iftekharuddin", "R. Jena", "N. M. John", "E. Konukoglu", "D. Lashkari", "J. A. Mariz", "R. Meier", "S. Pereira", "D. Precup", "S. J. Price", "T. Riklin Raviv", "S. M. S. Reza", "M. Ryan", "D. Sarikaya", "L. Schwartz", "H.-C. Shin", "J. Shotton", "C. A. Silva", "N. Sousa", "N. K. Subbanna", "G. Szekely", "T. J. Taylor", "O. M. Thomas", "N. J. Tustison", "G. Unal", "F. Vasseur", "M. Wintermark", "D. H. Ye", "L. Zhao", "B. Zhao", "D. Zikic", "M. Prastawa", "M. Reyes", "K. Van Leemput"]
   year: 2015
   type: journal
   venue: "IEEE Transactions on Medical Imaging"
@@ -1238,7 +1229,7 @@
 
 - id: xu2014study
   title: "A Study of Actor and Action Semantic Retention in Video Supervoxel Segmentation"
-  authors: ["C. Xu", "R. F. Doell", "S. J. Hanson", "C. Hanson", "J. J Corso"]
+  authors: ["C. Xu", "R. F. Doell", "S. J. Hanson", "C. Hanson", "J. J. Corso"]
   year: 2014
   type: journal
   venue: "International Journal of Semantic Computing"
@@ -1264,7 +1255,7 @@
     poster: "https://web.eecs.umich.edu/~jjcorso/pubs/jcorso_CVPR2014_actionness_poster.pdf"
 
 - id: xiong2014adaptive
-  title: "Adaptive Quantization: An Information-Based Approach to Learning Binary Codes"
+  title: "Adaptive Quantization for Hashing: An Information-Based Approach to Learning Binary Codes"
   authors: ["C. Xiong", "W. Chen", "G. Chen", "D. Johnson", "J. J. Corso"]
   year: 2014
   type: conference
@@ -1280,9 +1271,9 @@
   authors: ["W. Wu", "A. Y. C. Chen", "L. Zhao", "J. J. Corso"]
   year: 2014
   type: journal
-  venue: "International Journal of Computer Aided Radiology and Surgery"
+  venue: "International Journal of Computer Assisted Radiology and Surgery"
   venueShort: "IJCARS"
-  topics: [video, health, learning]
+  topics: [health, learning]
   links:
     doi: "https://doi.org/10.1007/s11548-013-0922-7"
     link: "http://link.springer.com/article/10.1007%2Fs11548-013-0922-7"
@@ -1296,11 +1287,11 @@
   venueShort: "TMECH"
   topics: [video]
   links:
-    doi: "https://doi.org/10.1115/DSCC2011-6123"
+    doi: "https://doi.org/10.1109/TMECH.2013.2284235"
 
 - id: xiong2014latent
-  title: "Latent Domains for Visual Domain Adaptation"
-  authors: ["C. Xiong", "S. McCloskey", "J. J. Corso"]
+  title: "Latent Domains Modeling for Visual Domain Adaptation"
+  authors: ["C. Xiong", "S. McCloskey", "S.-H. Hsieh", "J. J. Corso"]
   year: 2014
   type: conference
   venue: "AAAI Conference on Artificial Intelligence"
@@ -1314,14 +1305,14 @@
   type: conference
   venue: "AAAI Conference on Artificial Intelligence"
   venueShort: "AAAI"
-  topics: [language, human]
+  topics: [language, learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/aaai2014_kumar_final.pdf"
     doi: "https://doi.org/10.1609/aaai.v28i1.8753"
     code: "https://bitbucket.org/surenkum/bimodal_sparse"
 
 - id: dhiman2014modern
-  title: "Modern MAP Inference Methods for Accurate and Faster Occupancy Grid Mapping on Higher Order Factor Graphs"
+  title: "Modern MAP Inference Methods for Accurate and Fast Occupancy Grid Mapping on Higher Order Factor Graphs"
   authors: ["V. Dhiman", "A. Kundu", "F. Dellaert", "J. J. Corso"]
   year: 2014
   type: conference
@@ -1351,7 +1342,7 @@
   type: conference
   venue: "European Conference on Computer Vision"
   venueShort: "ECCV"
-  topics: [video, health]
+  topics: [video]
   links:
     doi: "https://doi.org/10.1007/978-3-319-10602-1_40"
 
@@ -1368,7 +1359,7 @@
 
 - id: gross2014systemic
   title: "Systemic Test and Evaluation of a Hard+Soft Information Fusion Framework: Challenges and Current Approaches"
-  authors: ["G. A. Gross", "D. R. Schlegel", "J. J. Corso", "J. Llinas", "R. Nagi", "S. C. Shapiro"]
+  authors: ["G. A. Gross", "K. Date", "D. R. Schlegel", "J. J. Corso", "J. Llinas", "R. Nagi", "S. C. Shapiro"]
   year: 2014
   type: conference
   venue: "International Conference on Information Fusion"
@@ -1394,7 +1385,7 @@
 
 - id: xu2013actor
   title: "Are Actor and Action Semantics Retained in Video Supervoxel Segmentation?"
-  authors: ["C. Xu", "R. F. Doell", "S. J. Hanson", "C. Hanson", "J. J Corso"]
+  authors: ["C. Xu", "R. F. Doell", "S. J. Hanson", "C. Hanson", "J. J. Corso"]
   year: 2013
   type: conference
   venue: "IEEE International Conference on Semantic Computing"
@@ -1463,9 +1454,9 @@
   authors: ["Y. Miao", "J. J. Corso"]
   year: 2013
   type: journal
-  venue: "Journal of Neurocomputing"
+  venue: "Neurocomputing"
   venueShort: "Neurocomputing"
-  topics: [video]
+  topics: [learning]
   links:
     arxiv: "https://arxiv.org/abs/1108.3525"
     doi: "https://doi.org/10.1016/j.neucom.2012.12.052"
@@ -1506,8 +1497,8 @@
     code: "https://github.com/wecacuee/mutual_localization"
 
 - id: kumar2013product
-  title: "Product of Tracking Experts for Surgical Tool Visual Tracking"
-  authors: ["S. Kumar", "M. Narayanan", "P. Singhal", "J. J. Corso", "V. Krovi"]
+  title: "Product of Tracking Experts for Visual Tracking of Surgical Tools"
+  authors: ["S. Kumar", "M. S. Narayanan", "P. Singhal", "J. J. Corso", "V. Krovi"]
   year: 2013
   type: conference
   venue: "IEEE Conference on Automation Science and Engineering"
@@ -1529,13 +1520,13 @@
     doi: "https://doi.org/10.1007/978-3-642-40760-4_71"
 
 - id: barbu2013compositional
-  title: "The Compositional Natural of Verb and Argument Representations in the Human Brain"
+  title: "The Compositional Nature of Verb and Argument Representations in the Human Brain"
   authors: ["A. Barbu", "N. Siddharth", "C. Xiong", "J. J. Corso", "C. D. Fellbaum", "C. Hanson", "S. J. Hanson", "S. Hélie", "E. Malaia", "B. A. Pearlmutter", "J. M. Siskind", "T. M. Talavage", "R. B. Wilbur"]
   year: 2013
   type: preprint
   venue: "arXiv preprint"
   venueShort: "arXiv"
-  topics: [video, language, health]
+  topics: [video, language]
   links:
     arxiv: "https://arxiv.org/abs/1306.2293"
 
@@ -1646,7 +1637,7 @@
   type: conference
   venue: "IEEE International Conference on Image Processing"
   venueShort: "ICIP"
-  topics: [video, learning]
+  topics: [learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/jcorso_ICIP2012.pdf"
     doi: "https://doi.org/10.1109/ICIP.2012.6467078"
@@ -1665,7 +1656,7 @@
 
 - id: xiong2012efficient
   title: "Efficient Max-Margin Metric Learning"
-  authors: ["C. Xiong", "D. Johnson", "J. J. Corso"]
+  authors: ["C. Xiong", "D. M. Johnson", "J. J. Corso"]
   year: 2012
   type: conference
   venue: "European Conference on Data Mining"
@@ -1680,7 +1671,7 @@
   authors: ["P. Agarwal", "S. Kumar", "J. Ryde", "J. J. Corso", "V. N. Krovi"]
   year: 2012
   type: conference
-  venue: "Robotics Science and Systems"
+  venue: "Robotics: Science and Systems"
   venueShort: "RSS"
   topics: [video]
   links:
@@ -1743,7 +1734,7 @@
 
 - id: xiong2012spectral
   title: "Spectral Active Clustering via Purification of the $k$-Nearest Neighbor Graph"
-  authors: ["C. Xiong", "D. Johnson", "J. J. Corso"]
+  authors: ["C. Xiong", "D. M. Johnson", "J. J. Corso"]
   year: 2012
   type: conference
   venue: "European Conference on Data Mining"
@@ -1824,7 +1815,7 @@
 
 - id: perera2011genie
   title: "GENIE TRECVID2011 Multimedia Event Detection: Late-Fusion Approaches to Combine Multiple Audio-Visual Features"
-  authors: ["A. Perera", "S. Oh", "M. Leotta", "I. Kim", "B. Byun", "C.-H. Lee", "S. McCloskey", "J. Liu", "B. Miller", "Z. F. Huang", "A. Vahdat", "W. Yang", "G. Mori", "K. Tang", "D. Koller", "L. Fei-Fei", "K. Li", "G. Chen", "J. J. Corso", "Y. Fu", "R. K. Srihari"]
+  authors: ["A. G. A. Perera", "S. Oh", "M. Leotta", "I. Kim", "B. Byun", "C.-H. Lee", "S. McCloskey", "J. Liu", "B. Miller", "Z. F. Huang", "A. Vahdat", "W. Yang", "G. Mori", "K. Tang", "D. Koller", "L. Fei-Fei", "K. Li", "G. Chen", "J. J. Corso", "Y. Fu", "R. K. Srihari"]
   year: 2011
   type: report
   venue: "NIST TRECVID Workshop"
@@ -1837,7 +1828,7 @@
   type: journal
   venue: "IEEE Transactions on Medical Imaging"
   venueShort: "TMI"
-  topics: [video, health, learning]
+  topics: [health, learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/tmi2011_lumbar.pdf"
     doi: "https://doi.org/10.1109/TMI.2010.2047403"
@@ -1861,7 +1852,7 @@
   authors: ["R. S. Alomari", "J. J. Corso", "V. Chaudhary", "G. Dhillon"]
   year: 2011
   type: journal
-  venue: "International Journal of Computer Aided Radiology and Surgery"
+  venue: "International Journal of Computer Assisted Radiology and Surgery"
   venueShort: "IJCARS"
   topics: [health]
   links:
@@ -1893,7 +1884,7 @@
     doi: "https://doi.org/10.1109/ICPR.2010.921"
 
 - id: alomari2010automatic
-  title: "Automatic diagnosis of lumbar disc herniation using shape and appearance features from MRI"
+  title: "Automatic Diagnosis of Lumbar Disc Herniation with Shape and Appearance Features from MRI"
   authors: ["R. S. Alomari", "J. J. Corso", "V. Chaudhary", "G. Dhillon"]
   year: 2010
   type: conference
@@ -1919,7 +1910,7 @@
   authors: ["R. S. Alomari", "J. J. Corso", "V. Chaudhary", "G. Dhillon"]
   year: 2010
   type: journal
-  venue: "International Journal of Computer Aided Radiology and Surgery"
+  venue: "International Journal of Computer Assisted Radiology and Surgery"
   venueShort: "IJCARS"
   topics: [health]
   links:
@@ -1933,7 +1924,7 @@
   type: conference
   venue: "International Workshop on Computational Forensics"
   venueShort: "IWCF"
-  topics: [video]
+  topics: [learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/iwcf2010_shoeprint.pdf"
     doi: "https://doi.org/10.1007/978-3-642-19376-7_8"
@@ -1945,13 +1936,13 @@
   type: journal
   venue: "Computer Methods and Programs in Biomedicine"
   venueShort: "CMPB"
-  topics: [health, learning]
+  topics: [health]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/cmpb2010_gpucbct.pdf"
     doi: "https://doi.org/10.1016/j.cmpb.2009.08.006"
 
 - id: ceusters2010introducing
-  title: "Introducing Ontological Realism for Semi-Supervised Detection and Annotation of Operationally Significant Activity in Surveillance Videos."
+  title: "Introducing Ontological Realism for Semi-Supervised Detection and Annotation of Operationally Significant Activity in Surveillance Videos"
   authors: ["W. Ceusters", "J. J. Corso", "Y. Fu", "M. Petropoulos", "V. Krovi"]
   year: 2010
   type: conference
@@ -1969,8 +1960,6 @@
   venue: "24th International Conference on Computer Aided Diagnosis and Surgery (CARS ’10)"
   venueShort: "CARS"
   topics: [health]
-  links:
-    pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/alomari_cars2010.pdf"
 
 - id: chen2010effects
   title: "On the Effects of Normalization in Adaptive MRF Hierarchies"
@@ -2031,10 +2020,10 @@
 
 - id: noel2009geometric
   title: "Geometric tomography: a limited-view approach for computed tomography"
-  authors: ["P. Noël", "J. Xu", "K. R. Hoffmann", "J. J. Corso"]
+  authors: ["P. B. Noël", "J. Xu", "K. R. Hoffmann", "J. J. Corso"]
   year: 2009
   type: conference
-  venue: "25th Annual Symposium on Compu-tational Geometry"
+  venue: "25th Annual Symposium on Computational Geometry"
   venueShort: "ASCG"
   topics: [health]
   links:
@@ -2072,7 +2061,7 @@
   type: conference
   venue: "Medical Image Computing and Computer Aided Intervention (MICCAI)"
   venueShort: "MICCAI"
-  topics: [video, health]
+  topics: [health, learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/miccai2009_ggn.pdf"
     doi: "https://doi.org/10.1007/978-3-642-04271-3_87"
@@ -2108,7 +2097,7 @@
   type: conference
   venue: "IEEE Conference on Computer Vision and Pattern Recognition"
   venueShort: "CVPR"
-  topics: [video, learning]
+  topics: [learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/cvpr2009_docs.pdf"
     doi: "https://doi.org/10.1109/CVPR.2009.5206606"
@@ -2120,7 +2109,7 @@
   type: conference
   venue: "SPIE Conference on Medical Imaging"
   venueShort: "SPIE"
-  topics: [video, health, learning]
+  topics: [health, learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/hoeflich_SPIE2009.pdf"
     doi: "https://doi.org/10.1117/12.811802"
@@ -2132,13 +2121,13 @@
   type: conference
   venue: "IEEE International Conference on Biometrics: Theory, Applications, Systems"
   venueShort: "BTAS"
-  topics: [video, learning]
+  topics: [learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/btas2009_mrf.pdf"
     doi: "https://doi.org/10.1109/BTAS.2009.5339080"
 
 - id: nwogu2008bp
-  title: "(BP)$^2$: Beyond Pairwise Belief Propagation, Labeling by Approximating Kikuchi Free Energies"
+  title: "(BP)$^2$: Beyond Pairwise Belief Propagation Labeling by Approximating Kikuchi Free Energies"
   authors: ["I. Nwogu", "J. J. Corso"]
   year: 2008
   type: conference
@@ -2168,7 +2157,7 @@
   type: conference
   venue: "High-Performance Medical Image Computing and Computer-Aided Intervention (HP-MICCAI)"
   venueShort: "HP-MICCAI"
-  topics: [health, learning]
+  topics: [health]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/hpmiccai2008_gpucbct.pdf"
 
@@ -2196,7 +2185,7 @@
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/jcorso_TMI_braintumor.pdf"
 
 - id: nwogu2008exploratory
-  title: "Exploratory Identification of Image-Based Bio-markers for Solid Mass Pulmonary Tumors"
+  title: "Exploratory Identification of Image-Based Biomarkers for Solid Mass Pulmonary Tumors"
   authors: ["I. Nwogu", "J. J. Corso"]
   year: 2008
   type: conference
@@ -2228,7 +2217,7 @@
   type: conference
   venue: "SPIE Conference on Medical Imaging"
   venueShort: "SPIE"
-  topics: [video, health]
+  topics: [health]
   links:
     doi: "https://doi.org/10.1117/12.770769"
 
@@ -2251,7 +2240,7 @@
   type: conference
   venue: "International Conference on Pattern Recognition"
   venueShort: "ICPR"
-  topics: [video]
+  topics: [learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/icpr2008_fingerprint.pdf"
     doi: "https://doi.org/10.1109/ICPR.2008.4761888"
@@ -2273,9 +2262,9 @@
   authors: ["J. J. Corso", "R. S. Alomari", "V. Chaudhary"]
   year: 2008
   type: conference
-  venue: "Medical Image Com-puting and Computer Aided Intervention (MICCAI)"
+  venue: "Medical Image Computing and Computer Aided Intervention (MICCAI)"
   venueShort: "MICCAI"
-  topics: [video, health]
+  topics: [health]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/jcorso_MICCAI2008.pdf"
     doi: "https://doi.org/10.1007/978-3-540-85988-8_25"
@@ -2334,7 +2323,7 @@
   type: conference
   venue: "Medical Image Computing and Computer Aided Intervention (MICCAI)"
   venueShort: "MICCAI"
-  topics: [video, health, learning]
+  topics: [health, learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/jcorso_MICCAI2007.pdf"
     doi: "https://doi.org/10.1007/978-3-540-75757-3_119"
@@ -2346,7 +2335,7 @@
   type: conference
   venue: "Information Processing in Medical Imaging (IPMI)"
   venueShort: "IPMI"
-  topics: [video, health]
+  topics: [health, learning]
   links:
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/jcorso_ipmi2007.pdf"
     doi: "https://doi.org/10.1007/978-3-540-73273-0_16"
@@ -2365,8 +2354,8 @@
 
 - id: ganesh2006slimming
   title: "Slimming Neural Networks using Adaptive Connectivity Scores"
-  authors: ["M. R. Ganesh", "Blanchard", "J. J. Corso", "S. Y. Sekeh"]
-  year: 2006
+  authors: ["M. R. Ganesh", "D. Blanchard", "J. J. Corso", "S. Y. Sekeh"]
+  year: 2024
   type: journal
   venue: "IEEE Transactions on Neural Networks and Learning Systems"
   venueShort: "TNNLS"
@@ -2376,7 +2365,7 @@
     doi: "https://doi.org/10.1109/TNNLS.2022.3198580"
 
 - id: burschka2005practical
-  title: "A Practical Approach for Integrating Vision-Based Methods into Interactive 2D/3D Applicationsa"
+  title: "A Practical Approach for Integrating Vision-Based Methods into Interactive 2D/3D Applications"
   authors: ["D. Burschka", "G. Ye", "J. J. Corso", "G. D. Hager"]
   year: 2005
   type: report
@@ -2471,12 +2460,11 @@
   venue: "The Johns Hopkins University"
   topics: [video, learning]
   links:
-    pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/jcorso_ICPR2004.pdf"
-    doi: "https://doi.org/10.1109/ICPR.2004.1334076"
+    pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/corso_tr0401.pdf"
 
 - id: ramey2004real
-  title: "Real Time 3D Surface Tracking and Its Applications"
-  authors: ["N. Ramey", "J. J. Corso", "W. W. Lau", "D. Burschka", "G. D. Hager"]
+  title: "Real-Time 3D Surface Tracking and Its Applications"
+  authors: ["N. A. Ramey", "J. J. Corso", "W. W. Lau", "D. Burschka", "G. D. Hager"]
   year: 2004
   type: conference
   venue: "Workshop on Real-time 3D Sensors and Their Use (at CVPR 2004)"
@@ -2517,7 +2505,7 @@
   topics: [human]
 
 - id: corso2003direct
-  title: "Direct Plane Tracking in Stereo Image for Mobile Navigation"
+  title: "Direct Plane Tracking in Stereo Images for Mobile Navigation"
   authors: ["J. J. Corso", "D. Burschka", "G. D. Hager"]
   year: 2003
   type: conference
@@ -2529,7 +2517,7 @@
 
 - id: corso2003stereo
   title: "Stereo-Based Direct Surface Tracking with Deformable Parametric Models"
-  authors: ["J. J. Corso", "N. Ramey", "G. D. Hager"]
+  authors: ["J. J. Corso", "N. A. Ramey", "G. D. Hager"]
   year: 2003
   type: report
   venue: "The Johns Hopkins University"
@@ -2538,7 +2526,7 @@
     pdf: "https://web.eecs.umich.edu/~jjcorso/pubs/tr2003-02-deformtrack.pdf"
 
 - id: corso20034dt
-  title: "The 4DT: Unencumbered HCI With VICs"
+  title: "The 4D Touchpad: Unencumbered HCI With VICs"
   authors: ["J. J. Corso", "D. Burschka", "G. D. Hager"]
   year: 2003
   type: conference
@@ -2574,7 +2562,7 @@
 
 - id: corso2002interactive
   title: "Interactive Haptic Rendering of Deformable Surfaces Based on the Medial Axis Transform"
-  authors: ["J. J. Corso", "J. Chhugani", "A. Okamura"]
+  authors: ["J. J. Corso", "J. Chhugani", "A. M. Okamura"]
   year: 2002
   type: conference
   venue: "Eurohaptics"
@@ -2588,7 +2576,7 @@
   authors: ["J. Leven", "J. J. Corso", "J. D. Cohen", "S. Kumar"]
   year: 2002
   type: conference
-  venue: "IEEE/SIGGRAPH Symposium on Vol-ume Visualization and Graphics 2002"
+  venue: "IEEE/SIGGRAPH Symposium on Volume Visualization and Graphics 2002"
   venueShort: "VOLVIS"
   topics: [learning]
   links:

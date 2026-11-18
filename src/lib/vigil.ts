@@ -98,7 +98,7 @@ const steps: readonly Step[] = [
   {
     name: 'Understand',
     title: 'Follow the task as it unfolds',
-    body: "The agent observes the clinician's actions against the steps of the procedure and recognizes when something unexpected has happened. For a heart exam, a deep network predicts where the ultrasound probe should go and scores the view as it changes. A medical question-answering system takes clinical questions on the spot.",
+    body: "The agent observes the clinician's actions against the steps of the procedure and recognizes when something unexpected has happened. For a heart exam, a deep network scores the view as it changes, from the ultrasound image alone: on target, close, or far from the standard four-chamber view. A question-answering model answers questions about the image: which view it shows, which chambers are visible, and how to adjust the probe.",
     sources: ['michigan', 'cardiac'],
   },
   {
@@ -138,7 +138,7 @@ const timeline: readonly Moment[] = [
   },
   {
     when: 'August 2026',
-    what: 'Eighteen months in, VIGIL supports four clinical services, and user studies show generalists reaching significant proficiency with its help.',
+    what: 'Eighteen months in, Prof. Corso reported that VIGIL supports four clinical services, and that user studies show generalists reaching significant proficiency with its help.',
     sources: ['update'],
   },
   {

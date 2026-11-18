@@ -3,9 +3,11 @@ import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import PubItem from '../components/PubItem.astro';
 import FigureSource from '../components/FigureSource.astro';
+import PaperFigure from '../components/PaperFigure.astro';
 import ResearchFigure from '../components/ResearchFigure.astro';
 import VigilBand from '../components/VigilBand.astro';
 import type { FigureName } from '../lib/figures';
+import type { PaperFigureName } from '../lib/paper-figures';
 import { getAreas, getPublications, getResources } from '../lib/content';
 import { href, sponsors } from '../lib/site';
 
@@ -86,6 +88,9 @@ const sections = areas.map((area) => {
               {area.data.body.map((paragraph) => (
                 <p>{paragraph}</p>
               ))}
+            </div>
+            <div class="area-paper">
+              <PaperFigure name={area.id as PaperFigureName} />
             </div>
             <ul class="threads">
               {area.data.threads.map((thread) => (
@@ -215,6 +220,10 @@ const sections = areas.map((area) => {
 
   .area-source {
     margin-top: 0.7rem;
+  }
+
+  .area-paper {
+    margin-top: 1.75rem;
   }
 
   .area-index {

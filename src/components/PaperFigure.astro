@@ -1,0 +1,146 @@
+---
+/**
+ * A figure from one of the group's papers, shown as published, with the paper it is from.
+ * The figures and their captions are in src/lib/paper-figures.ts.
+ */
+import { getImage, Image } from 'astro:assets';
+import { getPublications } from '../lib/content';
+import { PAPER_FIGURES, type PaperFigureName } from '../lib/paper-figures';
+
+interface Props {
+  name: PaperFigureName;
+}
+const figure = PAPER_FIGURES[Astro.props.name];
+const publications = await getPublications();
+const pub = publications.find((entry) => entry.id === figure.paper);
+if (!pub) throw new Error(`PaperFigure: no publication with the id "${figure.paper}"`);
+
+const names = pub.data.authors.map((author) => author.split(' ').at(-1)!);
+const who =
+  names.length === 1
+    ? names[0]
+    : names.length === 2
+      ? `${names[0]} and ${names[1]}`
+      : `${names[0]} et al.`;
+const cite = `${figure.label} of ${who}, ${pub.data.venueShort ?? pub.data.venue} ${pub.data.year}`;
+const url = pub.data.links?.arxiv ?? pub.data.links?.doi ?? pub.data.links?.pdf;
+const credit = 'credit' in figure ? figure.credit : undefined;
+/** The whole figure at the size it was cut, for reading its small print. */
+const full = await getImage({ src: figure.image, width: figure.image.width, quality: 90 });
+---
+
+<figure class="paper-figure" data-paper-figure={figure.paper}>
+  <a class="sheet" href={full.src} aria-label={`Open ${cite} at full size`}>
+    <Image
+      src={figure.image}
+      alt={figure.alt}
+      widths={[480, 720, 960, 1280, figure.image.width]}
+      sizes="(min-width: 62rem) 40rem, 92vw"
+      quality={86}
+    />
+  </a>
+  <figcaption>
+    <span class="tag">From the paper</span>
+    <span class="text">
+      {figure.caption}{' '}
+      {url ? (
+        <a class="source" href={url} rel="noopener" title={pub.data.title} set:text={cite} />
+      ) : (
+        <span class="source" title={pub.data.title} set:text={cite} />
+      )}
+      {credit && <span class="credit">{credit}</span>}
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .paper-figure {
+    margin: 0;
+  }
+
+  /* Paper figures are drawn on white, so they sit on a white sheet in both themes. */
+  .sheet {
+    display: block;
+    padding: clamp(0.6rem, 1.4vw, 1rem);
+    cursor: zoom-in;
+    background: #fff;
+    border: var(--rule) solid var(--text);
+  }
+
+  .sheet:focus-visible {
+    outline: 3px solid var(--maize);
+    outline-offset: 2px;
+  }
+
+  .sheet :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.35rem 0.8rem;
+    align-items: baseline;
+    margin-top: 0.75rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--text-2);
+  }
+
+  .tag {
+    padding: 0.25rem 0.45rem;
+    background: var(--maize);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--blue);
+  }
+
+  .text {
+    text-wrap: pretty;
+  }
+
+  .source {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  a.source {
+    text-decoration: underline;
+    text-decoration-color: var(--line-2);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
+  a.source:hover {
+    text-decoration-color: var(--maize);
+  }
+
+  .credit {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--text-3);
+  }
+
+  @media (max-width: 30rem) {
+    figcaption {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tag {
+      justify-self: start;
+    }
+
+    .source {
+      white-space: normal;
+    }
+  }
+</style>

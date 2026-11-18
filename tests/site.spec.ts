@@ -775,23 +775,25 @@ test('the thesis makes its claims with live figures and the papers behind them',
     panel.getByRole('button', { name: new RegExp(`${name}$`) });
   await step(oracle, 'Ask again').click();
   await expect(oracle.locator('[data-says-who]')).toHaveText('Robot');
-  await expect(oracle.locator('[data-says]')).toContainText('Can you rephrase?');
-  await expect(oracle.locator('[data-readout-value]')).toHaveText('33%');
+  // The dialogue is the paper's own, word for word, and no number is shown that it does not give.
+  await expect(oracle.locator('[data-says]')).toHaveText("I'm not sure. Can you try again?");
+  await expect(oracle.locator('[data-readout-value]')).toHaveText('3');
   await step(oracle, 'Fetch').click();
-  await expect(oracle.locator('[data-says]')).toHaveText('Fetching the orange mug.');
-  await expect(oracle.locator('[data-readout-value]')).toHaveText('96%');
+  await expect(oracle.locator('[data-says-who]')).toHaveText('Person');
+  await expect(oracle.locator('[data-says]')).toHaveText('Get the orange one.');
+  await expect(oracle.locator('[data-readout-value]')).toHaveText('1');
   await expect(oracle.locator('[data-readout-label]')).toContainText('act');
 
   // Mistake attribution: what, when, and where.
   const mistake = thesis.locator('[data-figure="human"] + [data-console]');
   await mistake.scrollIntoViewIfNeeded();
   await step(mistake, 'Watch').click();
-  await expect(mistake.locator('[data-says]')).toHaveText('Grab a chain whip.');
+  await expect(mistake.locator('[data-says]')).toHaveText('Pick up hammer.');
   await step(mistake, 'What').click();
   await expect(mistake.locator('[data-says-who]')).toHaveText('What');
   await expect(mistake.locator('[data-says]')).toContainText('wrong object');
   await step(mistake, 'When').click();
-  await expect(mistake.locator('[data-readout-value]')).toHaveText('3.2 s');
+  await expect(mistake.locator('[data-readout-value]')).toHaveText('Frame 17');
   await expect(mistake.locator('[data-readout-label]')).toHaveText('Point of no return');
   await step(mistake, 'Where').click();
   await expect(mistake.locator('[data-says-who]')).toHaveText('Where');
@@ -802,6 +804,38 @@ test('the thesis makes its claims with live figures and the papers behind them',
   await expect(thesis.locator('.arc-wrap [data-clip] figcaption')).toContainText('MILLY');
   await thesis.locator('.arc-next').click();
   await expect(page.locator('section.vigil')).toBeInViewport();
+});
+
+test('figures from the papers are shown as published, each with its paper', async ({ page }) => {
+  // One under each claim of the thesis, and one in each research area.
+  for (const [path, count] of [
+    ['/', 2],
+    ['/research/', 6],
+  ] as const) {
+    await page.goto(at(path));
+    const figures = page.locator('[data-paper-figure]');
+    await expect(figures).toHaveCount(count);
+    const papers = new Set<string>();
+    for (const figure of await figures.all()) {
+      papers.add((await figure.getAttribute('data-paper-figure'))!);
+      const image = figure.locator('img');
+      await image.scrollIntoViewIfNeeded();
+      await expect(image).toHaveAttribute('alt', /\S.{60,}/);
+      await expect
+        .poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth))
+        .toBeGreaterThan(0);
+      // The caption names the figure, the authors, the venue, and the year, and links the paper.
+      const source = figure.locator('figcaption a.source');
+      await expect(source).toHaveText(/^(Figure|Table) \d+ of .+, .+ (19|20)\d\d$/);
+      await expect(source).toHaveAttribute('href', /^https:\/\//);
+      await expect(figure.locator('.tag')).toHaveText('From the paper');
+      // The figure opens at full size, for reading its small print.
+      const full = await figure.locator('a.sheet').getAttribute('href');
+      const response = await page.request.get(new URL(full!, page.url()).href);
+      expect(response.status(), full!).toBe(200);
+    }
+    expect(papers.size).toBe(count);
+  }
 });
 
 test('links carry no stray spaces, and no gap opens before the punctuation after them', async ({

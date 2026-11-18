@@ -18,9 +18,9 @@ export const FIGURES = {
     alt: 'Animation: the timeline of a cooking video. As the playhead reaches each step, the step is marked and described in a short sentence.',
   },
   robotics: {
-    after: ['banerjee2021robotslang'],
-    title: 'Following directions',
-    alt: 'Animation: a robot seen from above moves through a room, sensing the obstacles ahead of it while it follows spoken directions.',
+    after: ['krantz2023iterative'],
+    title: 'A tour of instructions',
+    alt: 'Animation: a navigation agent, seen from above, follows a series of written instructions through one room, one after another. What it has seen so far stays lit, so each new instruction starts from what it already knows.',
   },
   human: {
     loop: 14.5,
@@ -33,7 +33,7 @@ export const FIGURES = {
     ],
     after: ['li2026mistake'],
     title: 'Mistake attribution',
-    alt: 'Animation: the instruction is "Grab a chain whip". A hand reaches across a bench and picks up a wrench. The mistake is then attributed three ways: what was wrong (the right action on the wrong object), when it became irreversible (the point of no return, 3.2 seconds in), and where (a box around the hand and the wrench).',
+    alt: 'Animation of the example in Figure 1 of the paper: the instruction is "Pick up hammer". A hand reaches across a bench, past a hammer, and picks up a bolt. The mistake is then attributed three ways: what was wrong (the right action on the wrong object), when it became irreversible (the point of no return, frame 17), and where (a box around the hand and the bolt).',
   },
   oracle: {
     loop: 14,
@@ -45,19 +45,19 @@ export const FIGURES = {
       { at: 6.8, name: 'Rephrase' },
       { at: 9.6, name: 'Fetch' },
     ],
-    after: ['lemmer2021ground', 'lemmer2023evaluating'],
+    after: ['lemmer2023evaluating'],
     title: 'The hazy oracle',
-    alt: 'Animation: three mugs on a table, blue, orange, and green. A person says "Please fetch my mug." The robot rates each mug as equally likely, one in three, and asks the person to rephrase. The person says "It\'s the orange one." The robot\'s confidence in the orange mug rises to 96 percent and its gripper picks that mug up.',
+    alt: 'Animation of the example in Figure 1 of the paper: three mugs on a table, green, red, and orange. A person says "Please fetch my mug from the table." The robot rates the three mugs as equally likely and says "I\'m not sure. Can you try again?" The person says "Get the orange one." Only the orange mug still fits the request, and the gripper picks it up.',
   },
   health: {
     after: ['guo2026follow'],
     title: 'Echo guidance',
-    alt: 'Animation: an ultrasound view of a beating heart, with tracked landmarks and a score for the quality of the view.',
+    alt: "Animation: a handheld ultrasound view of a beating heart, with all four chambers in view. Landmarks on the left ventricle are tracked through each beat, and the probe's position is rated as on target or close to target.",
   },
   learning: {
     after: ['griffin2026zero'],
     title: 'Coreset selection',
-    alt: 'Animation: data points gather into clusters, and a small, evenly spread subset of them is selected.',
+    alt: 'Animation: unlabeled images appear as points in an embedding space. Random spots in the space are sampled again and again. The point nearest each spot gains a score, its close neighbors lose a little, and the highest-scoring points become a small, spread-out training subset.',
   },
   vigil: {
     /** How long one telling takes, and when each of its steps begins, in seconds. */

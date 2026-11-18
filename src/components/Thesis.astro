@@ -5,6 +5,7 @@
  * VIGIL band that follows. The words are in src/lib/thesis.ts.
  */
 import Clip from './Clip.astro';
+import PaperFigure from './PaperFigure.astro';
 import ResearchFigure from './ResearchFigure.astro';
 import millyLapse from '../assets/clips/milly-lapse.mp4';
 import millyPoster from '../assets/clips/posters/milly-lapse.jpg';
@@ -51,6 +52,9 @@ const shown = thesis.claims.filter((claim) => claim.figure);
             <ResearchFigure topic={claim.figure!} number={i + 1} />
           </div>
           <p class="claim-body">{claim.body}</p>
+          <div class="claim-paper">
+            <PaperFigure name={claim.figure === 'oracle' ? 'oracle' : 'mistake'} />
+          </div>
           <ul class="claim-papers">
             {papersOf(claim.papers).map((pub) => (
               <li>
@@ -94,8 +98,8 @@ const shown = thesis.claims.filter((claim) => claim.figure);
         alt="A person at a lab bench starts making coffee while a monitor shows the camera's view and the recipe. A caption reads: 1. Measure 12 ounces of cold water. Then a caption appears: Mistake! Step 4 (weigh beans) detected. Expecting step 2 (assemble cone)."
       >
         <strong>MILLY, catching a skipped step.</strong> A person makes coffee while the system
-        follows the recipe. When they weigh the beans before assembling the cone, it says so at
-        once. The captions in the clip are the group's own.
+        follows the recipe. When they weigh the beans before assembling the cone, it flags the
+        lapse. The captions in the clip are the group's own.
       </Clip>
     </div>
   </div>
@@ -161,8 +165,13 @@ const shown = thesis.claims.filter((claim) => claim.figure);
     text-wrap: pretty;
   }
 
+  /* The paper's own figure of the same example, so the drawing above can be checked against it. */
+  .claim-paper {
+    margin-top: 1.5rem;
+  }
+
   .claim-papers {
-    margin: 1rem 0 0;
+    margin: 1.25rem 0 0;
     padding: 0;
     list-style: none;
     border-top: 1px solid var(--line-2);

@@ -22,21 +22,21 @@ const claims: readonly Claim[] = [
   {
     quote: 'mandates human-AI teams',
     title: 'A person is a partner, not an oracle.',
-    body: 'Most AI treats what a person says as complete and correct. People are not like that: they say "fetch my mug" when three mugs are on the table. The group calls the person a hazy oracle, and teaches the model the one move that makes it a teammate: to know when to act and when to ask again.',
+    body: 'Most AI treats what a person says as complete and correct. People are not like that: they say "fetch my mug" when three mugs are on the table. The group calls the person a hazy oracle, and gives the model a way to decide when to act and when to ask the person to try again. On a standard test of finding the object a phrase refers to, asking again once per request, on average, cut error from 8.27% to 4.24%, with no change to the model itself. In a study with 25 people, the point at which to ask again was best set for each person: criteria set from one user\'s own data did as well as or better than criteria set from large datasets of many people.',
     figure: 'oracle',
     papers: ['lemmer2023evaluating', 'lemmer2023human'],
   },
   {
     quote: 'must monitor for mistakes',
     title: 'Say what went wrong, when, and where.',
-    body: 'A guide that only says "that was a mistake" teaches nothing. Mistake attribution names what was wrong (the action or the object), finds the moment it could no longer be undone, and points to where in the scene it happened. The training data are composed automatically from existing video of people at work, and are up to a hundred times larger than earlier mistake datasets.',
+    body: 'A guide that only says "that was a mistake" leaves the person to work out what went wrong. Mistake attribution names what was wrong (the action or the object), finds the moment it could no longer be undone, and points to where in the frame it happened. The training data are built automatically from existing first-person video of everyday activity, by pairing an instruction with a clip of a different action: 257,584 examples in the larger of the two sets, 34 times the largest earlier mistake dataset in the paper\'s comparison. On kitchen video, the model named what was wrong with an F1 score of 83.89%, against 77.23% for ChatGPT-4o.',
     figure: 'human',
     papers: ['li2026mistake', 'storks2025transparent'],
   },
   {
     quote: 'in healthcare delivery',
     title: 'Prove it where care is given.',
-    body: 'VIGIL turns generalists into specialists on the fly: it guides a nurse or a family doctor through exams that usually need a specialist, in a clinic that drives to the patient.',
+    body: 'VIGIL aims to turn generalists into specialists on the fly: to guide a nurse or a family doctor through exams that usually need a specialist, in a mobile clinic that can go to the patient.',
     papers: [],
   },
 ];
@@ -75,7 +75,7 @@ export const thesis = {
     {
       when: '2013',
       title: 'The kitchen',
-      body: 'Cooking is procedural, messy, and full of ambiguity ("season to taste"): the ideal test bed. The group built YouCook and YouCook2.',
+      body: 'Cooking is procedural, messy, and full of ambiguity ("season to taste"): the ideal test bed. The group built YouCook (88 cooking videos, 2013) and then YouCook2 (2,000 videos of 89 recipes, 176 hours in all).',
     },
     {
       when: '2022',
@@ -85,12 +85,12 @@ export const thesis = {
     {
       when: 'Then',
       title: 'Battlefield medicine',
-      body: 'The same guidance, moved to trauma assessment, pressure dressings, and chest seals.',
+      body: "The same guidance, moved to trauma assessment, pressure dressings, and chest seals. In a published study, 12 people did four tasks with the group's augmented reality guide, from making tea to applying a tourniquet: on a first attempt they succeeded 70% of the time with it, against 20% with no help.",
     },
     {
       when: '2025',
       title: 'The rural clinic',
-      body: 'VIGIL: specialist-level exams, guided, wherever the patient is.',
+      body: 'VIGIL: guidance for exams that usually need a specialist, built to go where the patient is.',
     },
   ],
   close: 'Put the human-AI team in the arena, ground the AI in reality, not web corpora.',

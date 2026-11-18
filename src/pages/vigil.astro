@@ -63,7 +63,7 @@ const footage = [
       alt: 'Two copies of a live ultrasound of the heart. The left is plain. On the right, dots trace the wall of the left ventricle, a frame around the image changes between green, yellow, and red, and a reading of LVEF, near 62 percent, updates.',
       title: 'Reading the view.',
       caption:
-        'Left, the ultrasound as it arrives. Right, landmarks traced on the heart, a frame whose color scores the view, and an estimate of ejection fraction (LVEF).',
+        "Left, the ultrasound as it arrives. Right, landmarks traced on the heart, a frame that turns green, yellow, or red as the probe is on, near, or far from the four-chamber view, and an estimate of ejection fraction (LVEF), the share of the left ventricle's blood pumped out with each beat.",
     },
     {
       clip: question,
@@ -212,8 +212,9 @@ const plate = [
             quality={82}
           />
           <figcaption>
-            <strong>The heart.</strong> The ultrasound image the system is reading is boxed in red,
-            beside the view it is steering toward.
+            <strong>The heart.</strong> The frame around the ultrasound image is the system's
+            color-coded feedback on the view, here red. Beside it, the probe's angle is drawn
+            against its target.
           </figcaption>
         </figure>
         <figure class="photo">
@@ -308,9 +309,8 @@ const plate = [
         <div>
           <ResearchFigure topic="leg" number={2} wide />
           <p class="note">
-            <strong>The leg.</strong> Marks along the thigh show where to press. A vein that
-            flattens under the probe is clear, and three bars count off the veins as they are
-            scanned.
+            <strong>The leg.</strong> Marks along the thigh show where to press, the ultrasound
+            shows each vein under the probe, and three bars count off the veins as they are scanned.
           </p>
         </div>
       </div>
@@ -662,9 +662,9 @@ const plate = [
             <p class="label">From the group</p>
             <h2 class="h2">Papers on the same problems</h2>
             <p>
-              Published work from the group on answering clinical questions during a heart
-              ultrasound, on scoring where the probe is, and on AI agents that guide people through
-              physical tasks.
+              Published work from the group: EchoVQA, 74,819 questions and answers on 14,299 heart
+              ultrasound images; a network that scores, from the image alone, how close the probe is
+              to the standard heart view; and an AI agent that guides people through physical tasks.
             </p>
           </div>
           <a class="more" href={href('/publications/')}>

@@ -120,8 +120,10 @@ makes them better at it.
   laptop. The headline is sized from the width of the page so that it always fits one line from
   a tablet up; a test holds it to 68 pixels or less.
 - **Two live figures** carry the first two claims (`oracle` and `human` in
-  `src/scripts/figures.ts`): the hazy oracle, with the group's own three-mugs example, and
-  mistake attribution, with the paper's chain whip example. The third claim is the VIGIL band.
+  `src/scripts/figures.ts`): the hazy oracle and mistake attribution. Each redraws Figure 1 of
+  its paper, with the same example and the same words, and shows no number the paper does not
+  give. The paper's own figure sits under each, so the drawing can be checked against it
+  (`src/lib/paper-figures.ts`). The third claim is the VIGIL band.
 - **The arc** from the kitchen to the clinic runs beside the group's own footage of MILLY catching
   a skipped step.
 - **Private working material** is kept out of this repository by `.gitignore`: slide decks and
@@ -200,9 +202,11 @@ page at `/vigil/`.
   "RGB-D"). Anything that moves for more than a few seconds can be paused.
 - **Research figures** (`src/scripts/figures.ts`) - one live figure per research area, each drawn
   after a named paper of the group: a supervoxel hierarchy (ECCV 2012), dense captioning of a
-  cooking video (CVPR 2018), a robot following directions (RobotSlang), an assistant catching a
-  mistake (CVPR 2026), an echocardiogram with tracked landmarks (ISBI 2026), and coreset
-  selection in an embedding space.
+  cooking video (CVPR 2018), an agent on a tour of instructions that remembers what it has seen
+  (CVPR 2023), an assistant catching a mistake (CVPR 2026), a four-chamber echocardiogram with
+  tracked landmarks and a rating of the probe (ISBI 2026), and label-free coreset selection by
+  sampling for coverage (WACV 2026). Beside each, the Research page shows a figure from one of
+  the area's papers as published (`src/lib/paper-figures.ts`).
 - **Spaces around links** are tidied by `src/middleware.ts` on every page. The formatter breaks
   long lines inside links, and in HTML those breaks are spaces: a space at the end of a link is
   underlined with it, and a space before a full stop shows as a gap. A test checks for both.

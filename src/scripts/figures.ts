@@ -6,7 +6,7 @@
  *   language  dense captioning of a cooking video, step by step (YouCook2, ProcNets)
  *   robotics  a robot following spoken directions through a room (RobotSlang, navigation)
  *   human     mistake attribution: what went wrong, when, and where (CVPR 2026)
- *   health    an echocardiogram with tracked landmarks and a view-quality score
+ *   health    a four-chamber echocardiogram with tracked landmarks and a rating of the probe
  *   learning  an embedding space from which a small, well-spread coreset is chosen
  *
  * One more shows the group's own picture of a person as a fallible partner:
@@ -28,6 +28,7 @@ const PINK = '#ff7ab6';
 const BLUE = '#5cc8ff';
 const GREEN = '#7be495';
 const ORANGE = '#ff9466';
+const RED = '#ff5d5d';
 const MUTED = 'rgba(246, 243, 234, 0.55)';
 const FAINT = 'rgba(246, 243, 234, 0.13)';
 
@@ -305,6 +306,24 @@ const robotics: Figure = (() => {
         (o) => col >= px(o.x) && col < px(o.x + o.w) && row >= py(o.y) && row < py(o.y + o.h),
       );
 
+    // What the agent has seen so far on this tour stays with it from one instruction to the
+    // next: the persistent memory that Iterative Vision-and-Language Navigation is about.
+    const walked: [number, number, number, number][] = [];
+    for (let k = 0; k < leg; k++) {
+      const a = ROUTE[k];
+      const b = ROUTE[(k + 1) % ROUTE.length];
+      walked.push([px(a.x), py(a.y), px(b.x), py(b.y)]);
+    }
+    walked.push([px(from.x), py(from.y), rx, ry]);
+    const remembered = (col: number, row: number) =>
+      walked.some(([x0, y0, x1, y1]) => {
+        const dx = x1 - x0;
+        const dy = y1 - y0;
+        const span = dx * dx + dy * dy || 1;
+        const along = clamp(((col + 0.5 - x0) * dx + (row + 0.5 - y0) * dy) / span, 0, 1);
+        return Math.hypot(col + 0.5 - (x0 + dx * along), row + 0.5 - (y0 + dy * along)) < 6;
+      });
+
     for (let row = 0; row < usable; row++) {
       for (let col = 0; col < s.cols; col++) {
         const dx = col + 0.5 - rx;
@@ -313,8 +332,11 @@ const robotics: Figure = (() => {
         let turn = Math.atan2(dy, dx) - heading;
         turn = Math.atan2(Math.sin(turn), Math.cos(turn));
         const seen = d < 11 && Math.abs(turn) < 0.6;
-        if (blocked(col, row)) s.cell(col, row, seen ? MAIZE : PAPER, seen ? 0.95 : 0.26, 0.82);
-        else if (seen) s.cell(col, row, s.tint, (1 - d / 11) * 0.8, 0.5);
+        const known = !seen && remembered(col, row);
+        if (blocked(col, row)) {
+          s.cell(col, row, seen ? MAIZE : PAPER, seen ? 0.95 : known ? 0.6 : 0.2, 0.82);
+        } else if (seen) s.cell(col, row, s.tint, (1 - d / 11) * 0.8, 0.5);
+        else if (known) s.cell(col, row, s.tint, 0.16, 0.3);
       }
     }
     for (const o of OBSTACLES) {
@@ -361,9 +383,13 @@ const robotics: Figure = (() => {
 // --- Human-AI teams: the hazy oracle ------------------------------------------
 
 /**
- * The group's own example of why a person is a partner and not an oracle (Lemmer and Corso,
- * ICCV 2021 and AAAI 2023). Asked for "my mug" with three mugs on the table, a robot that must
- * answer picks at random. One that may ask again gets "the orange one", and fetches it.
+ * Figure 1 of "Evaluating and Improving Interactions with Hazy Oracles" (Lemmer and Corso, AAAI
+ * 2023), redrawn: the same three mugs, green, red, and orange, and the same three lines of
+ * dialogue, word for word. Asked for "my mug", a robot that must answer rates the three as
+ * equally likely. One that may ask again is told "the orange one".
+ *
+ * The paper gives no numbers for this example, so the figure shows none: the bars are equal,
+ * then one is full, and the reading counts the mugs that still fit the request.
  */
 const oracle: Figure = (() => {
   const LOOP = 14;
@@ -377,11 +403,11 @@ const oracle: Figure = (() => {
     reset: 12.6,
   };
   const MUGS = [
-    { name: 'blue', color: BLUE },
-    { name: 'orange', color: ORANGE },
     { name: 'green', color: GREEN },
+    { name: 'red', color: RED },
+    { name: 'orange', color: ORANGE },
   ];
-  const MINE = 1;
+  const MINE = 2;
   const span = (from: number, to: number, at: number) => clamp((at - from) / (to - from), 0, 1);
 
   return (s) => {
@@ -426,8 +452,9 @@ const oracle: Figure = (() => {
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // How likely the robot thinks it is that this is the mug that was meant.
-      const share = lerp(1 / 3, chosen ? 0.96 : 0.02, resolved);
+      // How likely the robot thinks it is that this is the mug that was meant: equal at first,
+      // as in the paper's p(green) = p(red) = p(orange), and all on one mug once it is told.
+      const share = lerp(1 / 3, chosen ? 1 : 0, resolved);
       if (weighed > 0) {
         const barY = top + step * 1.4;
         const cells = 8;
@@ -443,14 +470,11 @@ const oracle: Figure = (() => {
             on ? 0.8 : 0.34,
           );
         }
-        ctx.globalAlpha = weighed;
-        s.text(
-          `${Math.round(share * 100)}%`,
-          cx,
-          barY - step * 1.5,
-          chosen && resolved > 0.5 ? mug.color : PAPER,
-          'center',
-        );
+        // Between the bars, the equals signs of the paper's thought bubble.
+        if (k > 0 && resolved < 0.5) {
+          ctx.globalAlpha = weighed * (1 - resolved * 2);
+          s.text('=', (xs[k - 1] + cx) / 2, barY + step * 0.35, PAPER, 'center');
+        }
         ctx.globalAlpha = 1;
       }
       // Undecided: every mug is ringed. Decided: only the one that was meant.
@@ -505,18 +529,17 @@ const oracle: Figure = (() => {
 
     // The conversation, in the console under the figure.
     if (fade < 0.1 || now < AT.ask) s.say('', 'Person');
-    else if (now < AT.defer) s.say('Please fetch my mug.', 'Person');
-    else if (now < AT.rephrase) s.say("I didn't understand. Can you rephrase?", 'Robot');
-    else if (now < AT.fetch) s.say("It's the orange one.", 'Person');
-    else s.say('Fetching the orange mug.', 'Robot');
-    const best = Math.round(lerp(1 / 3, 0.96, resolved) * 100);
+    // The three lines are the paper's own.
+    else if (now < AT.defer) s.say('Please fetch my mug from the table.', 'Person');
+    else if (now < AT.rephrase) s.say("I'm not sure. Can you try again?", 'Robot');
+    else s.say('Get the orange one.', 'Person');
     s.report(
-      now < AT.weigh ? '--' : `${best}%`,
+      now < AT.weigh ? '--' : resolved < 0.5 ? '3' : '1',
       now < AT.weigh
-        ? 'Confidence in any one mug'
+        ? 'Mugs that fit the request'
         : resolved < 0.5
-          ? 'Confidence in any one mug: ask again'
-          : 'Confidence in the orange mug: act',
+          ? 'Mugs that fit the request: ask again'
+          : 'Mug that fits the request: act',
     );
   };
 })();
@@ -524,15 +547,19 @@ const oracle: Figure = (() => {
 // --- Mistake attribution: what went wrong, when, and where ---------------------
 
 /**
- * The task defined in Mistake Attribution (Li, Jain, Bellos, Corso; CVPR 2026), with the paper's
- * own example. The instruction is "Grab a chain whip" and the person picks up a wrench. A useful
- * guide says what was wrong (the object, not the action), when it became irreversible (the point
- * of no return, 3.2 seconds in), and where (a box around the hand and the tool).
+ * Figure 1 of "Mistake Attribution" (Li, Jain, Bellos, Corso; CVPR 2026), redrawn with its own
+ * example. The instruction is "Pick up hammer" and the person picks up a bolt. The attribution
+ * says what was wrong (the object, not the action), when it became irreversible (the point of no
+ * return, frame 17), and where (a box in that frame).
+ *
+ * The paper does not say how many frames the clip has, so the timeline is drawn without a scale:
+ * only frame 17 is named.
  */
 const human: Figure = (() => {
   const LOOP = 14.5;
-  const CLIP = 5; // seconds of video
-  const PNR = 3.2;
+  const CLIP = 5; // seconds the attempt takes to play here
+  const PNR = 3; // when, in those seconds, the point of no return is reached
+  const PNR_FRAME = 17; // the frame the paper names
   const AT = { watch: 0.4, what: 6.6, when: 8.6, where: 10.6, reset: 13.2 };
   const RATE = CLIP / (AT.what - AT.watch - 0.4);
   const span = (from: number, to: number, at: number) => clamp((at - from) / (to - from), 0, 1);
@@ -549,8 +576,8 @@ const human: Figure = (() => {
     // The timeline keeps clear of the bottom edge, with room for its two end labels.
     const railY = s.h - Math.max(step * 3, 26);
     const benchY = top + (railY - top) * 0.5;
-    const whip = { x: s.w * 0.26, y: benchY };
-    const wrench = { x: s.w * 0.66, y: benchY };
+    const hammer = { x: s.w * 0.26, y: benchY };
+    const bolt = { x: s.w * 0.66, y: benchY };
     const u = Math.min(s.w / 23, (railY - top) / 9.5);
     const bar = (x0: number, y0: number, x1: number, y1: number, color: string, alpha: number) => {
       const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / (step * 0.9));
@@ -567,32 +594,37 @@ const human: Figure = (() => {
     ctx.globalAlpha = 0.2;
     ctx.strokeRect(step, benchY - u * 3.2, s.w - step * 2, u * 6.4);
     ctx.globalAlpha = 1;
-    // A chain whip: a handle with a short length of chain at its end.
-    bar(whip.x - u * 3.4, whip.y + u * 1.2, whip.x + u * 1.2, whip.y - u * 0.4, PAPER, 0.85);
-    for (let k = 0; k < 4; k++) {
-      const a = 0.5 + k * 0.55;
-      s.cell(
-        Math.floor((whip.x + u * 1.6 + Math.cos(a) * u * (0.6 + k * 0.7)) / step),
-        Math.floor((whip.y - u * 0.7 - Math.sin(a) * u * (0.4 + k * 0.5)) / step),
-        MAIZE,
-        0.95,
-        0.5,
-      );
+    // A hammer: a handle with a head across its end.
+    bar(
+      hammer.x - u * 3.4,
+      hammer.y + u * 1.2,
+      hammer.x + u * 1.3,
+      hammer.y - u * 0.4,
+      PAPER,
+      0.85,
+    );
+    for (const along of [0, 0.5]) {
+      const ex = hammer.x + u * (1.3 + along * 0.95);
+      const ey = hammer.y - u * (0.4 + along * 0.32);
+      bar(ex - u * 0.42, ey - u * 1.25, ex + u * 0.42, ey + u * 1.25, MAIZE, 0.95);
     }
-    s.text('chain whip', whip.x - u * 1.2, benchY + u * 4.3, MUTED, 'center');
+    s.text('hammer', hammer.x - u * 1.2, benchY + u * 4.3, MUTED, 'center');
 
-    // The hand reaches for the wrong tool, closes on it, and lifts it away.
+    // The hand reaches for the wrong thing, closes on it, and lifts it away.
     const reach = smooth(span(0.6, PNR, clock));
     const lift = smooth(span(PNR, CLIP, clock));
-    const hx = lerp(s.w * 0.5, wrench.x - u * 0.6, reach);
-    const hy = lerp(railY - step * 2.4, wrench.y + u * 0.9, reach) - lift * u * 2.6;
-    const wx = wrench.x;
-    const wy = wrench.y - lift * u * 2.6;
-    // A wrench: a shaft with an open jaw.
-    bar(wx - u * 2.8, wy + u * 1.1, wx + u * 1.6, wy - u * 0.7, PAPER, 0.85);
-    bar(wx + u * 1.6, wy - u * 0.7, wx + u * 2.9, wy - u * 0.3, PAPER, 0.85);
-    bar(wx + u * 1.6, wy - u * 0.7, wx + u * 2.0, wy - u * 1.9, PAPER, 0.85);
-    s.text('wrench', wrench.x, benchY + u * 4.3, MUTED, 'center');
+    const hx = lerp(s.w * 0.5, bolt.x - u * 0.6, reach);
+    const hy = lerp(railY - step * 2.4, bolt.y + u * 0.9, reach) - lift * u * 2.6;
+    const wx = bolt.x;
+    const wy = bolt.y - lift * u * 2.6;
+    // A bolt: a short shank with a head.
+    bar(wx - u * 1.5, wy + u * 0.5, wx + u * 0.9, wy - u * 0.3, PAPER, 0.85);
+    for (const along of [0, 0.45]) {
+      const ex = wx + u * (0.9 + along);
+      const ey = wy - u * (0.3 + along * 0.33);
+      bar(ex - u * 0.28, ey - u * 0.8, ex + u * 0.28, ey + u * 0.8, PAPER, 0.85);
+    }
+    s.text('bolt', bolt.x, benchY + u * 4.3, MUTED, 'center');
     // The hand: a palm of dots and a forearm running off the bottom of the frame.
     for (let row = Math.floor((hy - u * 1.5) / step); row <= (hy + u * 1.5) / step; row++) {
       for (let col = Math.floor((hx - u * 1.7) / step); col <= (hx + u * 1.7) / step; col++) {
@@ -608,10 +640,10 @@ const human: Figure = (() => {
     // Where: a box around the hand and the tool, at the point of no return.
     const where = span(AT.where, AT.where + 0.5, now) * fade;
     if (where > 0) {
-      const x0 = Math.min(hx - u * 2.2, wx - u * 3.2);
-      const y0 = wy - u * 2.5;
-      const w = u * 7.4;
-      const h = u * 5.6;
+      const x0 = Math.min(hx - u * 2.2, wx - u * 2.6);
+      const y0 = wy - u * 2.3;
+      const w = u * 6.4;
+      const h = u * 5.4;
       const tick = u * 1.1;
       ctx.strokeStyle = MAIZE;
       ctx.lineWidth = 2;
@@ -638,11 +670,12 @@ const human: Figure = (() => {
     const lineY = top - step * 1.4;
     s.text('instruction', s.w - step, lineY, MUTED, 'right');
     const verbY = top + step * 0.6;
-    s.text('grab', step * 1.2, verbY, what > 0.5 ? GREEN : PAPER);
-    const verbW = ctx.measureText('GRAB ').width;
+    s.text('pick up', step * 1.2, verbY, what > 0.5 ? GREEN : PAPER);
+    const verbW = ctx.measureText('PICK UP ').width;
+    const gap = ctx.measureText('M ').width;
     const objectX = step * 1.2 + verbW;
-    const objectW = ctx.measureText('A CHAIN WHIP').width;
-    s.text('a chain whip', objectX, verbY, what > 0.5 ? PINK : PAPER);
+    const objectW = ctx.measureText('HAMMER').width;
+    s.text('hammer', objectX, verbY, what > 0.5 ? PINK : PAPER);
     if (what > 0.5) {
       // The object is struck out, and the verdict on each half is written beside the instruction.
       ctx.strokeStyle = PINK;
@@ -651,7 +684,7 @@ const human: Figure = (() => {
       ctx.moveTo(objectX, verbY);
       ctx.lineTo(objectX + objectW, verbY);
       ctx.stroke();
-      const verdictX = objectX + objectW + verbW;
+      const verdictX = objectX + objectW + gap * 2;
       s.text('right action,', verdictX, verbY, GREEN);
       s.text('wrong object', verdictX + ctx.measureText('RIGHT ACTION, ').width, verbY, PINK);
     }
@@ -681,16 +714,21 @@ const human: Figure = (() => {
       ctx.globalAlpha = 1;
       s.text('point of no return', mark - step * 0.8, railY - step * 1.9, MAIZE, 'right');
     }
-    s.text('0 s', step, railY + step * 1.4, MUTED);
-    s.text(`${CLIP} s`, s.w - step, railY + step * 1.4, MUTED, 'right');
+    // The end labels sit clear of the rail, however small the figure is drawn.
+    const labelY = Math.min((railRow + 1) * step + 11, s.h - 8);
+    s.text('first frame', step, labelY, MUTED);
+    s.text('last frame', s.w - step, labelY, MUTED, 'right');
 
     // The attribution, in words, in the console.
     if (fade < 0.1 || now < AT.watch) s.say('', 'Instruction');
-    else if (now < AT.what) s.say('Grab a chain whip.', 'Instruction');
-    else if (now < AT.when) s.say('Right action, wrong object: that is a wrench.', 'What');
-    else if (now < AT.where) s.say('It could not be undone after 3.2 seconds.', 'When');
-    else s.say('Here: the hand, closing on the wrench.', 'Where');
-    s.report(`${clock.toFixed(1)} s`, playing ? 'Watching the attempt' : 'Point of no return');
+    else if (now < AT.what) s.say('Pick up hammer.', 'Instruction');
+    else if (now < AT.when) s.say('Right action, wrong object: that is a bolt.', 'What');
+    else if (now < AT.where) s.say(`It could not be undone after frame ${PNR_FRAME}.`, 'When');
+    else s.say('Here: the hand, closing on the bolt.', 'Where');
+    s.report(
+      playing ? '--' : `Frame ${PNR_FRAME}`,
+      playing ? 'Watching the attempt' : 'Point of no return',
+    );
   };
 })();
 
@@ -705,19 +743,32 @@ const health: Figure = (s) => {
   const squeeze = Math.exp(-Math.pow((beat - 0.2) / 0.1, 2));
   const sweep = -half + ((s.t * 0.45) % 1) * 2 * half;
 
-  // Two chambers; the larger one contracts with each beat.
+  // The apical four-chamber view: the two ventricles above, which contract with each beat, and
+  // the two atria below, which fill as they do.
   const chambers = [
     {
-      cx: ax - R * 0.1,
-      cy: ay + R * 0.56,
-      rx: R * 0.21 * (1 - 0.2 * squeeze),
-      ry: R * 0.3 * (1 - 0.12 * squeeze),
+      cx: ax - R * 0.11,
+      cy: ay + R * 0.44,
+      rx: R * 0.17 * (1 - 0.2 * squeeze),
+      ry: R * 0.23 * (1 - 0.12 * squeeze),
     },
     {
-      cx: ax + R * 0.27,
-      cy: ay + R * 0.62,
-      rx: R * 0.13 * (1 + 0.1 * squeeze),
-      ry: R * 0.2 * (1 + 0.06 * squeeze),
+      cx: ax + R * 0.2,
+      cy: ay + R * 0.47,
+      rx: R * 0.11 * (1 - 0.12 * squeeze),
+      ry: R * 0.17 * (1 - 0.08 * squeeze),
+    },
+    {
+      cx: ax - R * 0.11,
+      cy: ay + R * 0.81,
+      rx: R * 0.14 * (1 + 0.1 * squeeze),
+      ry: R * 0.1 * (1 + 0.12 * squeeze),
+    },
+    {
+      cx: ax + R * 0.2,
+      cy: ay + R * 0.8,
+      rx: R * 0.11 * (1 + 0.1 * squeeze),
+      ry: R * 0.09 * (1 + 0.12 * squeeze),
     },
   ];
 
@@ -775,17 +826,26 @@ const health: Figure = (s) => {
     else s.ctx.lineTo(x, yy);
   }
   s.ctx.stroke();
+  // The paper rates the probe's position in three levels, not as a number: on target (green),
+  // close to target (yellow), or off target (red). Here the probe drifts a little and comes back.
+  const near = Math.sin(s.t * 0.42) > 0.82;
   s.text(
-    `view quality ${(0.86 + 0.05 * Math.sin(s.t * 0.7)).toFixed(2)}`,
+    near ? 'probe: close to target' : 'probe: on target',
     s.w - s.step,
     base,
-    PAPER,
+    near ? MAIZE : GREEN,
     'right',
   );
 };
 
 // --- Learning: choosing a coreset from an embedding space -------------------
 
+/**
+ * Zero-shot coreset selection (Griffin, Marks, Corso; ZCore), in two dimensions. No labels are
+ * used, so the points have no classes. Random spots in the embedding space are sampled again and
+ * again: the point nearest each spot gains a score for covering it, and that point's close
+ * neighbors lose a little, since they would be redundant. The highest scores become the coreset.
+ */
 const learning: Figure = (() => {
   const random = seeded(29);
   const CENTERS = [
@@ -794,47 +854,66 @@ const learning: Figure = (() => {
     [0.31, 0.7],
     [0.74, 0.68],
   ];
-  const COLORS = [PAPER, BLUE, GREEN, '#b79cff'];
   const gauss = () => (random() + random() + random() - 1.5) * 0.9;
   const points = Array.from({ length: 96 }, (_, i) => {
     const [cx, cy] = CENTERS[i % 4];
-    return {
-      x: cx + gauss() * 0.11,
-      y: cy + gauss() * 0.12,
-      sx: random(),
-      sy: random(),
-      group: i % 4,
-    };
+    return { x: cx + gauss() * 0.11, y: cy + gauss() * 0.12, sx: random(), sy: random() };
   });
-  // Farthest-point order: each pick is the point farthest from everything already picked.
-  const order: number[] = [0];
   const KEEP = 20;
-  while (order.length < KEEP) {
-    let best = 0;
-    let bestD = -1;
+  const SAMPLES = 72;
+  const NEAR = 0.07;
+  // Each sample, and the scores of every point after it: computed once, replayed on every loop.
+  const samples: { x: number; y: number; hit: number }[] = [];
+  const scores: number[][] = [points.map(() => 0)];
+  for (let k = 0; k < SAMPLES; k++) {
+    const x = 0.08 + random() * 0.84;
+    const y = 0.08 + random() * 0.84;
+    const after = [...scores[k]];
+    let hit = 0;
+    let best = Infinity;
     points.forEach((p, i) => {
-      const d = Math.min(...order.map((j) => Math.hypot(p.x - points[j].x, p.y - points[j].y)));
-      if (d > bestD) {
-        bestD = d;
-        best = i;
+      // A point that is already covering its neighborhood is a little less likely to be picked.
+      const d = Math.hypot(p.x - x, p.y - y) + after[i] * 0.004;
+      if (d < best) {
+        best = d;
+        hit = i;
       }
     });
-    order.push(best);
+    after[hit] += 1;
+    points.forEach((p, i) => {
+      if (i !== hit && Math.hypot(p.x - points[hit].x, p.y - points[hit].y) < NEAR)
+        after[i] -= 0.35;
+    });
+    samples.push({ x, y, hit });
+    scores.push(after);
   }
-  const rank = new Map(order.map((index, k) => [index, k]));
-  const LOOP = 12.5;
+  const final = scores[SAMPLES];
+  const chosen = new Set(
+    final
+      .map((score, i) => [score, i])
+      .sort((a, b) => b[0] - a[0])
+      .slice(0, KEEP)
+      .map(([, i]) => i),
+  );
+  const top = Math.max(...final);
+  const LOOP = 13.5;
+  const PER = 0.085;
 
   return (s) => {
     const now = s.t % LOOP;
-    const gather = now < 10.8 ? easeOut(now / 2.4) : 1 - easeOut((now - 10.8) / 1.5);
-    const kept = clamp(Math.floor((now - 2.6) / 0.3), 0, KEEP);
+    const gather = now < 11.8 ? easeOut(now / 2.4) : 1 - easeOut((now - 11.8) / 1.5);
+    const done = clamp(Math.floor((now - 2.6) / PER), 0, SAMPLES);
+    const picked = now > 2.6 + SAMPLES * PER + 0.4 && now < 11.8;
     const usable = s.h - s.step * 3;
+    const at = (x: number, y: number, i = 0) => [
+      x * s.w + Math.sin(s.t * 0.9 + i) * 1.5,
+      y * usable + Math.cos(s.t * 0.8 + i * 1.7) * 1.5,
+    ];
+    const current = scores[done];
 
     points.forEach((p, i) => {
-      const x = lerp(p.sx, p.x, gather) * s.w + Math.sin(s.t * 0.9 + i) * 1.5;
-      const y = lerp(p.sy, p.y, gather) * usable + Math.cos(s.t * 0.8 + i * 1.7) * 1.5;
-      const picked = (rank.get(i) ?? KEEP) < kept;
-      if (picked) {
+      const [x, y] = at(lerp(p.sx, p.x, gather), lerp(p.sy, p.y, gather), i);
+      if (picked && chosen.has(i)) {
         const half = s.step * 0.62;
         s.ctx.fillStyle = MAIZE;
         s.ctx.fillRect(x - half, y - half, half * 2, half * 2);
@@ -843,22 +922,49 @@ const learning: Figure = (() => {
         s.ctx.globalAlpha = 0.5;
         s.ctx.strokeRect(x - half * 2, y - half * 2, half * 4, half * 4);
         s.ctx.globalAlpha = 1;
-      } else {
-        const half = s.step * 0.3;
-        s.ctx.globalAlpha = kept >= KEEP ? 0.28 : 0.85;
-        s.ctx.fillStyle = COLORS[p.group];
-        s.ctx.fillRect(x - half, y - half, half * 2, half * 2);
-        s.ctx.globalAlpha = 1;
+        return;
       }
+      // A point grows and brightens as it gains score, and fades as it is found redundant.
+      const worth = clamp(current[i] / top, -0.4, 1);
+      const half = s.step * (0.26 + 0.3 * Math.max(0, worth));
+      s.ctx.globalAlpha = picked ? 0.22 : clamp(0.5 + 0.5 * worth, 0.18, 1);
+      s.ctx.fillStyle = worth > 0.05 ? s.tint : PAPER;
+      s.ctx.fillRect(x - half, y - half, half * 2, half * 2);
+      s.ctx.globalAlpha = 1;
     });
+
+    // The sample being drawn now: a cross where it fell, tied to the point that covers it.
+    if (done > 0 && done <= SAMPLES && !picked && gather >= 1) {
+      const sample = samples[done - 1];
+      const [x, y] = [sample.x * s.w, sample.y * usable];
+      const [hx, hy] = at(points[sample.hit].x, points[sample.hit].y, sample.hit);
+      const arm = s.step * 0.6;
+      s.ctx.strokeStyle = MAIZE;
+      s.ctx.lineWidth = 1.5;
+      s.ctx.beginPath();
+      s.ctx.moveTo(x - arm, y);
+      s.ctx.lineTo(x + arm, y);
+      s.ctx.moveTo(x, y - arm);
+      s.ctx.lineTo(x, y + arm);
+      s.ctx.stroke();
+      s.ctx.globalAlpha = 0.55;
+      s.ctx.beginPath();
+      s.ctx.moveTo(x, y);
+      s.ctx.lineTo(hx, hy);
+      s.ctx.stroke();
+      s.ctx.globalAlpha = 1;
+    }
+
     s.text(
-      `keep ${String(kept).padStart(2, '0')} / ${points.length}`,
+      picked
+        ? `keep ${KEEP} / ${points.length}`
+        : `sample ${String(done).padStart(2, '0')} / ${SAMPLES}`,
       s.step,
       s.h - s.step * 1.3,
       PAPER,
     );
     s.text(
-      kept >= KEEP ? 'coreset chosen' : gather < 1 ? 'embedding' : 'selecting',
+      picked ? 'coreset chosen, no labels used' : gather < 1 ? 'embedding' : 'scoring coverage',
       s.w - s.step,
       s.h - s.step * 1.3,
       MUTED,
