@@ -1,5 +1,5 @@
 /**
- * VIGIL, the group's flagship project, in one place: the facts that the home page band, the
+ * VIGIL, the group's project in rural healthcare, in one place: the facts that the home page band, the
  * Research page, and the project's own page are written from.
  *
  * Every fact here was read on its source in November 2026. The page does not cite them: the

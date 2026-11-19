@@ -130,7 +130,7 @@ makes them better at it.
 - **Private working material** is kept out of this repository by `.gitignore`: slide decks and
   an Obsidian vault of project notes (`vault/`).
 
-## VIGIL, the flagship project
+## VIGIL
 
 VIGIL has a band on the home page and the Research page, an entry in the navigation, and its own
 page at `/vigil/`.

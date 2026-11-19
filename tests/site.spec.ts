@@ -386,7 +386,7 @@ test("the mark's eye follows the pointer and its gear turns with the page", asyn
 
 test('every research figure draws its own picture', async ({ page }) => {
   await page.goto(at('/research/'));
-  // One figure for each of the six areas. The flagship project above them is shown in footage.
+  // One figure for each of the six areas. The VIGIL project above them is shown in footage.
   const figures = page.locator('[data-figure]');
   await expect(figures).toHaveCount(6);
   const names = new Set<string>();
@@ -505,9 +505,7 @@ test('clips stay still for visitors who ask for reduced motion', async ({ page }
   await expect(clip.locator('[data-clip-toggle]')).toHaveAccessibleName('Play the clip');
 });
 
-test('the flagship project is introduced on the home page and leads to its own page', async ({
-  page,
-}) => {
+test('VIGIL is introduced on the home page and leads to its own page', async ({ page }) => {
   await page.goto(at('/'));
   const band = page.locator('section.vigil');
   await expect(band.getByRole('heading', { name: 'VIGIL' })).toBeVisible();
@@ -523,6 +521,15 @@ test('the flagship project is introduced on the home page and leads to its own p
   await expect(page).toHaveURL(/\/vigil\/$/);
   await expect(page.locator('h1')).toContainText('VIGIL');
   await expect(page.locator('h1')).toContainText('Long-Reach Rural Healthcare');
+
+  // The project is named for what it is and who funds it. The site does not rank its own work.
+  for (const path of ['/', '/research/', '/vigil/']) {
+    await page.goto(at(path));
+    await expect(page.locator('body')).not.toContainText(/flagship/i);
+    expect(await page.locator('meta[name="description"]').getAttribute('content')).not.toMatch(
+      /flagship/i,
+    );
+  }
 });
 
 test('the VIGIL page states its facts plainly: no footnote numbers, and every link goes somewhere exact', async ({

@@ -1,6 +1,6 @@
 ---
 /**
- * VIGIL, the group's flagship project. The facts are in src/lib/vigil.ts, and the videos and press
+ * VIGIL, the group's project in rural healthcare. The facts are in src/lib/vigil.ts, and the videos and press
  * are the media items marked `project: vigil`.
  */
 import { getImage, Image } from 'astro:assets';
@@ -123,13 +123,13 @@ const plate = [
 
 <Base
   title="VIGIL"
-  description="VIGIL is the Corso Group's flagship project: an AI agent, funded by ARPA-H's PARADIGM program, that guides generalist clinicians through specialist exams and procedures so hospital-level care can reach rural America."
+  description="VIGIL is an AI agent, built by the Corso Group and its partners and funded by ARPA-H's PARADIGM program, that guides generalist clinicians through specialist exams and procedures so hospital-level care can reach rural America."
 >
   <header class="page-head">
     <div class="container">
       <p class="label head-label">
         <Image src={vigilMark} alt="The VIGIL logo" width={56} height={56} />
-        Flagship project &middot; {award.funder} {award.program}
+        {award.funder} {award.program}
       </p>
       <h1 class="page-title wordmark">
         {vigil.name}

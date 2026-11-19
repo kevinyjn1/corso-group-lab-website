@@ -13,7 +13,7 @@
  *
  *   oracle    the hazy oracle: three mugs, an ambiguous request, and a robot that asks again
  *
- * Two more illustrate the group's flagship project:
+ * Two more illustrate the group's VIGIL project:
  *
  *   vigil     a heart ultrasound guided by light projected onto the patient and a voice
  *   leg       a scan of the leg for blood clots, vein by vein, with the same guidance

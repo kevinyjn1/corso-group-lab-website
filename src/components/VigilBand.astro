@@ -1,6 +1,6 @@
 ---
 /**
- * The group's flagship project, introduced on the home page and the Research page: its name, what
+ * The group's VIGIL project, introduced on the home page and the Research page: its name, what
  * it is, the team's own footage of it at work, and four numbers. The project's page has the rest.
  */
 import { Image } from 'astro:assets';
@@ -15,12 +15,12 @@ import vigilMark from '../assets/vigil/vigil-mark.png';
 interface Props {
   /** Heading level of the project's name. */
   level?: 'h2' | 'h3';
-  /** The line above the name: by default, that this is the flagship project. */
+  /** The line above the name. By default it only says what kind of thing this is. */
   kicker?: string;
   /** A number set before that line, when the band is one of a numbered series of claims. */
   number?: string;
 }
-const { level: Heading = 'h2', kicker = 'Flagship project', number } = Astro.props;
+const { level: Heading = 'h2', kicker = 'Project', number } = Astro.props;
 const { award } = vigil;
 ---
 
