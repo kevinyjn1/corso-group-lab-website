@@ -135,8 +135,11 @@ makes them better at it.
 VIGIL has a band on the home page and the Research page, an entry in the navigation, and its own
 page at `/vigil/`.
 
-- **The facts** are in `src/lib/vigil.ts`: the award, the four numbers, how it works, what it
-  guides, the timeline, and the team. The page states these facts plainly: it has no footnote
+- **The facts** are in `src/lib/vigil.ts`: the award, how it works, who it is for, what it
+  guides, the timeline, and the team. The project's line ("Specialist-level care, anywhere it's
+  needed."), the "not a replacement, a teammate" section, and the sentence on the first eighteen
+  months follow the team's own one-page overview of July 2026; numbers from it are written as
+  sentences, never as a row of figures. The page states these facts plainly: it has no footnote
   numbers and no list of sources. It keeps three ordinary links in its text (the award, the
   article a quotation is from, and the post a picture is from), listed as `LINKS` in that file.
   When something changes, change it there, with its date.

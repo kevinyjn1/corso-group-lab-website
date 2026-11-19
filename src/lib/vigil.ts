@@ -89,7 +89,8 @@ export const vigil = {
     ['L', 'ong-Reach Rural Healthcare'],
   ],
   fullName: 'Vectors of Intelligent Guidance in Long-Reach Rural Healthcare',
-  tagline: 'Specialist-level care, anywhere.',
+  /** The team's own line for the project, from its one-page overview of July 2026. */
+  tagline: "Specialist-level care, anywhere it's needed.",
   summary:
     'VIGIL is physically grounded upskilling at work: an AI agent that sees, hears, and guides. It coaches a nurse or a family doctor, step by step, through exams that usually need a specialist. The aim is to turn generalists into specialists on the fly, so that hospital-level care can travel to the people who live farthest from a hospital.',
   /** The award, as ARPA-H lists it. */
@@ -128,7 +129,25 @@ export const vigil = {
       'A virtual-reality version of the ultrasound guidance',
     ],
   },
+  /** Who the project is for, as the team's one-page overview of July 2026 lists them. */
+  benefits: [
+    {
+      who: 'Rural veterans and patients',
+      gain: 'Specialist-level care close to home, in places that have been losing it for decades.',
+    },
+    {
+      who: 'Healthcare workers',
+      gain: 'Guidance at the moment it is needed, fitted to each worker. It builds skill and confidence, and the job stays theirs.',
+    },
+    {
+      who: 'The health system',
+      gain: 'A wider range of patients reached, with on-the-job training for the medical workers already in the field.',
+    },
+  ],
   timeline,
+  /** What the first eighteen months produced besides the services, from the same overview. */
+  eighteenMonths:
+    'In that time the team gathered more than 1,000 scans of real patients, trained its models on more than a million ultrasound frames, and published more than thirty peer-reviewed papers.',
   ahead,
   /**
    * The team by sub-team and institution: as announced in February 2025, with Cornell Tech, where

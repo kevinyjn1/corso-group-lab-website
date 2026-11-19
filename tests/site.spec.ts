@@ -567,6 +567,37 @@ test('the VIGIL page states its facts plainly: no footnote numbers, and every li
   await expect(page.locator('.ahead')).toContainText('Still ahead');
 });
 
+test('the VIGIL page says who it is for, and gives its numbers in sentences', async ({ page }) => {
+  await page.goto(at('/vigil/'));
+  // The team's own line leads the summary, under the name as ARPA-H lists it.
+  await expect(page.locator('.page-head .lead strong')).toHaveText(
+    "Specialist-level care, anywhere it's needed.",
+  );
+  await expect(page.locator('.page-head h1')).toContainText('Long-Reach Rural Healthcare');
+
+  // Not a replacement: the person it works beside, described once, and who gains from it.
+  const who = page.locator('#who');
+  await expect(who.locator('h2')).toHaveText(/Not a replacement\.\s+A\s+teammate\s*\./);
+  await expect(who.locator('.prose')).toContainText('VIGIL is a human-AI team');
+  await expect(who.locator('.benefits .service-name')).toHaveText([
+    'Rural veterans and patients',
+    'Healthcare workers',
+    'The health system',
+  ]);
+  for (const gain of await who.locator('.benefit-gain').allInnerTexts()) {
+    expect(gain, gain).toMatch(/^[A-Z].+\.$/);
+  }
+  const text = await page.locator('main').innerText();
+  expect(text.match(/works beside is a generalist/g)).toHaveLength(1);
+
+  // The first eighteen months are a sentence under the heading, not a row of big figures.
+  const progress = page.locator('section.progress');
+  await expect(progress.locator('.section-head p').last()).toContainText(
+    'more than a million ultrasound frames',
+  );
+  await expect(progress.locator('dl, .figures')).toHaveCount(0);
+});
+
 test('the VIGIL page has the talk, the coverage, and the papers', async ({ page }) => {
   const requested: string[] = [];
   await page.route(/youtube/, (route) => {

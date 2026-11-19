@@ -138,7 +138,9 @@ const plate = [
       <div class="head-foot">
         <div>
           <VigilName decorative />
-          <p class="lead">{vigil.summary}</p>
+          <p class="lead">
+            <strong>{vigil.tagline}</strong> {vigil.summary}
+          </p>
           <div class="cta">
             <a class="btn btn--primary" href="#how">
               See it work{' '}
@@ -356,10 +358,14 @@ const plate = [
       <div class="why" data-reveal="stagger">
         <div class="prose">
           <p>
-            Over the past ten years, more than 100 hospitals in mostly rural parts of the United
-            States have closed, and at least 600 more, about 30% of all rural hospitals, are at risk
-            of closing. When one closes, the people it served travel farther for the same care, or
-            go without.
+            One in five people in the United States lives in a rural area, where early death from
+            the five leading causes (heart disease, cancer, unintentional injury, chronic lower
+            respiratory disease, and stroke) is more common.
+          </p>
+          <p>
+            Over the past ten years, more than 100 hospitals in mostly rural areas have closed, and
+            at least 600 more, about 30% of all rural hospitals, are at risk of closing. When one
+            closes, the people it served travel farther for the same care, or go without.
           </p>
           <p>
             {award.funder}'s {award.program} program is building a different model: a vehicle that
@@ -368,12 +374,6 @@ const plate = [
             devices into one system. <strong>VIGIL is the fifth: intelligent task guidance</strong>,
             the part that lets the clinician on board do work that would otherwise wait for a
             specialist.
-          </p>
-          <p>
-            The person VIGIL works beside is a generalist: a family doctor, a nurse practitioner, a
-            physician assistant. They have deep foundational knowledge and no specialist down the
-            hall. The agent observes what they do, walks them through what is unfamiliar, and
-            adjusts when something unexpected happens.
           </p>
         </div>
 
@@ -400,6 +400,43 @@ const plate = [
             </figcaption>
           </figure>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section teammate" id="who">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Who it is for</p>
+          <h2 class="h2">
+            Not a replacement. A <em>teammate</em>.
+          </h2>
+        </div>
+      </div>
+
+      <div class="why" data-reveal="stagger">
+        <div class="prose">
+          <p>
+            The person VIGIL works beside is a generalist: a family doctor, a nurse practitioner, a
+            physician assistant. They have deep foundational knowledge and no specialist down the
+            hall. The agent observes what they do, walks them through what is unfamiliar, and
+            adjusts when something unexpected happens.
+          </p>
+          <p>
+            It does not replace them. <strong>VIGIL is a human-AI team</strong>: it upskills the
+            workers rural healthcare already has, and the clinician stays in charge of the care.
+          </p>
+        </div>
+
+        <ul class="benefits">
+          {vigil.benefits.map((benefit) => (
+            <li>
+              <span class="service-name">{benefit.who}</span>
+              <span class="benefit-gain">{benefit.gain}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   </section>
@@ -451,7 +488,8 @@ const plate = [
           <h2 class="h2">What it guides</h2>
           <p>
             As of August 2026, eighteen months into the project, VIGIL supports four clinical
-            services, among them ultrasound, X-ray, and laryngoscopy.
+            services, among them ultrasound, X-ray, and laryngoscopy. It is built to keep learning,
+            so that new services can be added over time.
           </p>
         </div>
       </div>
@@ -496,6 +534,7 @@ const plate = [
           <h2 class="h2">
             From award to <em>four</em> services in eighteen months.
           </h2>
+          <p>{vigil.eighteenMonths}</p>
         </div>
       </div>
       <ol class="timeline" data-reveal="stagger">
@@ -741,6 +780,11 @@ const plate = [
 
   .page-head .lead {
     margin-top: 1.5rem;
+  }
+
+  /* The team's own line for the project, ahead of the summary. */
+  .page-head .lead strong {
+    font-weight: 600;
   }
 
   .cta {
@@ -1078,13 +1122,15 @@ const plate = [
   }
 
   .services,
+  .benefits,
   .plain {
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .services li {
+  .services li,
+  .benefits li {
     display: grid;
     gap: 0.3rem;
     padding-block: 0.85rem;
@@ -1102,6 +1148,27 @@ const plate = [
   .service-note {
     font-size: 0.85rem;
     color: var(--text-3);
+  }
+
+  /* Who it is for: the same rows as the services, with a sentence where those have a date. */
+  .benefits {
+    border-top: 2px solid var(--text);
+  }
+
+  .benefits li {
+    gap: 0.45rem;
+    padding-block: 1rem;
+  }
+
+  .benefit-gain {
+    max-width: 34rem;
+    line-height: 1.5;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .teammate {
+    padding-top: 0;
   }
 
   .plain li {
