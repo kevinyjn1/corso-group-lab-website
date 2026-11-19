@@ -195,7 +195,10 @@ page at `/vigil/`.
   task, understand the human, and fill the gap, with its source linked. The Research page takes
   its title from his Toyota Professorship lecture.
 - **Real before drawn.** Where the group has its own photograph or footage of something, the site
-  shows that, and a drawing only where there is none. Every animated figure illustrates a
+  shows that, and a drawing only where there is none. The two claims of the thesis on the home
+  page show real results: a real example from the AAAI 2023 paper (its Figure 4, cut into three
+  panels in `src/assets/papers/hazy-*.png`), and a clip of the group's own video of the CVPR 2026
+  results (`src/assets/clips/mistake-results.mp4`). Every animated figure illustrates a
   published result and names the paper it is drawn after (`after` in `src/lib/figures.ts`, shown
   by `src/components/FigureSource.astro`). A figure with no paper to name does not belong here.
 - **Operating room scene** (`src/scripts/hero-scene.ts`, `src/scripts/scene/operation.ts`) - a

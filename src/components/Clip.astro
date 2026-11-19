@@ -17,8 +17,11 @@ interface Props {
   alt: string;
   /** The tag in the corner: where the footage is from. */
   tag?: string;
-  /** Which bottom corner holds the pause button. Use the left when the right one has something to read. */
-  toggle?: 'left' | 'right';
+  /**
+   * Where the pause button sits: the bottom right corner, the bottom left when the right one has
+   * something to read, or the top right when the picture has a margin there and none below.
+   */
+  toggle?: 'left' | 'right' | 'top';
 }
 const { src, poster, alt, tag = 'Footage', toggle = 'right' } = Astro.props;
 const still = await getImage({ src: poster, width: poster.width, format: 'webp', quality: 72 });
@@ -123,6 +126,11 @@ const still = await getImage({ src: poster, width: poster.width, format: 'webp',
   .clip-frame[data-toggle='left'] .clip-toggle {
     right: auto;
     left: 0.6rem;
+  }
+
+  .clip-frame[data-toggle='top'] .clip-toggle {
+    top: 0.5rem;
+    bottom: auto;
   }
 
   .clip-toggle:hover {

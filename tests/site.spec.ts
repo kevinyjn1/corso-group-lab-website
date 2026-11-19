@@ -432,7 +432,7 @@ test('every research figure names the paper it is drawn after', async ({ page })
 });
 
 /** A clip of the group's footage: silent, looping, described, and held still on request. */
-async function expectClip(clip: import('@playwright/test').Locator) {
+async function expectClip(clip: import('@playwright/test').Locator, tag = 'Footage') {
   const video = clip.locator('video');
   await expect(video).toHaveAttribute('aria-label', /\S.{40,}/);
   await expect(video).toHaveAttribute('poster', /\S+/);
@@ -441,7 +441,7 @@ async function expectClip(clip: import('@playwright/test').Locator) {
   await expect(video).toHaveAttribute('playsinline', '');
   await expect(video).toHaveAttribute('preload', 'none');
   await expect(video.locator('source')).toHaveAttribute('src', /\.mp4$/);
-  await expect(clip.locator('.clip-tag')).toContainText('Footage');
+  await expect(clip.locator('.clip-tag')).toContainText(tag);
   await expect(clip.locator('figcaption')).not.toBeEmpty();
 }
 
@@ -887,7 +887,7 @@ test('the home page is not a dashboard: no rows of big numbers, no ticker, no or
   expect(join.light).not.toContain('255, 203, 5');
 });
 
-test('the thesis makes its claims with live figures and the papers behind them', async ({
+test('the thesis makes its claims with real results and the papers behind them', async ({
   page,
 }) => {
   await page.goto(at('/'));
@@ -902,35 +902,54 @@ test('the thesis makes its claims with live figures and the papers behind them',
   }
   expect(await thesis.locator('.claim-papers a').count()).toBeGreaterThanOrEqual(4);
 
-  // The hazy oracle: an ambiguous request, a robot that asks again, and then acts.
-  const oracle = thesis.locator('[data-figure="oracle"] + [data-console]');
-  await oracle.scrollIntoViewIfNeeded();
-  const step = (panel: typeof oracle, name: string) =>
-    panel.getByRole('button', { name: new RegExp(`${name}$`) });
-  await step(oracle, 'Ask again').click();
-  await expect(oracle.locator('[data-says-who]')).toHaveText('Robot');
-  // The dialogue is the paper's own, word for word, and no number is shown that it does not give.
-  await expect(oracle.locator('[data-says]')).toHaveText("I'm not sure. Can you try again?");
-  await expect(oracle.locator('[data-readout-value]')).toHaveText('3');
-  await step(oracle, 'Fetch').click();
-  await expect(oracle.locator('[data-says-who]')).toHaveText('Person');
-  await expect(oracle.locator('[data-says]')).toHaveText('Get the orange one.');
-  await expect(oracle.locator('[data-readout-value]')).toHaveText('1');
-  await expect(oracle.locator('[data-readout-label]')).toContainText('act');
+  // Both claims are shown with the group's real results, not with drawings of them.
+  await expect(thesis.locator('.claims [data-figure], .claims canvas')).toHaveCount(0);
 
-  // Mistake attribution: what, when, and where.
-  const mistake = thesis.locator('[data-figure="human"] + [data-console]');
-  await mistake.scrollIntoViewIfNeeded();
-  await step(mistake, 'Watch').click();
-  await expect(mistake.locator('[data-says]')).toHaveText('Pick up hammer.');
-  await step(mistake, 'What').click();
-  await expect(mistake.locator('[data-says-who]')).toHaveText('What');
-  await expect(mistake.locator('[data-says]')).toContainText('wrong object');
-  await step(mistake, 'When').click();
-  await expect(mistake.locator('[data-readout-value]')).toHaveText('Frame 17');
-  await expect(mistake.locator('[data-readout-label]')).toHaveText('Point of no return');
-  await step(mistake, 'Where').click();
-  await expect(mistake.locator('[data-says-who]')).toHaveText('Where');
+  // The hazy oracle: a real photograph from the paper, with the model's own boxes and numbers.
+  const result = claims.nth(0).locator('[data-result]');
+  const panels = result.locator('.result-panel img');
+  await expect(panels).toHaveCount(3);
+  for (const panel of await panels.all()) {
+    await panel.scrollIntoViewIfNeeded();
+    await expect(panel).toHaveAttribute('alt', /\d\d%/);
+    await expect
+      .poll(() => panel.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(0);
+  }
+  await expect(result).toContainText('"third vase from left"');
+  await expect(result).toContainText('"left vase from cylinder"');
+  // The numbers in the caption are the ones printed on the pictures.
+  await expect(result.locator('figcaption')).toContainText(/84%.*87%.*99%/s);
+  await expect(result.locator('figcaption a')).toHaveText(
+    'Figure 4 of Lemmer and Corso, AAAI 2023',
+  );
+  await expect(result.locator('figcaption a')).toHaveAttribute(
+    'href',
+    /arxiv\.org\/abs\/2110\.10206/,
+  );
+
+  // Mistake attribution: a clip of the model's output on real video, then the paper's own figure.
+  const footage = claims.nth(1).locator('.claim-figure [data-clip]');
+  await expectClip(footage, 'Model output');
+  await expect(footage.locator('figcaption')).toContainText('real first-person video');
+  await expect(footage.locator('figcaption a')).toHaveAttribute(
+    'href',
+    /yayuanli\.github\.io\/MATT/,
+  );
+  // Its label and its pause button sit in the clip's own margin, clear of each other.
+  const corners = await footage.evaluate((el) => {
+    const tag = el.querySelector('.clip-tag')!.getBoundingClientRect();
+    const toggle = el.querySelector('[data-clip-toggle]')!.getBoundingClientRect();
+    const frame = el.querySelector('.clip-frame')!.getBoundingClientRect();
+    return {
+      apart: toggle.left - tag.right,
+      toggleTop: toggle.top - frame.top,
+      frame: frame.height,
+    };
+  });
+  expect(corners.apart).toBeGreaterThan(8);
+  expect(corners.toggleTop).toBeLessThan(corners.frame * 0.2);
+  await expect(claims.nth(1).locator('[data-paper-figure="li2026mistake"]')).toHaveCount(1);
 
   // The arc ends at the clinic, shows MILLY at work, and the third claim leads on to VIGIL.
   // Every step is dated with a year, and a step that reports a result links its paper.
@@ -954,9 +973,12 @@ test('the thesis makes its claims with live figures and the papers behind them',
 test('the steps under a live figure stay where they are while the figure plays', async ({
   page,
 }) => {
-  await page.goto(at('/'));
-  for (const name of ['oracle', 'human']) {
-    const panel = page.locator(`#thesis [data-figure="${name}"] + [data-console]`);
+  for (const [path, name] of [
+    ['/research/', 'human'],
+    ['/vigil/', 'vigil'],
+  ] as const) {
+    await page.goto(at(path));
+    const panel = page.locator(`[data-figure="${name}"] + [data-console]`).first();
     await panel.scrollIntoViewIfNeeded();
     // Long enough for the story to move through several steps.
     const seen = new Set<string>();
@@ -989,9 +1011,9 @@ test('the steps under a live figure stay where they are while the figure plays',
 });
 
 test('figures from the papers are shown as published, each with its paper', async ({ page }) => {
-  // One under each claim of the thesis, and one in each research area.
+  // One under the second claim of the thesis, and one in each research area.
   for (const [path, count] of [
-    ['/', 2],
+    ['/', 1],
     ['/research/', 6],
   ] as const) {
     await page.goto(at(path));
