@@ -154,6 +154,9 @@ page at `/vigil/`.
   `ffmpeg -ss <start> -to <end> -i <source> -an -vf scale=1280:-2,fps=24 -c:v libx264 -crf 27
 -preset slow -pix_fmt yuv420p -movflags +faststart <name>.mp4`, save one frame of it as the
   poster in `src/assets/clips/posters/`, and describe what it shows in the `alt` text.
+- **Photographs of the May 2026 site visit** (`src/assets/vigil/site-visit-*.jpg`) are the
+  College of Engineering's, by Gabi Iriarte, from its public post about the visit. They are
+  shown three across at one size, and the credit is under them.
 - **Demo day posters** are in `src/lib/vigil-posters.ts`: what each team showed, in this site's
   words, with a link to the paper where one has been published. Some of that work is not yet
   published, so have each team confirm its entry before the site is made public.
@@ -202,11 +205,14 @@ page at `/vigil/`.
   from the paper's PDF at print resolution (`pdftoppm -r 400 -f <page> -l <page> -x <x> -y <y>
 -W <w> -H <h> -png`), leave its caption out, and save it in `src/assets/papers/` under the
   paper's id.
-- **Research areas** (`src/lib/area-visuals.ts`). Each of the six areas opens on a lead picture
-  at full width, a figure from a paper or a clip, and has a second figure beside its text. Five
-  of them have a card on the home page that shows part of one figure. A lead is shown as large
-  as it reads well, with its caption beside it when there is room and under it when the figure
-  fills the row.
+- **Research areas** (`src/lib/area-visuals.ts`). Each of the six areas has two pictures: a
+  lead, which is a figure from a paper or a clip, and a second figure. Five of them have a card
+  on the home page that shows part of one figure. On the Research page every area is set on the
+  same grid: its name and text in the left column, its two pictures in the right one, both the
+  full width of that column, each with its caption under it. No picture stands taller than
+  30rem, so a pair stays near the height of the text. Tests hold the grid: equal picture
+  widths, captions as wide as their pictures, and columns that end within 200 pixels of each
+  other on a laptop.
 - **In the operating room** (`src/lib/operating-room.ts`) - two decades of work on surgery and
   the heart, as four papers show it: a beating heart tracked in stereo video (2004), the tools of
   a surgical robot (2017), a surgeon's hands (2023), and a heart ultrasound (2026). Pictures of
