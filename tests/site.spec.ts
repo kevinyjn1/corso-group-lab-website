@@ -790,6 +790,52 @@ test('the VIGIL page shows the system at work: photos, footage, and the demo day
   }
 });
 
+test('the VIGIL page shows the annual site visit in six photographs of one shape', async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto(at('/vigil/'));
+  const visit = page.locator('#site-visit');
+  await expect(visit.locator('.section-head')).toContainText('May 2026');
+  const photos = visit.locator('.visit-photos .photo');
+  await expect(photos).toHaveCount(6);
+  const shapes = new Set<string>();
+  for (const photo of await photos.all()) {
+    await photo.scrollIntoViewIfNeeded();
+    const image = photo.locator('img');
+    await expect(image).toHaveAttribute('alt', /\S.{60,}/);
+    await expect
+      .poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(300);
+    const box = (await image.boundingBox())!;
+    shapes.add(`${Math.round(box.width)}x${Math.round(box.height)}`);
+    // Each caption opens with what the photograph is of, then says what it shows.
+    await expect(photo.locator('figcaption strong')).toHaveText(/\.\s*$/);
+    await expect(photo.locator('figcaption')).toHaveText(/\S.{50,}[."]\s*$/);
+  }
+  // Every photograph is the same size, so the grid has no ragged rows.
+  expect([...shapes]).toHaveLength(1);
+  await expect(visit.locator('.photo-credit')).toHaveText(
+    'Photos: Gabi Iriarte, Michigan Engineering.',
+  );
+
+  // In the block of photographs above it, the two columns end on one line.
+  if (!isMobile) {
+    const ends = await page.locator('#in-the-room .photos > .photo').evaluateAll((figures) =>
+      figures.map((figure) => ({
+        left: Math.round(figure.getBoundingClientRect().left),
+        bottom: Math.round(figure.getBoundingClientRect().bottom),
+      })),
+    );
+    const columns = new Map<number, number>();
+    for (const { left, bottom } of ends)
+      columns.set(left, Math.max(columns.get(left) ?? 0, bottom));
+    const bottoms = [...columns.values()];
+    expect(bottoms).toHaveLength(2);
+    expect(Math.abs(bottoms[0] - bottoms[1])).toBeLessThanOrEqual(2);
+  }
+});
+
 test('the home page leads with the thesis, then its proof, then the operating room', async ({
   page,
 }) => {

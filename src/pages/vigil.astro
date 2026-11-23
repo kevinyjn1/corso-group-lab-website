@@ -19,6 +19,12 @@ import legScan from '../assets/vigil/demo-day-leg-scan.jpg';
 import teamPhoto from '../assets/vigil/demo-day-team.jpg';
 import mockClinic from '../assets/vigil/mock-clinic-empty.jpg';
 import mockClinicExam from '../assets/vigil/mock-clinic-exam.jpg';
+import visitTeam from '../assets/vigil/site-visit-1.jpg';
+import visitScreen from '../assets/vigil/site-visit-3.jpg';
+import visitLight from '../assets/vigil/site-visit-6.jpg';
+import visitHeart from '../assets/vigil/site-visit-7.jpg';
+import visitLeg from '../assets/vigil/site-visit-8.jpg';
+import visitXray from '../assets/vigil/site-visit-9.jpg';
 import vigilMark from '../assets/vigil/vigil-mark.png';
 import teamWall from '../assets/vigil/vigil-team.jpg';
 import feedback from '../assets/clips/vigil-feedback.mp4';
@@ -106,6 +112,53 @@ const footage = [
         'The team develops VIGIL in a bay built to stand in for the vehicle: a frame carrying its cameras and screens around an exam table.',
     },
   ],
+] as const;
+
+/**
+ * The annual site visit of May 2026, in the College of Engineering's photographs. Each caption
+ * says only what its photograph shows.
+ */
+const visit = [
+  {
+    photo: visitLight,
+    alt: 'A team member in scrubs gestures as she explains. Beside her a volunteer in a patient gown lies on an exam table, with thin lines of green light projected across the forehead and down the chest. A screen behind shows the VIGIL logo.',
+    title: 'Lining up.',
+    caption: 'Lines of light projected onto the patient show how to lie before the exam begins.',
+  },
+  {
+    photo: visitHeart,
+    alt: 'A man in a suit holds an ultrasound probe to the chest of a volunteer lying on an exam table. On the screen behind them, a drawing of the probe with arrows beside a live ultrasound in a yellow frame.',
+    title: 'The heart, under guidance.',
+    caption:
+      "The screen shows the probe's angle against its target, beside the live ultrasound in its colored frame.",
+  },
+  {
+    photo: visitScreen,
+    alt: 'A team member in a VIGIL shirt points at a large screen. It shows a probe with guidance arrows over a figure of a patient, and beside it an ultrasound of the heart in a green frame with its chambers outlined, under the reading LVEF: 53%.',
+    title: 'Reading the result.',
+    caption:
+      'A team member walks through the guidance screen: the chambers of the heart outlined on the ultrasound, and an estimate of ejection fraction.',
+  },
+  {
+    photo: visitLeg,
+    alt: "A hand holds an ultrasound probe on a volunteer's thigh, where a row of orange marks of light is projected. On the screen behind, an ultrasound image with a green box and an arrow on it, and a 3D model of the patient on the table.",
+    title: 'The leg.',
+    caption:
+      'Marks of light on the thigh show where to scan. On the screen, a box and an arrow on the live ultrasound point to the next small adjustment.',
+  },
+  {
+    photo: visitXray,
+    alt: 'A volunteer in a patient gown stands facing a wall. A green line of light runs down the spine, and more lines are projected onto the wall under the words: T7 Localization. Align the X-ray crosshair to the yellow T7 line. Visitors watch from their seats.',
+    title: 'Positioning for an X-ray.',
+    caption:
+      'Light projected along the spine and onto the wall shows where to aim: "Align the X-ray crosshair to the yellow T7 line."',
+  },
+  {
+    photo: visitTeam,
+    alt: 'About thirty people of the VIGIL team, many in VIGIL shirts, stand together in the lab around a training manikin seated in a chair, which is also wearing a VIGIL shirt.',
+    title: 'The team.',
+    caption: "In the lab on the day of the visit, with the group's training manikin.",
+  },
 ] as const;
 
 /** The team picture at the size it was made, for finding a face in it. */
@@ -243,6 +296,43 @@ const plate = [
       </div>
       <p class="photo-credit" data-reveal>
         Photos of the demonstration: Jason J. Corso. Photo of the mock clinic: the Corso Group.
+      </p>
+    </div>
+  </section>
+
+  <section class="section visit" id="site-visit">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Annual site visit, May 2026</p>
+          <h2 class="h2">
+            Six months later, three clinical <em>services</em>.
+          </h2>
+          <p>
+            Researchers, reporters, and partners gathered on Michigan's North Campus for{' '}
+            {award.funder}'s site visit. They watched VIGIL guide a heart ultrasound, a leg scan for
+            deep vein thrombosis, and the positioning of a patient for an X-ray.
+          </p>
+        </div>
+      </div>
+      <div class="visit-photos" data-reveal="stagger">
+        {visit.map((item) => (
+          <figure class="photo">
+            <Image
+              src={item.photo}
+              alt={item.alt}
+              widths={[480, 720, 960, 1280]}
+              sizes="(min-width: 62rem) 26rem, (min-width: 38rem) 45vw, 92vw"
+              quality={80}
+            />
+            <figcaption>
+              <strong>{item.title}</strong> {item.caption}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <p class="photo-credit" data-reveal>
+        Photos: Gabi Iriarte, Michigan Engineering.
       </p>
     </div>
   </section>
@@ -814,9 +904,31 @@ const plate = [
     align-items: start;
   }
 
+  /* The tall photograph fills both rows beside it, so the two columns end on one line. */
   .photo--tall {
+    display: flex;
+    flex-direction: column;
     grid-column: 2;
     grid-row: 1 / span 2;
+    align-self: stretch;
+  }
+
+  .photo--tall :global(img) {
+    flex: 1 1 0;
+    min-height: 0;
+    object-fit: cover;
+  }
+
+  /* The site visit: six photographs of one shape, three across. */
+  .visit {
+    padding-top: 0;
+  }
+
+  .visit-photos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem clamp(1.25rem, 2.5vw, 2rem);
+    align-items: start;
   }
 
   .photo--lead {
@@ -1478,6 +1590,10 @@ const plate = [
   /* --- Narrow screens ------------------------------------------------------- */
 
   @media (max-width: 62rem) {
+    .visit-photos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .head-foot,
     .photos,
     .why,
@@ -1506,6 +1622,10 @@ const plate = [
   }
 
   @media (max-width: 38rem) {
+    .visit-photos {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .reasons {
       grid-template-columns: minmax(0, 1fr);
       row-gap: 1.75rem;
