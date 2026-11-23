@@ -65,7 +65,7 @@ Copy an entry in `src/data/publications.yaml` and edit it:
 
 Topics are the ids in `areas.yaml`: `video`, `language`, `robotics`, `human`, `health`, `learning`.
 The per-year chart and the selected papers on the research page update from this one file. The
-home page names the venues where the group publishes most; the build stops if a venue it names
+home page names some of the venues the group publishes at; the build stops if a venue it names
 has fewer than five papers on the list.
 
 ### Adding a person
@@ -154,7 +154,7 @@ page at `/vigil/`.
   `ffmpeg -ss <start> -to <end> -i <source> -an -vf scale=1280:-2,fps=24 -c:v libx264 -crf 27
 -preset slow -pix_fmt yuv420p -movflags +faststart <name>.mp4`, save one frame of it as the
   poster in `src/assets/clips/posters/`, and describe what it shows in the `alt` text.
-- **Photographs of the May 2026 site visit** (`src/assets/vigil/site-visit-*.jpg`) are the
+- **Photographs of ARPA-H's 2026 site visit** (`src/assets/vigil/site-visit-*.jpg`) are the
   College of Engineering's, by Gabi Iriarte, from its public post about the visit. They are
   shown three across at one size, and the credit is under them.
 - **Demo day posters** are in `src/lib/vigil-posters.ts`: what each team showed, in this site's

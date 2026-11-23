@@ -30,7 +30,17 @@
   code: EECS 504
   title: Foundations of Computer Vision
   institution: michigan
-  terms: [Fall 2023, Fall 2020, Fall 2018, Winter 2018, Fall 2016, Fall 2015, Fall 2014]
+  # The two earliest terms ran under the special topics number, EECS 598.
+  terms:
+    [
+      Fall 2023,
+      Fall 2020,
+      Fall 2018,
+      Winter 2018,
+      Fall 2016,
+      'Fall 2015 (as EECS 598)',
+      'Fall 2014 (as EECS 598)',
+    ]
   summary: Computer vision as a search for visual invariants and as mathematical modeling. Covers foundational representations of images and the cross-cutting problems of reduction, estimation, and matching.
   url: 'https://web.eecs.umich.edu/~jjcorso/t/504F16/'
   urlTerm: Fall 2016
@@ -74,7 +84,8 @@
   code: CSE 672
   title: Bayesian Vision
   institution: buffalo
-  terms: [Fall 2012, Fall 2010, Spring 2009]
+  # Spring 2008 is from the course's own syllabus page and his teaching list. His CV says 2009.
+  terms: [Fall 2012, Fall 2010, Spring 2008]
 
 - id: cse-642
   order: 8

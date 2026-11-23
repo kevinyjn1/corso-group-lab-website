@@ -12,7 +12,7 @@
   date: '2025-09-29'
   url: 'https://www.youtube.com/watch?v=GO4KWuxpWA0'
   youtubeId: 'GO4KWuxpWA0'
-  summary: "Prof. Corso's lecture on physically grounded upskilling: why guiding a person through a physical task is one of the hardest things to ask of AI, and what it takes, from hazy oracles to VIGIL."
+  summary: "Prof. Corso's lecture on upskilling medical practitioners with AI, in two parts: visual AI for assessing cardiothoracic surgery, and interactive, physically grounded guidance that brings care into rural settings."
   featured: 1
 
 - id: vigil-system-architecture-talk
@@ -42,11 +42,11 @@
   date: '2025-12-01'
   url: 'https://www.youtube.com/watch?v=qL46iG-To-I'
   youtubeId: 'qL46iG-To-I'
-  summary: "VIGIL's second clinical service: a lower-limb ultrasound scan for deep vein thrombosis. VIGIL tracks the hand and the probe, draws the probe's position and how much of the scan is done on a 3D model of the patient, and indicates the small adjustments needed for a diagnosis-quality image."
+  summary: "The November 2025 demonstration of a guided leg scan for deep vein thrombosis: VIGIL tracks the hand and the probe, draws the probe's position and how much of the scan is done on a 3D model of the patient, and indicates the small adjustments needed for a diagnosis-quality image."
   project: vigil
 
 - id: vigil-at-eighteen-months
-  title: 'VIGIL at eighteen months: four clinical services, and generalists learning fast'
+  title: 'VIGIL at eighteen months: four clinical services'
   kind: video
   outlet: 'Jason Corso on LinkedIn'
   date: '2026-08-18'
@@ -60,7 +60,7 @@
   outlet: 'The Detroit News, via EMS1'
   date: '2026-05-18'
   url: 'https://www.ems1.com/artificial-intelligence/ai-equipped-rigs-bring-hospital-level-care-to-rural-mich-patients'
-  summary: 'A visit to the lab, where a nurse practitioner performs a cardiac ultrasound with VIGIL guiding her by projected light, a screen, and an earpiece.'
+  summary: 'A visit to the lab, where a nurse practitioner performs a cardiac ultrasound with VIGIL guiding her by projected light and a screen.'
   project: vigil
 
 - id: vigil-no-goggles
@@ -114,7 +114,7 @@
   outlet: 'Edge AI and Vision Alliance'
   date: '2022-07-25'
   url: 'https://www.edge-ai-vision.com/2022/07/creating-better-datasets-for-training-more-robust-models-in-fiftyone-a-presentation-from-voxel51/'
-  summary: 'A talk at the Embedded Vision Summit 2022 on improving datasets with the FiftyOne toolkit.'
+  summary: 'A talk at the Embedded Vision Summit 2022 on improving datasets with FiftyOne.'
 
 - id: voxel51-demonstration-of-visual-dataset-manageme
   title: 'Voxel51 Demonstration of Visual Dataset Management and Analysis with FiftyOne'
@@ -122,16 +122,16 @@
   outlet: 'Edge AI and Vision Alliance'
   date: '2022-11-03'
   url: 'https://www.edge-ai-vision.com/2022/11/voxel51-demonstration-of-visual-dataset-management-and-analysis-with-fiftyone/'
-  summary: "A demonstration of FiftyOne, Voxel51's open-source toolkit, for managing and analyzing visual datasets."
+  summary: "A demonstration of FiftyOne, Voxel51's open-source software, for managing and analyzing visual datasets."
 
 - id: curious-embeddings-hazy-oracles-the-path-to-safe
   title: 'Curious Embeddings, Hazy Oracles, the Path to Safe Cooperative AI'
   kind: video
-  outlet: 'Penn ASSET Center'
+  outlet: 'Jason Corso on YouTube'
   date: '2024-12'
   url: 'https://www.youtube.com/watch?v=Ck3ma6L4lug'
   youtubeId: 'Ck3ma6L4lug'
-  summary: 'Prof. Corso''s seminar on people and AI working as a team: what the embeddings of a dataset reveal before any model is trained, why the people who work with an AI are "hazy oracles" that a system should be able to ask again, and AI that guides a person through a task.'
+  summary: 'Prof. Corso''s seminar at the University of Pennsylvania''s ASSET Center on people and AI working as a team: what the embeddings in large foundation models reveal about a problem and its data, why the people who work with an AI are "hazy oracles" that a system should be able to ask again, and AI that guides a person through a task.'
 
 - id: iccv-2013-flattening-supervoxel-hierarchies-by-t
   title: 'Flattening Supervoxel Hierarchies by the Uniform Entropy Slice'
@@ -155,7 +155,7 @@
   title: 'Softening the boundaries: the human, the physical, and the computational'
   kind: video
   outlet: 'Michigan Robotics'
-  date: '2026-01'
+  date: '2026-02-02'
   url: 'https://www.youtube.com/watch?v=vuMKvR-xGDA'
   youtubeId: 'vuMKvR-xGDA'
   summary: "Lecture marking Prof. Corso's appointment as Toyota Professor of Artificial Intelligence."
@@ -182,7 +182,7 @@
   title: 'Achieving 99.999% Accuracy for Visual AI'
   kind: podcast
   outlet: 'Techstrong TV, Digital CxO Podcast'
-  date: '2025-02-13'
+  date: '2025-02-12'
   url: 'https://techstrong.tv/videos/digital-cxo-podcast/achieving-99-999-accuracy-for-visual-ai-digital-cxo-podcast-ep110'
   summary: 'How to reach very high accuracy in visual AI systems.'
 
@@ -201,12 +201,12 @@
   outlet: 'UX Magazine, Invisible Machines'
   date: '2024-12-06'
   url: 'https://uxmag.com/podcast/computer-vision-in-action'
-  summary: 'How computer vision is being applied in practice.'
+  summary: 'Machines that can see, with a demonstration of open-source tools for working with large image and video datasets.'
 
 - id: image-processing-and-robotics-with-dr-jason-cors
   title: 'Image Processing and Robotics with Dr. Jason Corso'
   kind: podcast
-  outlet: 'Neural Network Podcast'
+  outlet: 'The Neural Network'
   date: '2024-08-30'
   url: 'https://open.spotify.com/episode/5y8A6NYxUXVY5wmTmsNl7L'
 
@@ -247,6 +247,7 @@
   title: 'The Academic Side of AI'
   kind: podcast
   outlet: 'The Peggy Smedley Show'
+  date: '2023-10-04'
   url: 'https://peggysmedleyshow.com/the-academic-side-of-ai'
 
 - id: jason-corso-named-toyota-professor-of-artificial
@@ -262,7 +263,7 @@
   outlet: 'Concentrate'
   date: '2025-01-08'
   url: 'https://concentratemedia.com/ai-takes-off-in-washtenaw-county/'
-  summary: 'The AI scene in Washtenaw County, with comments from Prof. Corso and Voxel51.'
+  summary: 'AI companies in Washtenaw County, among them Voxel51, with comments from Prof. Corso.'
 
 - id: automotive-ai-applications-that-come-with-challe
   title: 'Automotive AI: Applications that come with challenges in creation'
@@ -302,7 +303,7 @@
   outlet: 'AutoSens'
   date: '2019-05-31'
   url: 'https://auto-sens.com/blog/the-most-exciting-use-of-ai-focuses-around-a-better-collective-use-of-our-available-resources/'
-  summary: 'Prof. Corso, ahead of speaking at AutoSens, on AI for cars and on making better collective use of resources.'
+  summary: 'An interview after his talk at AutoSens in Detroit, on curating large video datasets for automotive and on making better collective use of resources.'
 
 - id: jason-corso-on-artificial-intelligence
   title: 'Jason Corso on artificial intelligence'
@@ -310,7 +311,7 @@
   outlet: 'Michigan ECE News'
   date: '2018-07-06'
   url: 'https://ece.engin.umich.edu/stories/prof-jason-corso-on-artificial-intelligence'
-  summary: 'Prof. Corso on what AI can and cannot do and where it is most useful.'
+  summary: 'What AI can and cannot do, with Prof. Corso on the use he finds most exciting: a better collective use of available resources.'
 
 - id: beyond-the-check-navigating-the-long-term-geomet
   title: 'Beyond the Check: Navigating the Long-Term Geometry of Your First Term Sheet'
@@ -326,7 +327,7 @@
   outlet: 'Startup Stash'
   date: '2026-05-13'
   url: 'https://blog.startupstash.com/constructive-confrontation-f697fd67dd9d'
-  summary: 'Candid, respectful disagreement as a basis for trust in startup teams.'
+  summary: 'Debating a decision vigorously, then committing to it fully, as the way a startup team keeps trust.'
 
 - id: creatively-consistently-creating-awareness
   title: 'Creatively Consistently Creating Awareness'
@@ -342,7 +343,7 @@
   outlet: 'Jason Corso on Medium'
   date: '2026-05-06'
   url: 'https://medium.com/@jasoncorso/taf16-measure-62f3b4e8984f'
-  summary: 'Choosing metrics while scaling a startup.'
+  summary: "A review of John Doerr's Measure What Matters: why OKRs can be a trap for an early-stage startup."
 
 - id: rethinking-the-academic-conference-as-a-startup
   title: 'Rethinking the Academic Conference as a Startup Operator'
@@ -358,7 +359,7 @@
   outlet: 'Jason Corso on Medium'
   date: '2026-07-08'
   url: 'https://medium.com/@jasoncorso/the-great-data-delusion-3ea55677d723'
-  summary: 'Common misconceptions about data in AI and startups.'
+  summary: 'Why more data is no longer the simple answer to better AI, and what better data means.'
 
 - id: the-tyranny-of-the-15-minute-sync-going-deep-wit
   title: 'The Tyranny of the 15-Minute Sync: Going Deep with Startup Advisors'

@@ -796,7 +796,7 @@ test('the VIGIL page shows the annual site visit in six photographs of one shape
 }) => {
   await page.goto(at('/vigil/'));
   const visit = page.locator('#site-visit');
-  await expect(visit.locator('.section-head')).toContainText('May 2026');
+  await expect(visit.locator('.section-head')).toContainText('site visit');
   const photos = visit.locator('.visit-photos .photo');
   await expect(photos).toHaveCount(6);
   const shapes = new Set<string>();
@@ -951,9 +951,7 @@ test('the home page is not a dashboard: no rows of big numbers, no ticker, no or
     0,
   );
   // Where the group publishes is said once, in a sentence, beside its latest papers.
-  await expect(page.getByText(/^The group publishes mainly at CVPR, ICCV, and ECCV/)).toHaveCount(
-    1,
-  );
+  await expect(page.getByText(/^The group's papers appear at CVPR, ICCV, and ECCV/)).toHaveCount(1);
   // No running totals on the links to more.
   for (const text of await page.locator('main a.more, main .area-count').allInnerTexts()) {
     expect(text, text).not.toMatch(/\d/);

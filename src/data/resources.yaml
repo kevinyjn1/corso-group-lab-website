@@ -113,7 +113,7 @@
   kind: software
   year: 2020
   featured: true
-  summary: An open-source tool for visualizing and analyzing datasets and debugging models, with more than three million installs. Built at Voxel51, the company Prof. Corso co-founded.
+  summary: An open-source tool for visualizing and analyzing datasets and debugging models. Built at Voxel51, the company Prof. Corso co-founded.
   topics: [learning]
   links:
     - { label: Code, href: 'https://github.com/voxel51/fiftyone' }

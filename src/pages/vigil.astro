@@ -115,8 +115,8 @@ const footage = [
 ] as const;
 
 /**
- * The annual site visit of May 2026, in the College of Engineering's photographs. Each caption
- * says only what its photograph shows.
+ * ARPA-H's site visit of 2026, in the College of Engineering's photographs. Its post about the
+ * visit gives no date, so none is given here. Each caption says only what its photograph shows.
  */
 const visit = [
   {
@@ -157,7 +157,7 @@ const visit = [
     photo: visitTeam,
     alt: 'About thirty people of the VIGIL team, many in VIGIL shirts, stand together in the lab around a training manikin seated in a chair, which is also wearing a VIGIL shirt.',
     title: 'The team.',
-    caption: "In the lab on the day of the visit, with the group's training manikin.",
+    caption: 'In the lab at the site visit, with a training manikin.',
   },
 ] as const;
 
@@ -284,7 +284,7 @@ const plate = [
         <figure class="photo">
           <Image
             src={teamPhoto}
-            alt="Thirteen members of the VIGIL team, one in a patient gown, around a screen showing the VIGIL logo."
+            alt="Twelve members of the VIGIL team, two in patient gowns, around a screen showing the VIGIL logo."
             widths={[480, 720, 978]}
             sizes="(min-width: 62rem) 38vw, 92vw"
             quality={82}
@@ -304,14 +304,14 @@ const plate = [
     <div class="container">
       <div class="section-head" data-reveal>
         <div>
-          <p class="label">Annual site visit, May 2026</p>
+          <p class="label">ARPA-H site visit, 2026</p>
           <h2 class="h2">
-            Six months later, three clinical <em>services</em>.
+            The site visit, in <em>photographs</em>.
           </h2>
           <p>
             Researchers, reporters, and partners gathered on Michigan's North Campus for{' '}
-            {award.funder}'s site visit. They watched VIGIL guide a heart ultrasound, a leg scan for
-            deep vein thrombosis, and the positioning of a patient for an X-ray.
+            {award.funder}'s site visit. The photographs show VIGIL guiding a heart ultrasound, a
+            leg scan, and the positioning of a patient for an X-ray.
           </p>
         </div>
       </div>
@@ -434,8 +434,9 @@ const plate = [
             {award.funder}'s {award.program} program is building a different model: a vehicle that
             carries hospital-level care to where people live. The program has five parts, from a
             miniaturized, ruggedized CT scanner to the software that brings a clinic's medical
-            devices into one system. <strong>VIGIL is the fifth: intelligent task guidance</strong>,
-            the part that lets the clinician on board do work that would otherwise wait for a
+            devices into one system.{' '}
+            <strong>VIGIL is one of two teams building the fifth: intelligent task guidance</strong>
+            , the part that lets the clinician on board do work that would otherwise wait for a
             specialist.
           </p>
         </div>
@@ -515,10 +516,10 @@ const plate = [
         </div>
         <div>
           <p class="lead">
-            Guidance like this usually arrives on a headset. The team planned for one, then dropped
-            it. In the clinic, VIGIL projects its guidance onto the patient and the room and speaks
-            through an earpiece, so nothing sits between the clinician and the person they are
-            caring for.
+            The team planned to deliver its guidance on a headset, the HoloLens 2, then dropped the
+            plan. In the clinic, VIGIL projects its guidance onto the patient and the room and
+            speaks through an earpiece, so nothing sits between the clinician and the person they
+            are caring for.
           </p>
           <ul class="reasons">
             <li>
@@ -531,7 +532,7 @@ const plate = [
             </li>
             <li>
               <h3 class="h3">It fits the room</h3>
-              <p>The guidance lands on the table and the tools that are already in use.</p>
+              <p>The interface blends into the physical environment.</p>
             </li>
           </ul>
           <p class="credit">
@@ -757,7 +758,7 @@ const plate = [
       </figure>
 
       <p class="team-note" data-reveal>
-        The team as it was announced in February 2025, in its three sub-teams.
+        The people named when the team was announced in February 2025, in its three sub-teams.
       </p>
       <div class="team" data-reveal="stagger">
         {vigil.team.map((part) => (

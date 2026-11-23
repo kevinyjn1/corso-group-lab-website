@@ -75,7 +75,7 @@ const timeline: readonly Moment[] = [
 ];
 
 /** What comes after the last dated moment. Kept out of the timeline, whose rows are all dates. */
-const ahead = 'Testing inside the mobile clinic itself, planned for the third year of the project.';
+const ahead = 'Testing inside the mobile clinic itself.';
 
 export const vigil = {
   name: 'VIGIL',

@@ -64,8 +64,9 @@ const others = (
 const phdAlumni = people.filter((p) => p.data.status === 'alumni' && p.data.role === 'phd');
 
 /**
- * Where the group publishes, said once in the publications section. Each venue named here has to
- * have at least five of the group's papers, or the build stops: the sentence may not outrun the list.
+ * Some of the venues the group publishes at, said once in the publications section. Each venue
+ * named here has to have at least five of the group's papers, or the build stops. The sentence
+ * does not say "mainly" or "most": other venues have as many papers as some of these.
  */
 const VENUES = [
   { field: 'computer vision', names: ['CVPR', 'ICCV', 'ECCV'] },
@@ -80,9 +81,9 @@ for (const name of VENUES.flatMap((venue) => venue.names)) {
 }
 const list = (names: string[]) =>
   names.length < 3 ? names.join(' and ') : `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
-const venueSentence = `The group publishes mainly at ${list(
+const venueSentence = `The group's papers appear at ${list(
   VENUES.map((venue) => `${list(venue.names)} in ${venue.field}`),
-)}.`;
+)}, among other venues.`;
 
 const placements = [
   'Google',
