@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Lets the site be published again by hand (Actions, CI, "Run workflow"). Re-running a failed
+  # deploy job inside an old run does not work: the run then holds two copies of the site package.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -56,7 +59,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: verify
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
