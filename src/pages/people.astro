@@ -14,14 +14,14 @@ const alumni = (role: Role) =>
   people.filter((p) => p.data.status === 'alumni' && p.data.role === role);
 
 const students = current('phd');
-const researchers = current('researcher');
+const postdocs = current('postdoc');
 /** Everyone in the group besides the Ph.D. students, as short lists with an optional note. */
 const groups = [
   { title: 'Undergraduate researchers', list: current('undergrad'), note: () => undefined },
   {
-    title: researchers.length > 0 ? 'Researchers and staff' : 'Staff',
-    list: [...researchers, ...current('staff')],
-    note: (p: Person) => (p.data.role === 'researcher' ? 'Research scientist' : 'Staff'),
+    title: postdocs.length > 0 ? 'Researchers and staff' : 'Staff',
+    list: [...postdocs, ...current('staff')],
+    note: (p: Person) => (p.data.role === 'postdoc' ? 'Postdoctoral fellow' : 'Staff'),
   },
   {
     title: 'Collaborators',

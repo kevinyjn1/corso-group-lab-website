@@ -1,5 +1,5 @@
 # People of the Corso Group.
-# role: pi | phd | ms | undergrad | researcher | staff | collaborator
+# role: pi | phd | ms | undergrad | postdoc | staff | collaborator
 # status: current | alumni
 # Current members are as of November 2026, from the group's own member list.
 # Alumni positions are from Prof. Corso's CV (April 2025), corrected on 2026-11-23 against each
@@ -44,7 +44,7 @@
 
 # --- Researchers and staff --------------------------------------------------
 
-- { id: imran-samad, name: Imran Samad, role: researcher, status: current }
+- { id: imran-samad, name: Imran Samad, role: postdoc, status: current }
 
 - { id: ethan-ho, name: Ethan Ho, role: staff, status: current }
 - { id: mike-oelke, name: Mike Oelke, role: staff, status: current }
@@ -145,7 +145,7 @@
   program: ECE
   year: 2022
   thesis: Towards Improving Deep Vision and Language Navigation
-  firstPosition: Research Scientist, Kodiak Robotics
+  firstPosition: Software Engineer, Kodiak Robotics
 
 - id: kyle-min
   name: Byungsu Kyle Min
@@ -233,7 +233,7 @@
   institution: buffalo
   year: 2015
   thesis: Structured Models for Video Understanding
-  firstPosition: Data Scientist, Banjo
+  firstPosition: Tech Lead, Banjo
 
 - id: kevin-keane
   name: Kevin R. Keane
@@ -242,7 +242,7 @@
   institution: buffalo
   year: 2015
   thesis: Implementing High Dimensional Gaussian Models for Financial Applications
-  firstPosition: Systems Trading Group, Maple Securities USA
+  firstPosition: Visiting scientist, in a program managed by the Oak Ridge Institute for Science and Education
 
 - id: caiming-xiong
   name: Caiming Xiong

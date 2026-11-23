@@ -52,7 +52,7 @@ const people = defineCollection({
   loader: file('src/data/people.yaml'),
   schema: z.object({
     name: z.string(),
-    role: z.enum(['pi', 'phd', 'ms', 'undergrad', 'researcher', 'staff', 'collaborator']),
+    role: z.enum(['pi', 'phd', 'ms', 'undergrad', 'postdoc', 'staff', 'collaborator']),
     status: z.enum(['current', 'alumni']),
     institution: z.enum(['michigan', 'buffalo']).default('michigan'),
     /** Degree program, for example "ROB", "ECE" or "CSE". */
