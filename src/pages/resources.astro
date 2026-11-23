@@ -48,7 +48,7 @@ const groups: { id: Resource['data']['kind']; title: string; blurb: string }[] =
               <p>{group.blurb}</p>
             </div>
           </div>
-          <ul class="grid" data-reveal="stagger">
+          <ul class="grid fill-rows" data-reveal="stagger">
             {items.map((item) => (
               <li class="card" id={item.id} data-spotlight data-topic={item.data.topics[0]}>
                 <div class="card-head">
@@ -94,10 +94,9 @@ const groups: { id: Resource['data']['kind']; title: string; blurb: string }[] =
 </Base>
 
 <style>
-  /* Cell borders rather than a gap fill, so an unfinished last row leaves no empty boxes. */
+  /* Three cards to a row, with a last row that is always full (.fill-rows). Each cell draws its
+     own right and bottom border, and the grid the top and left ones. */
   .grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     border-top: 1px solid var(--line);
     border-left: 1px solid var(--line);
   }
@@ -178,17 +177,5 @@ const groups: { id: Resource['data']['kind']; title: string; blurb: string }[] =
 
   .card-links a span {
     color: var(--text-3);
-  }
-
-  @media (max-width: 60rem) {
-    .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 38rem) {
-    .grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
   }
 </style>

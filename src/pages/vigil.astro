@@ -6,7 +6,7 @@
 import { getImage, Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Clip from '../components/Clip.astro';
-import MediaRow from '../components/MediaRow.astro';
+import MediaLead from '../components/MediaLead.astro';
 import PubItem from '../components/PubItem.astro';
 import VideoCard from '../components/VideoCard.astro';
 import VigilName from '../components/VigilName.astro';
@@ -49,10 +49,12 @@ const publications = await getPublications();
 const papers = vigil.papers.flatMap((id) => publications.filter((pub) => pub.id === id));
 
 /**
- * The team's own footage of each part of the system, in the order of vigil.steps. Four of the five
- * clips are cut from the two demonstration videos that Prof. Corso published in November and
- * December 2025 (the `demos` above); the view-scoring clip is from his 2026 talk. Any captions
- * inside them are the team's.
+ * The team's own footage of each part of the system, in the order of vigil.steps: two pictures
+ * for each of the first three parts, side by side at one size. The last part, running without a
+ * network, has nothing to film yet, so it is stated in words alone. Four of the five clips are
+ * cut from the two demonstration videos that Prof. Corso published in November and December 2025
+ * (the `demos` above); the view-scoring clip is from his 2026 talk. Any captions inside them are
+ * the team's.
  */
 const footage = [
   [
@@ -63,6 +65,13 @@ const footage = [
       title: 'The room, in 3D.',
       caption:
         "Left, the probe's position and how much of the scan is done, drawn on a 3D model posed like the patient. Right, the camera's view, with the hand on the probe tracked.",
+    },
+    {
+      photo: mockClinic,
+      alt: 'An empty exam bay built from an aluminum frame: a curtained wall with two monitors, an exam table, a large screen showing the bay from above, and a sign reading VIGIL, Michigan Robotics, ARPA-H.',
+      title: 'The mock clinic.',
+      caption:
+        'The team develops VIGIL in a bay built to stand in for the vehicle: a frame carrying its cameras and screens around an exam table.',
     },
   ],
   [
@@ -103,15 +112,7 @@ const footage = [
         "Color-coded feedback: a frame around the ultrasound view, and the probe's current angle drawn against the target.",
     },
   ],
-  [
-    {
-      photo: mockClinic,
-      alt: 'An empty exam bay built from an aluminum frame: a curtained wall with two monitors, an exam table, a large screen showing the bay from above, and a sign reading VIGIL, Michigan Robotics, ARPA-H.',
-      title: 'The mock clinic.',
-      caption:
-        'The team develops VIGIL in a bay built to stand in for the vehicle: a frame carrying its cameras and screens around an exam table.',
-    },
-  ],
+  [],
 ] as const;
 
 /**
@@ -351,42 +352,40 @@ const plate = [
       <ol class="parts">
         {vigil.steps.map((step, i) => (
           <li class="part" data-reveal>
-            <div class="part-text">
+            <div class="part-head">
               <p class="step-name">
                 <span class="step-index">{String(i + 1).padStart(2, '0')}</span>
                 {step.name}
               </p>
               <h3 class="h3">{step.title}</h3>
-              <p class="step-body">{step.body}</p>
             </div>
-            <div class="part-media" data-count={footage[i].length}>
-              {footage[i].map((item) =>
-                'clip' in item ? (
-                  <Clip
-                    src={item.clip}
-                    poster={item.poster}
-                    tag="Footage · VIGIL"
+            <p class="step-body">{step.body}</p>
+            {footage[i].map((item) =>
+              'clip' in item ? (
+                <Clip
+                  src={item.clip}
+                  poster={item.poster}
+                  tag="Footage · VIGIL"
+                  alt={item.alt}
+                  toggle={'toggle' in item ? item.toggle : undefined}
+                >
+                  <strong>{item.title}</strong> {item.caption}
+                </Clip>
+              ) : (
+                <figure class="photo">
+                  <Image
+                    src={item.photo}
                     alt={item.alt}
-                    toggle={'toggle' in item ? item.toggle : undefined}
-                  >
+                    widths={[480, 720, 960, 1280]}
+                    sizes="(min-width: 62rem) 40rem, 92vw"
+                    quality={80}
+                  />
+                  <figcaption>
                     <strong>{item.title}</strong> {item.caption}
-                  </Clip>
-                ) : (
-                  <figure class="photo">
-                    <Image
-                      src={item.photo}
-                      alt={item.alt}
-                      widths={[480, 720, 960, 1280]}
-                      sizes="(min-width: 62rem) 44rem, 92vw"
-                      quality={80}
-                    />
-                    <figcaption>
-                      <strong>{item.title}</strong> {item.caption}
-                    </figcaption>
-                  </figure>
-                ),
-              )}
-            </div>
+                  </figcaption>
+                </figure>
+              ),
+            )}
           </li>
         ))}
       </ol>
@@ -479,8 +478,8 @@ const plate = [
         </div>
       </div>
 
-      <div class="why" data-reveal="stagger">
-        <div class="prose">
+      <div class="who" data-reveal="stagger">
+        <div class="who-text">
           <p>
             The person VIGIL works beside is a generalist: a family doctor, a nurse practitioner, a
             physician assistant. They have deep foundational knowledge and no specialist down the
@@ -507,13 +506,13 @@ const plate = [
 
   <section class="section band--maize room">
     <div class="container">
+      <div class="room-head" data-reveal>
+        <p class="label">The interface</p>
+        <h2 class="h2">
+          No goggles. The interface is the <em>room</em>.
+        </h2>
+      </div>
       <div class="room-grid" data-reveal="stagger">
-        <div>
-          <p class="label">The interface</p>
-          <h2 class="h2">
-            No goggles. The interface is the <em>room</em>.
-          </h2>
-        </div>
         <div>
           <p class="lead">
             The team planned to deliver its guidance on a headset, the HoloLens 2, then dropped the
@@ -521,25 +520,25 @@ const plate = [
             speaks through an earpiece, so nothing sits between the clinician and the person they
             are caring for.
           </p>
-          <ul class="reasons">
-            <li>
-              <h3 class="h3">No headset</h3>
-              <p>Nothing heavy to wear, and none of the motion sickness a headset brings.</p>
-            </li>
-            <li>
-              <h3 class="h3">Eye contact stays</h3>
-              <p>The clinician looks at the patient, not at a screen in front of their eyes.</p>
-            </li>
-            <li>
-              <h3 class="h3">It fits the room</h3>
-              <p>The interface blends into the physical environment.</p>
-            </li>
-          </ul>
           <p class="credit">
             The move to projected guidance was led by Anhong Guo, of Computer Science and
             Engineering at Michigan.
           </p>
         </div>
+        <ul class="reasons">
+          <li>
+            <h3 class="h3">No headset</h3>
+            <p>Nothing heavy to wear, and none of the motion sickness a headset brings.</p>
+          </li>
+          <li>
+            <h3 class="h3">Eye contact stays</h3>
+            <p>The clinician looks at the patient, not at a screen in front of their eyes.</p>
+          </li>
+          <li>
+            <h3 class="h3">It fits the room</h3>
+            <p>The interface blends into the physical environment.</p>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
@@ -559,7 +558,7 @@ const plate = [
       </div>
 
       <div class="scope" data-reveal="stagger">
-        <div>
+        <div class="scope-now">
           <h3 class="label">Shown or named so far</h3>
           <ul class="services">
             {services.now.map((service) => (
@@ -570,7 +569,7 @@ const plate = [
             ))}
           </ul>
         </div>
-        <div>
+        <div class="scope-next">
           <h3 class="label">Named as possible next steps</h3>
           <ul class="plain">
             {services.next.map((item) => (
@@ -629,14 +628,7 @@ const plate = [
           </span>
         </a>
       </div>
-      <div class="record" data-reveal="stagger">
-        {talk && <VideoCard item={talk} sizes="(min-width: 62rem) 45vw, 92vw" />}
-        <ul class="rows record-list">
-          {coverage.map((item) => (
-            <MediaRow item={item} showKind stacked />
-          ))}
-        </ul>
-      </div>
+      {talk && <MediaLead video={talk} items={coverage} rest />}
     </div>
   </section>
 
@@ -655,7 +647,7 @@ const plate = [
         </div>
       </div>
 
-      <ul class="posters" data-reveal="stagger">
+      <ul class="posters fill-rows" data-reveal="stagger">
         {SYSTEM_POSTERS.map((poster) => (
           <li class="poster">
             <p class="label poster-team">{poster.team}</p>
@@ -762,7 +754,7 @@ const plate = [
       </p>
       <div class="team" data-reveal="stagger">
         {vigil.team.map((part) => (
-          <div class="subteam">
+          <div class="subteam" data-places={part.groups.length}>
             <h3 class="h3">{part.name}</h3>
             <p class="subteam-note">{part.note}</p>
             {part.groups.map((group) => (
@@ -992,7 +984,9 @@ const plate = [
     color: var(--text-3);
   }
 
-  /* Each part of the system: what it does, beside the team's footage of it doing that. */
+  /* Each part of the system on one grid of two columns, the same grid as the two full videos
+     under them: its name and what it does across the top, then the team's footage of it, two
+     pictures of one size. Nothing sits beside a taller neighbor, so no part leaves a hole. */
   .parts {
     display: grid;
     gap: clamp(2.5rem, 5vw, 4rem);
@@ -1003,23 +997,27 @@ const plate = [
 
   .part {
     display: grid;
-    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.6fr);
-    gap: 1.5rem clamp(2rem, 4vw, 4rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem clamp(1.25rem, 2.5vw, 2rem);
     align-items: start;
     padding-top: 1.25rem;
     border-top: var(--rule) solid var(--maize);
   }
 
-  .part-media {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem clamp(1.25rem, 2.5vw, 2rem);
-    align-items: start;
+  /* Both pictures of a part are one shape. The photograph is cut to it, and a clip that is a
+     little wider sits whole inside it, on the black of its own footage. */
+  .part .photo :global(img) {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
   }
 
-  .part-media[data-count='1'] {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 44rem;
+  .part :global(.clip-frame) {
+    aspect-ratio: 16 / 9 !important;
+    background: #000;
+  }
+
+  .part :global(.clip-frame video) {
+    object-fit: contain;
   }
 
   .demos {
@@ -1060,8 +1058,8 @@ const plate = [
   }
 
   .step-body {
-    margin-top: 0.7rem;
-    font-size: 0.98rem;
+    max-width: 38rem;
+    font-size: 1.05rem;
     line-height: 1.5;
     color: var(--text-2);
     text-wrap: pretty;
@@ -1069,16 +1067,39 @@ const plate = [
 
   /* --- Why ------------------------------------------------------------------ */
 
+  /* Text on the left, and on the right a column that ends where the text ends: the box of the
+     quotation takes whatever height is left. */
   .why {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     gap: 3rem clamp(2rem, 6vw, 6rem);
-    align-items: start;
+    align-items: stretch;
+  }
+
+  .why-side {
+    display: flex;
+    flex-direction: column;
   }
 
   .why .prose {
     font-size: 1.08rem;
     line-height: 1.6;
+  }
+
+  /* Who it is for: the account in two columns, and under it the three groups, one to a column. */
+  .who-text {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem clamp(2rem, 5vw, 5rem);
+    font-size: clamp(1.08rem, 1.45vw, 1.25rem);
+    line-height: 1.5;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .who-text strong {
+    color: var(--text);
+    font-weight: 700;
   }
 
   .figures {
@@ -1111,7 +1132,11 @@ const plate = [
   }
 
   .quote {
-    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    justify-content: center;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
     padding: 1.5rem clamp(1.25rem, 2.5vw, 2rem);
     background: var(--blue);
     color: #f6f3ea;
@@ -1148,11 +1173,14 @@ const plate = [
 
   /* --- The room ------------------------------------------------------------- */
 
+  /* The heading runs across the band. Under it, the account on the left and the three reasons on
+     the right, whose rules run the full height of the account, so the two sides end together. */
   .room-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
     gap: 2.5rem clamp(2rem, 6vw, 6rem);
-    align-items: start;
+    align-items: stretch;
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
   }
 
   .room .label {
@@ -1163,7 +1191,7 @@ const plate = [
   .reasons {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin: 2.25rem 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
@@ -1181,18 +1209,44 @@ const plate = [
   }
 
   .credit {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     font-size: 0.95rem;
     color: var(--text-2);
   }
 
   /* --- Scope ---------------------------------------------------------------- */
 
+  /* The services run across the page, one to a column. The two shorter lists sit under them on
+     the same three columns: the longer of the two takes two columns and flows through both, so
+     the lists end on the same line. */
   .scope {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 2.5rem clamp(1.5rem, 4vw, 4rem);
     align-items: start;
+  }
+
+  .scope-now {
+    grid-column: 1 / -1;
+  }
+
+  .scope-now .services {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .scope-next {
+    grid-column: span 2;
+  }
+
+  .scope-next .plain {
+    column-count: 2;
+    column-gap: clamp(1.5rem, 4vw, 4rem);
+  }
+
+  .scope-next .plain li {
+    break-inside: avoid;
   }
 
   .scope .label {
@@ -1212,6 +1266,7 @@ const plate = [
   .services li,
   .benefits li {
     display: grid;
+    align-content: start;
     gap: 0.3rem;
     padding-block: 0.85rem;
     border-bottom: 1px solid var(--line);
@@ -1230,8 +1285,12 @@ const plate = [
     color: var(--text-3);
   }
 
-  /* Who it is for: the same rows as the services, with a sentence where those have a date. */
+  /* The same cells as the services, with a sentence where those have a date. */
   .benefits {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
     border-top: 2px solid var(--text);
   }
 
@@ -1311,19 +1370,6 @@ const plate = [
 
   /* --- Watch and read ------------------------------------------------------- */
 
-  .record {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 2.5rem clamp(2rem, 5vw, 4.5rem);
-    align-items: start;
-  }
-
-  /* The talk stays in view while the longer list of coverage scrolls past. */
-  .record > :global(.video) {
-    position: sticky;
-    top: calc(var(--header-h) + 2rem);
-  }
-
   /* --- Demo day ------------------------------------------------------------- */
 
   .demo {
@@ -1341,9 +1387,8 @@ const plate = [
     color: var(--text-2);
   }
 
+  /* Three posters to a row, with a last row that is always full (.fill-rows). */
   .posters {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     margin: 0;
     padding: 0;
     list-style: none;
@@ -1483,11 +1528,17 @@ const plate = [
 
   /* --- Team ----------------------------------------------------------------- */
 
+  /* Two halves of about one height: the technical sub-team, the largest, on the left, and the
+     medical and systems sub-teams one above the other on the right. */
   .team {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: 2.5rem clamp(1.5rem, 4vw, 4rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem clamp(2rem, 5vw, 5rem);
     align-items: start;
+  }
+
+  .subteam:first-child {
+    grid-row: span 2;
   }
 
   /* The team's own picture is made on white, so it keeps a white sheet in both themes. */
@@ -1555,19 +1606,24 @@ const plate = [
     color: var(--text-2);
   }
 
-  /* The technical sub-team is the largest, so its institutions sit in two columns. */
-  .subteam:first-child {
+  /* A sub-team's institutions sit in two columns under its name. */
+  .subteam {
     column-count: 2;
     column-gap: 2rem;
   }
 
-  .subteam:first-child .h3,
-  .subteam:first-child .subteam-note {
+  .subteam .h3,
+  .subteam .subteam-note {
     column-span: all;
   }
 
-  .subteam:first-child .place {
+  .subteam .place {
     break-inside: avoid;
+  }
+
+  /* A sub-team at one institution has nothing to set beside it. */
+  .subteam[data-places='1'] {
+    column-count: 1;
   }
 
   .papers {
@@ -1584,22 +1640,30 @@ const plate = [
     .head-foot,
     .photos,
     .why,
-    .room-grid,
-    .record {
+    .room-grid {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .part {
+    .scope-now .services {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .who-text,
+    .benefits {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    .scope-next {
+      grid-column: auto;
+    }
+
+    .subteam:first-child {
+      grid-row: auto;
     }
 
     .scope,
     .team {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    .posters {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .photo--tall {
@@ -1618,10 +1682,7 @@ const plate = [
       row-gap: 1.75rem;
     }
 
-    .part-media {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
+    .part,
     .demos {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -1633,12 +1694,13 @@ const plate = [
       gap: 0.2rem;
     }
 
-    .posters {
-      grid-template-columns: minmax(0, 1fr);
+    .subteam,
+    .scope-next .plain {
+      column-count: 1;
     }
 
-    .subteam:first-child {
-      column-count: 1;
+    .scope-now .services {
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .cta .btn {

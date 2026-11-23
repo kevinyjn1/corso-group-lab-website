@@ -99,6 +99,7 @@ const { title, outlet, date, url, summary, kind } = item.data;
      title and its sentence. On a phone every row is laid out this way. */
   .row--stacked {
     grid-template-columns: minmax(0, 1fr) auto;
+    align-content: start;
   }
 
   .row--stacked .where {
@@ -123,6 +124,7 @@ const { title, outlet, date, url, summary, kind } = item.data;
   @media (max-width: 48rem) {
     .row {
       grid-template-columns: minmax(0, 1fr) auto;
+      align-content: start;
     }
 
     .where {

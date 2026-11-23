@@ -631,7 +631,7 @@ test('the VIGIL page says who it is for, and gives its numbers in sentences', as
   // Not a replacement: the person it works beside, described once, and who gains from it.
   const who = page.locator('#who');
   await expect(who.locator('h2')).toHaveText(/Not a replacement\.\s+A\s+teammate\s*\./);
-  await expect(who.locator('.prose')).toContainText('VIGIL is a human-AI team');
+  await expect(who.locator('.who-text')).toContainText('VIGIL is a human-AI team');
   await expect(who.locator('.benefits .service-name')).toHaveText([
     'Rural veterans and patients',
     'Healthcare workers',
@@ -660,7 +660,9 @@ test('the VIGIL page has the talk, the coverage, and the papers', async ({ page 
   await page.goto(at('/vigil/'));
   const watch = page.locator('#watch');
   await watch.scrollIntoViewIfNeeded();
-  expect(await watch.locator('.record-list > li').count()).toBeGreaterThanOrEqual(6);
+  // Three items beside the talk, and the older ones under both.
+  await expect(watch.locator('.record-list > li')).toHaveCount(3);
+  expect(await watch.locator('.rows > li').count()).toBeGreaterThanOrEqual(6);
   expect(requested).toEqual([]);
   await watch.getByRole('button', { name: /^Play video: VIGIL/ }).click();
   await expect(watch.locator('iframe')).toHaveAttribute('src', /\/embed\/G77AdX2qapg\?/);
@@ -754,12 +756,14 @@ test('the VIGIL page shows the system at work: photos, footage, and the demo day
       .toBeGreaterThan(0);
   }
 
-  // Each part of the system is shown in the team's own footage or photographs.
+  // The parts of the system that can be filmed are shown in the team's own footage or
+  // photographs, two pictures each. The last, running with no network, is stated in words.
   const parts = page.locator('#how .part');
   await expect(parts).toHaveCount(4);
-  for (const part of await parts.all()) {
+  for (const [i, part] of (await parts.all()).entries()) {
     await expect(part.locator('.h3')).not.toBeEmpty();
-    expect(await part.locator('[data-clip], .photo').count()).toBeGreaterThanOrEqual(1);
+    await expect(part.locator('.step-body')).not.toBeEmpty();
+    await expect(part.locator('[data-clip], .photo')).toHaveCount(i < 3 ? 2 : 0);
   }
   const clips = page.locator('#how [data-clip]');
   await expect(clips).toHaveCount(5);
@@ -1105,6 +1109,147 @@ test('on a laptop, blocks that sit side by side on the home page end together', 
     }
     for (const name of ['arc', 'vigil', 'record', 'people'] as const) {
       expect(ends[name], at1(name)).toBeLessThanOrEqual(100);
+    }
+  }
+});
+
+test('on a laptop, blocks that sit side by side on the other pages end together', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'On a phone every block is one column.');
+  // Nothing moves into place while the page is measured.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const width of [1000, 1100, 1280, 1372, 1440]) {
+    await page.setViewportSize({ width, height: 872 });
+
+    await page.goto(at('/vigil/'));
+    await page.evaluate(() => document.fonts.ready);
+    const vigil = await page.evaluate(() => {
+      const q = (selector: string) => document.querySelector(selector)!;
+      const box = (selector: string) => q(selector).getBoundingClientRect();
+      const all = (selector: string) =>
+        [...document.querySelectorAll(selector)].map((el) => el.getBoundingClientRect());
+      const spread = (values: number[]) => Math.round(Math.max(...values) - Math.min(...values));
+      const parts = [...document.querySelectorAll('#how .part')];
+      return {
+        // How it works: the two pictures of a part are one size, and its words end near each other.
+        pictures: Math.max(
+          ...parts.map((part) => {
+            const frames = [...part.querySelectorAll(':scope > figure')].map((figure) =>
+              figure.querySelector('.clip-frame, img')!.getBoundingClientRect(),
+            );
+            return frames.length
+              ? spread(frames.map((r) => r.height)) + spread(frames.map((r) => r.top))
+              : 0;
+          }),
+        ),
+        partWords: Math.max(
+          ...parts.map((part) =>
+            Math.abs(
+              part.querySelector('.step-body')!.getBoundingClientRect().bottom -
+                part.querySelector('.part-head')!.getBoundingClientRect().bottom,
+            ),
+          ),
+        ),
+        // Why it matters: the box of the quotation ends with the text beside it.
+        why: spread([
+          q('.why .prose').lastElementChild!.getBoundingClientRect().bottom,
+          box('.why .quote').bottom,
+        ]),
+        // Who it is for: two columns of text, then three cells of one height.
+        who: spread(all('.who-text > p').map((r) => r.bottom)),
+        benefits: spread(all('.benefits > li').map((r) => r.bottom)),
+        // The interface: the rules of the three reasons end with the text beside them.
+        room: spread([box('.room-grid .credit').bottom, box('.reasons').bottom]),
+        scope: spread(all('.scope > div:not(.scope-now)').map((r) => r.bottom)),
+        record: spread([box('.record > .video').bottom, box('.record-list').bottom]),
+        team: spread([
+          box('.team .subteam:first-child').bottom,
+          box('.team .subteam:last-child').bottom,
+        ]),
+        head: spread(all('.head-foot > *').map((r) => r.bottom)),
+      };
+    });
+    const says = (page: string, name: string, value: number) =>
+      `${page} ${name} at ${width}: ${value}px`;
+    expect(vigil.pictures, says('VIGIL', 'pictures', vigil.pictures)).toBeLessThanOrEqual(2);
+    // A one-line title stands beside a paragraph, so this pair may differ by the paragraph.
+    expect(vigil.partWords, says('VIGIL', 'partWords', vigil.partWords)).toBeLessThanOrEqual(160);
+    for (const name of [
+      'why',
+      'who',
+      'benefits',
+      'room',
+      'scope',
+      'record',
+      'team',
+      'head',
+    ] as const) {
+      expect(vigil[name], says('VIGIL', name, vigil[name])).toBeLessThanOrEqual(100);
+    }
+
+    await page.goto(at('/people/'));
+    await page.evaluate(() => document.fonts.ready);
+    // The portrait with its links, and the text beside them.
+    const pi = await page.evaluate(() =>
+      Math.round(
+        Math.abs(
+          document.querySelector('.pi-card')!.getBoundingClientRect().bottom -
+            document.querySelector('.pi > div:nth-child(2)')!.getBoundingClientRect().bottom,
+        ),
+      ),
+    );
+    expect(pi, says('People', 'pi', pi)).toBeLessThanOrEqual(2);
+
+    await page.goto(at('/media/'));
+    await page.evaluate(() => document.fonts.ready);
+    const featured = await page.evaluate(() =>
+      Math.round(
+        Math.abs(
+          document.querySelector('.record > .video')!.getBoundingClientRect().bottom -
+            document.querySelector('.record-list')!.getBoundingClientRect().bottom,
+        ),
+      ),
+    );
+    expect(featured, says('Media', 'featured', featured)).toBeLessThanOrEqual(100);
+
+    await page.goto(at('/teaching/'));
+    await page.evaluate(() => document.fonts.ready);
+    // The latest course: its links stand at the foot of the text beside them.
+    const course = await page.evaluate(() =>
+      Math.round(
+        Math.abs(
+          document.querySelector('.now-text')!.getBoundingClientRect().bottom -
+            document.querySelector('.now-links')!.getBoundingClientRect().bottom,
+        ),
+      ),
+    );
+    expect(course, says('Teaching', 'course', course)).toBeLessThanOrEqual(2);
+  }
+});
+
+test('a grid of cards never ends on a row with an empty cell', async ({ page, isMobile }) => {
+  // The demo day posters, the Ph.D. students, and the datasets and software: whatever the count,
+  // the last card reaches the right edge of its grid.
+  const grids = [
+    ['/vigil/', '.posters'],
+    ['/people/', '.members'],
+    ['/resources/', '#dataset .grid'],
+    ['/resources/', '#software .grid'],
+  ] as const;
+  for (const width of isMobile ? [0] : [700, 1000, 1280, 1372]) {
+    if (width) await page.setViewportSize({ width, height: 872 });
+    for (const [path, selector] of grids) {
+      await page.goto(at(path));
+      const grid = page.locator(selector);
+      await expect(grid).toHaveClass(/fill-rows/);
+      const gap = await grid.evaluate((el) =>
+        Math.round(
+          el.getBoundingClientRect().right - el.lastElementChild!.getBoundingClientRect().right,
+        ),
+      );
+      expect(gap, `${path} ${selector} at ${width || 'phone'}: ${gap}px`).toBeLessThanOrEqual(1);
     }
   }
 });

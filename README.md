@@ -86,7 +86,8 @@ Add an entry to `src/data/media.yaml` with a `kind` (`video`, `podcast`, `press`
 `outlet`, a `url`, and a one sentence `summary`. For a YouTube video, also give its `youtubeId`
 and save a thumbnail named after that id in `src/assets/media/`; it then plays in place on the
 Media page. Give an item a `featured` number to show it at the top of the Media page and on the
-home page.
+home page: the lowest-numbered video leads, and the next three items stand beside it
+(`src/components/MediaLead.astro`). A fifth would not be shown as featured, so keep it to four.
 
 To feature a course as being taught now, set `current: true` on it in `courses.yaml`.
 
@@ -128,9 +129,22 @@ makes them better at it.
   the group's own footage of MILLY catching a skipped step. The last step, the rural clinic,
   closes them as one line. On a small laptop there are two columns, with the last step under
   the clip.
-- **No holes.** Blocks that sit side by side on the home page end together: the owner asked in
-  November 2026 for white space that has a purpose. A test measures each pair of columns at
-  five laptop widths.
+- **No holes.** On every page, blocks that sit side by side end together: the owner asked in
+  November 2026 for white space that has a purpose. Tests measure each pair of columns at five
+  laptop widths. The means, in the order to reach for them:
+  - give two neighbors the same parts on one grid, so the parts line up (the two claims of the
+    thesis; each part of "How it works" on the VIGIL page, with its two pictures at one size);
+  - let the shorter side take up the height that is left: a photograph that grows (the hero), a
+    list whose rows share it out (`MediaLead.astro`, the links under the portrait on the People
+    page), a box or a set of rules that runs to the foot of its neighbor (the quotation and the
+    three reasons on the VIGIL page);
+  - show beside a picture only as much of a list as the picture is tall, and run the rest under
+    both (`MediaLead.astro`);
+  - run a block with no neighbor of its size across the page (the honors on the People page, the
+    four services on the VIGIL page, each group of members);
+  - put any grid of cards on `.fill-rows` (`src/styles/global.css`): three to a row, and when
+    the count leaves one or two over, the last rows hold two wider cards each, so no cell stays
+    empty.
 - **Private working material** is kept out of this repository by `.gitignore`: slide decks and
   an Obsidian vault of project notes (`vault/`).
 
@@ -150,8 +164,10 @@ page at `/vigil/`.
 - **Videos and press** are ordinary entries in `src/data/media.yaml` marked `project: vigil`, so
   they appear on the Media page and on the VIGIL page.
 - **Related papers** are the publication ids listed under `papers` in `src/lib/vigil.ts`.
-- **Footage** of each part of the system is shown beside the text that describes it, in "How it
-  works" and in the band on the home page. The clips are in `src/assets/clips/`, silent, 9 to 12
+- **Footage** of the system is shown in "How it works" and in the band on the home page. In
+  "How it works" each of the first three parts has its name and its text across the top and two
+  pictures of one size under them; the fourth, running without a network, has nothing to film
+  yet and is stated in words. The clips are in `src/assets/clips/`, silent, 9 to 12
   seconds each and about 1 MB or less. Four of the five VIGIL clips are cut from the two videos
   of the November 2025 demonstrations that Prof. Corso published on YouTube; the page shows both
   videos in full under the clips (the two `vigil-demo-...` entries in `src/data/media.yaml`). They are

@@ -401,7 +401,6 @@
   date: '2025-03-22'
   url: 'https://venturebeat.com/ai/the-open-source-ai-debate-why-selective-transparency-poses-a-serious-risk/'
   summary: 'Why partial openness in AI models carries real risks.'
-  featured: 5
 
 - id: understanding-dataset-difficulty-with-class-wise
   title: 'Understanding Dataset Difficulty with Class-Wise Autoencoders'

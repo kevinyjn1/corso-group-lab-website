@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
+import MediaLead from '../components/MediaLead.astro';
 import MediaRow from '../components/MediaRow.astro';
 import VideoCard from '../components/VideoCard.astro';
 import { MEDIA_KINDS, getMedia } from '../lib/content';
@@ -53,14 +54,7 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
             <h2 class="h2">Featured</h2>
           </div>
         </div>
-        <div class="feature-grid" data-reveal="stagger">
-          <VideoCard item={lead} sizes="(min-width: 62rem) 55vw, 92vw" />
-          <ul class="rows feature-list">
-            {alsoFeatured.map((item) => (
-              <MediaRow item={item} showKind />
-            ))}
-          </ul>
-        </div>
+        <MediaLead video={lead} items={alsoFeatured} />
       </div>
     </section>
   )}
@@ -108,28 +102,6 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
 </Base>
 
 <style>
-  .feature-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    gap: 2.5rem clamp(2rem, 5vw, 4.5rem);
-    align-items: start;
-  }
-
-  /* In the narrow column a row stacks, whatever the screen width. */
-  .feature-list :global(.row) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .feature-list :global(.where) {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.75rem;
-  }
-
-  .feature-list :global(.chip) {
-    justify-self: start;
-  }
-
   .jump {
     position: sticky;
     top: calc(var(--header-h) + var(--rule));
@@ -177,10 +149,6 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
   }
 
   @media (max-width: 62rem) {
-    .feature-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
     .cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }

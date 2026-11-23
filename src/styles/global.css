@@ -663,6 +663,53 @@ button {
   border-bottom: 1px solid var(--line);
 }
 
+/* --- Card grids that fill their last row ---------------------------------- */
+
+/* Three cards to a row. When the count leaves one or two over, the last rows hold two wider
+   cards each instead of three, so the grid ends as a full rectangle and no cell stays empty. */
+.fill-rows {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.fill-rows > * {
+  grid-column: span 2;
+}
+
+@media (min-width: 60.01rem) {
+  /* Two over: the last two share the last row. */
+  .fill-rows > :nth-child(3n + 1):nth-last-child(2),
+  .fill-rows > :nth-child(3n + 2):last-child,
+  /* One over: the last four make two rows of two. */
+  .fill-rows > :nth-child(3n + 1):nth-last-child(4),
+  .fill-rows > :nth-child(3n + 2):nth-last-child(3),
+  .fill-rows > :nth-child(3n):nth-last-child(2),
+  .fill-rows > :nth-child(3n + 1):last-child {
+    grid-column: span 3;
+  }
+}
+
+/* Two to a row on a tablet: an odd one at the end takes the whole row. */
+@media (max-width: 60rem) {
+  .fill-rows {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fill-rows > * {
+    grid-column: auto;
+  }
+
+  .fill-rows > :nth-child(odd):last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 38rem) {
+  .fill-rows {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* --- Motion --------------------------------------------------------------- */
 
 /* Cross-page transitions in browsers that support them; the header holds still. */

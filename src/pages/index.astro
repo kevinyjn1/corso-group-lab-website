@@ -3,8 +3,7 @@ import { Image } from 'astro:assets';
 import heartExam from '../assets/vigil/heart-exam-mock-clinic.jpg';
 import Base from '../layouts/Base.astro';
 import PubItem from '../components/PubItem.astro';
-import MediaRow from '../components/MediaRow.astro';
-import VideoCard from '../components/VideoCard.astro';
+import MediaLead from '../components/MediaLead.astro';
 import Thesis from '../components/Thesis.astro';
 import VigilBand from '../components/VigilBand.astro';
 import { AREA_VISUALS, type AreaId } from '../lib/area-visuals';
@@ -296,18 +295,7 @@ const placements = [
             </span>
           </a>
         </div>
-        <div class="record" data-reveal="stagger">
-          <VideoCard item={leadVideo} sizes="(min-width: 62rem) 55vw, 92vw" />
-          <ul class="rows record-list">
-            {/* Three beside the video, which is about as tall as they are. The Media page has the rest. */}
-            {featuredMedia
-              .filter((item) => item !== leadVideo)
-              .slice(0, 3)
-              .map((item) => (
-                <MediaRow item={item} showKind stacked />
-              ))}
-          </ul>
-        </div>
+        <MediaLead video={leadVideo} items={featuredMedia.filter((item) => item !== leadVideo)} />
       </div>
     </section>
   )}
@@ -776,15 +764,6 @@ const placements = [
     transform: translateX(5px);
   }
 
-  /* --- Media ---------------------------------------------------------------- */
-
-  .record {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    gap: 2.5rem clamp(2rem, 5vw, 4.5rem);
-    align-items: start;
-  }
-
   /* --- Releases ------------------------------------------------------------- */
 
   .releases {
@@ -925,8 +904,7 @@ const placements = [
       grid-column: 1 / -1;
     }
 
-    .people,
-    .record {
+    .people {
       grid-template-columns: minmax(0, 1fr);
     }
   }

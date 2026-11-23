@@ -1,0 +1,89 @@
+---
+/**
+ * A talk on video beside the newest items of a media list: the block that opens the Media page
+ * and closes the home page and the VIGIL page.
+ *
+ * Three items stand beside the video, which is about as tall as they are, and the list is
+ * stretched to end where the video's text ends, so neither side leaves a hole under the other.
+ * Any further items run under both, two to a row.
+ */
+import MediaRow from './MediaRow.astro';
+import VideoCard from './VideoCard.astro';
+import type { MediaItem } from '../lib/content';
+
+interface Props {
+  video: MediaItem;
+  /** The items to list, newest or most important first. */
+  items: MediaItem[];
+  /** Show the items after the third under the video. Off where the page lists them elsewhere. */
+  rest?: boolean;
+}
+
+/** How many items stand beside the video. */
+const BESIDE = 3;
+const { video, items, rest = false } = Astro.props;
+const beside = items.slice(0, BESIDE);
+const under = rest ? items.slice(BESIDE) : [];
+---
+
+<div class="record" data-reveal="stagger">
+  <VideoCard item={video} sizes="(min-width: 62rem) 46vw, 92vw" />
+  <ul class="rows record-list">
+    {beside.map((item) => (
+      <MediaRow item={item} showKind stacked />
+    ))}
+  </ul>
+  {under.length > 0 && (
+    <ul class="rows record-more">
+      {under.map((item) => (
+        <MediaRow item={item} showKind stacked />
+      ))}
+    </ul>
+  )}
+</div>
+
+<style>
+  .record {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  /* The list is as tall as the video beside it: its rows share out whatever height is left. */
+  .record-list {
+    display: grid;
+    align-self: stretch;
+  }
+
+  /* The older items, two to a row across the block. An odd one at the end takes a whole row. */
+  .record-more {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(2rem, 5vw, 4.5rem);
+  }
+
+  .record-more > :global(li:nth-child(odd):last-child) {
+    grid-column: 1 / -1;
+  }
+
+  /* On a small laptop the video is smaller and the rows wrap more, so the rows beside it are set
+     a little tighter and stay about as tall as the video. */
+  @media (min-width: 62.01rem) and (max-width: 78rem) {
+    .record-list :global(.row) {
+      padding-block: 1rem;
+    }
+
+    .record-list :global(h3) {
+      font-size: 1.15rem;
+    }
+  }
+
+  @media (max-width: 62rem) {
+    .record,
+    .record-more {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

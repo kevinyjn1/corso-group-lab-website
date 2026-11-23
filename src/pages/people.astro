@@ -92,9 +92,10 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
             </a>
           </p>
         </div>
-
+      </div>
+      <div class="pi-honors">
         <h3 class="label honors-label">Selected honors</h3>
-        <ul class="honors rows">
+        <ul class="honors">
           {pi.honors.map((honor) => (
             <li>
               <span class="label">{honor.year}</span>
@@ -120,7 +121,7 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
           <h2 class="h2">Ph.D. students</h2>
         </div>
       </div>
-      <ul class="members" data-reveal="stagger">
+      <ul class="members fill-rows" data-reveal="stagger">
         {students.map((person) => (
           <li class="member">
             <Portrait id={person.id} name={person.data.name} />
@@ -264,13 +265,28 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
     align-items: start;
   }
 
+  /* The portrait's column is as tall as the text beside it: where the text runs longer, the
+     links under the portrait share out the height that is left. */
+  .pi-card {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+
   .pi-links {
+    display: grid;
+    flex: 1 0 auto;
     margin-top: 1.5rem;
     border-top: 1px solid var(--line);
   }
 
+  .pi-links li {
+    display: grid;
+  }
+
   .pi-links a {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     padding-block: 0.8rem;
     border-bottom: 1px solid var(--line);
@@ -301,8 +317,21 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
     color: var(--text-2);
   }
 
+  /* The honors run under both columns, so the portrait's column does not have to wait beside a
+     long list. They flow through two columns, newest first. */
+  .pi-honors {
+    grid-column: 1 / -1;
+  }
+
   .honors-label {
-    margin-block: 3rem 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid var(--text);
+    color: var(--text);
+  }
+
+  .honors {
+    column-count: 2;
+    column-gap: clamp(2rem, 6vw, 6rem);
   }
 
   .honors li {
@@ -311,14 +340,15 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
     gap: 1rem;
     align-items: baseline;
     padding-block: 0.8rem;
+    border-bottom: 1px solid var(--line);
     font-size: 0.95rem;
+    break-inside: avoid;
   }
 
   /* --- Current members ------------------------------------------------------ */
 
+  /* Three to a row, with a last row that is always full (.fill-rows). */
   .members {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 2.5rem clamp(1.5rem, 3vw, 3rem);
   }
 
@@ -342,11 +372,19 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
     text-wrap: pretty;
   }
 
+  /* The other members, group by group. Each group runs across the page with its names three to
+     a row: groups of different sizes then end a line or two apart, where three lists side by
+     side left the shortest with a hole under it. */
   .groups {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 3rem clamp(2rem, 4vw, 4rem);
+    gap: clamp(2.5rem, 5vw, 3.5rem);
     margin-top: clamp(3.5rem, 7vw, 6rem);
+  }
+
+  .groups .names {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(2rem, 4vw, 4rem);
   }
 
   /* --- Ph.D. alumni --------------------------------------------------------- */
@@ -437,8 +475,7 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
   /* --- Responsive ----------------------------------------------------------- */
 
   @media (max-width: 60rem) {
-    .members,
-    .groups {
+    .groups .names {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -476,9 +513,10 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
   }
 
   @media (max-width: 38rem) {
-    .members,
-    .groups {
+    .groups .names,
+    .honors {
       grid-template-columns: minmax(0, 1fr);
+      column-count: 1;
     }
 
     .thesis {
