@@ -255,7 +255,6 @@
   outlet: 'Michigan ECE News'
   date: '2026-01-30'
   url: 'https://ece.engin.umich.edu/stories/jason-corso-named-toyota-professor-of-artificial-intelligence'
-  summary: "Prof. Corso's appointment to the Toyota Professorship, the first named professorship in artificial intelligence at Michigan."
 
 - id: ai-takes-off-in-washtenaw-county
   title: 'AI takes off in Washtenaw County'

@@ -105,31 +105,6 @@ src/
 tests/                End-to-end tests
 ```
 
-## News
-
-The home page has a section, "What's new at Corso Group", that shows the four newest items, and
-`/news/` lists all of them under the year they happened in. Both are built from
-`src/data/news.yaml`. To add news, add an entry to that file and push: the site sorts it into
-place.
-
-```yaml
-- id: a-short-name
-  date: '2026-11-20' # or '2026-11' when the day is not known
-  kind: milestone # milestone, papers, press, project, teaching, people, award, talk, release
-  title: 'What happened, in a few plain words'
-  summary: 'One or two sentences. Optional.'
-  link: 'https://example.org/the-article' # or a page of this site: '/vigil/#site-visit'
-  linkLabel: 'The article in The Detroit News'
-```
-
-- For a paper on the publication list, write `paper: <its id in publications.yaml>` in place of
-  `link`, and the address is taken from that list.
-- A title has no full stop, and a link's words say what it opens. An address copied from
-  LinkedIn or a newsletter usually ends in tracking codes (`?utm_...`, `rcm=...`): cut them off.
-- Say what happened and leave the adjectives out: "named Toyota Professor", not "thrilled to
-  announce".
-- Dates show as month and year, so every item reads the same whether or not its day is known.
-
 ## The thesis: physically grounded upskilling
 
 The home page is built around the group's thesis, in the words of Prof. Corso's 2026 talk

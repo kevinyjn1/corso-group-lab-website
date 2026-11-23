@@ -160,37 +160,4 @@ const media = defineCollection({
   }),
 });
 
-/** News from the group, newest first on the home page and on /news/. */
-const news = defineCollection({
-  loader: file('src/data/news.yaml'),
-  schema: z
-    .object({
-      /** "YYYY-MM-DD", or "YYYY-MM" when the day is not known. */
-      date: z.string().regex(/^\d{4}-\d{2}(-\d{2})?$/),
-      kind: z.enum([
-        'milestone',
-        'papers',
-        'press',
-        'project',
-        'teaching',
-        'people',
-        'award',
-        'talk',
-        'release',
-      ]),
-      /** What happened, in a few plain words, with no full stop. */
-      title: z.string().regex(/[^.]$/, 'A news title has no full stop'),
-      summary: z.string().optional(),
-      /** A full address on another site, or a path on this one that starts with "/". */
-      link: z.union([url, z.string().regex(/^\/[\w/#-]*$/)]).optional(),
-      /** In place of `link`: the id of a paper in publications.yaml, whose address is used. */
-      paper: z.string().optional(),
-      /** The words of the link, saying what it opens. */
-      linkLabel: z.string(),
-    })
-    .refine((item) => Boolean(item.link) !== Boolean(item.paper), {
-      message: 'A news item has one of `link` or `paper`',
-    }),
-});
-
-export const collections = { publications, people, areas, resources, courses, media, news };
+export const collections = { publications, people, areas, resources, courses, media };

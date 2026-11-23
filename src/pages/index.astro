@@ -4,20 +4,12 @@ import heartExam from '../assets/vigil/heart-exam-mock-clinic.jpg';
 import Base from '../layouts/Base.astro';
 import PubItem from '../components/PubItem.astro';
 import MediaRow from '../components/MediaRow.astro';
-import NewsRow from '../components/NewsRow.astro';
 import VideoCard from '../components/VideoCard.astro';
 import Thesis from '../components/Thesis.astro';
 import VigilBand from '../components/VigilBand.astro';
 import { AREA_VISUALS, type AreaId } from '../lib/area-visuals';
 import { paperOf, paperUrl, shortCite } from '../lib/cite';
-import {
-  getAreas,
-  getMedia,
-  getNews,
-  getPeople,
-  getPublications,
-  getResources,
-} from '../lib/content';
+import { getAreas, getMedia, getPeople, getPublications, getResources } from '../lib/content';
 import { OPERATING_ROOM } from '../lib/operating-room';
 import { PAPER_FIGURES } from '../lib/paper-figures';
 import { href, pi, site } from '../lib/site';
@@ -54,8 +46,6 @@ const operatingRoom = OPERATING_ROOM.map((result) => {
 });
 
 const latest = publications.slice(0, 6);
-/** The newest news. The News page has all of it. */
-const latestNews = (await getNews()).slice(0, 4);
 const featuredResources = resources.filter((r) => r.data.featured);
 const current = (role: string) =>
   people.filter((p) => p.data.status === 'current' && p.data.role === role);
@@ -262,28 +252,6 @@ const placements = [
               </div>
             </a>
           </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-
-  <section class="section" id="news">
-    <div class="container">
-      <div class="section-head" data-reveal>
-        <div>
-          <p class="label">News</p>
-          <h2 class="h2">What's new at Corso Group</h2>
-        </div>
-        <a class="more" href={href('/news/')}>
-          More COG news{' '}
-          <span class="arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </a>
-      </div>
-      <ul class="rows" data-reveal="stagger">
-        {latestNews.map((item) => (
-          <NewsRow item={item} />
         ))}
       </ul>
     </div>

@@ -144,7 +144,7 @@ const current = Astro.url.pathname;
   progress();
 
   // Leaving the mobile layout closes the menu so the page is never left scroll-locked.
-  window.matchMedia('(min-width: 70.01rem)').addEventListener('change', (event) => {
+  window.matchMedia('(min-width: 66.01rem)').addEventListener('change', (event) => {
     if (event.matches) setMenu(false);
   });
 </script>
@@ -225,7 +225,7 @@ const current = Astro.url.pathname;
 
   .nav a {
     display: block;
-    padding: 0.5rem;
+    padding: 0.5rem 0.6rem;
     font-family: var(--font-display);
     font-stretch: 88%;
     font-size: 0.9rem;
@@ -338,9 +338,7 @@ const current = Astro.url.pathname;
     opacity: 0.6;
   }
 
-  /* Nine links need about 68rem beside the mark. Below 70rem the menu button takes over, which
-     leaves room to spare for browsers that set the type a little wider. */
-  @media (max-width: 70rem) {
+  @media (max-width: 66rem) {
     .nav {
       display: none;
     }
@@ -350,14 +348,14 @@ const current = Astro.url.pathname;
     }
   }
 
-  @media (min-width: 70.01rem) {
+  @media (min-width: 66.01rem) {
     .mobile-menu {
       display: none;
     }
   }
 
   /* Where the full navigation only just fits, the mark stands in for the group's name. */
-  @media (min-width: 70.01rem) and (max-width: 84rem) {
+  @media (min-width: 66.01rem) and (max-width: 77rem) {
     .brand-name {
       display: none;
     }
