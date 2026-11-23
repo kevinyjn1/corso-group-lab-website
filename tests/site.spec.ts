@@ -138,82 +138,44 @@ test.describe('publications', () => {
   });
 });
 
-test.describe('home page scene', () => {
-  test('draws, captions, and switches between its four readings', async ({ page }) => {
+test.describe('the operating room on the home page', () => {
+  test('surgery and the heart are shown by four real figures, oldest first, each with its paper', async ({
+    page,
+  }) => {
     await page.goto(at('/'));
-    const scene = page.locator('[data-hero-scene]');
-    // The scene only runs while it is on screen.
-    await scene.scrollIntoViewIfNeeded();
-    await expect(scene.locator('[data-caption]')).not.toBeEmpty({ timeout: 10_000 });
+    const results = page.locator('#operating-room .result');
+    await expect(results).toHaveCount(4);
+    const years = (await results.locator('.result-year').allInnerTexts()).map(Number);
+    expect(years).toEqual([...years].sort((a, b) => a - b));
+    expect(years[0]).toBe(2004);
 
-    // The canvas has been painted: it is not a single flat color.
-    const colors = await scene.locator('canvas').evaluate((canvas: HTMLCanvasElement) => {
-      const context = canvas.getContext('2d')!;
-      const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
-      const seen = new Set<number>();
-      for (let i = 0; i < data.length; i += 4 * 97) {
-        seen.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]);
-      }
-      return seen.size;
-    });
-    expect(colors).toBeGreaterThan(3);
-    // Two hands of 21 keypoints each are being followed.
-    await expect(scene).toHaveAttribute('data-keypoints', '42');
-
-    const readings = page.locator('[data-reading]');
-    await expect(readings).toHaveCount(4);
-    for (const mode of ['language', 'surface', 'motion', 'hands']) {
-      await scene.locator(`[data-mode="${mode}"]`).click();
-      await expect(scene.locator(`[data-mode="${mode}"]`)).toHaveAttribute('aria-pressed', 'true');
-      await expect(scene.locator('[aria-pressed="true"]')).toHaveCount(1);
-      await expect(scene).toHaveAttribute('data-view', mode);
-      // The list under the scene follows along, and names the paper behind the reading.
-      await expect(page.locator('[data-reading][data-active]')).toHaveCount(1);
-      await expect(page.locator(`[data-reading="${mode}"]`)).toHaveAttribute('data-active', '');
+    const shapes = new Set<string>();
+    for (const result of await results.all()) {
+      await result.scrollIntoViewIfNeeded();
+      const image = result.locator('img');
+      await expect(image).toHaveAttribute('alt', /\S.{60,}/);
+      await expect
+        .poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth))
+        .toBeGreaterThan(200);
+      // The whole figure is in view inside its sheet: nothing is cropped to make it fit.
+      await expect(image).toHaveCSS('object-fit', 'contain');
+      const sheet = (await result.locator('.result-sheet').boundingBox())!;
+      shapes.add((sheet.width / sheet.height).toFixed(1));
+      await expect(result.locator('.result-name')).not.toBeEmpty();
+      await expect(result.locator('.result-what')).toHaveText(/\S.{60,}\.$/);
+      // It names the figure and the paper it is from, and links to the paper.
+      const source = result.locator('.result-source a');
+      await expect(source).toHaveText(/^(From )?Figure \d+ of .+ (19|20)\d\d/);
+      await expect(source).toHaveAttribute('href', /^https:\/\//);
     }
-    for (const paper of await page.locator('[data-reading] a').all()) {
-      await expect(paper).toHaveAttribute('href', /^https:\/\/(arxiv\.org|doi\.org)\//);
-    }
-
-    // A reading can also be chosen from the list.
-    await page.locator('[data-show="surface"]').click();
-    await expect(scene).toHaveAttribute('data-view', 'surface');
+    // Every sheet is the same shape.
+    expect([...shapes]).toHaveLength(1);
   });
 
-  test('can be paused and started again', async ({ page }) => {
-    await page.goto(at('/'));
-    const scene = page.locator('[data-hero-scene]');
-    await scene.scrollIntoViewIfNeeded();
-    await expect(scene.locator('[data-caption]')).not.toBeEmpty({ timeout: 10_000 });
-    // What is drawn is the test: held, the picture does not change; playing, it does.
-    const picture = () =>
-      scene.locator('canvas').evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
-
-    await scene.getByRole('button', { name: 'Pause the scene' }).click();
-    await expect(scene).toHaveAttribute('data-held', '');
-    await page.waitForTimeout(300);
-    const stopped = await picture();
-    await page.waitForTimeout(1200);
-    expect(await picture()).toBe(stopped);
-
-    await scene.getByRole('button', { name: 'Play the scene' }).click();
-    await expect(scene).not.toHaveAttribute('data-held', '');
-    await expect.poll(picture, { timeout: 5_000 }).not.toBe(stopped);
-  });
-
-  test('the operation moves forward, one stitch at a time', async ({ page }) => {
-    await page.goto(at('/'));
-    const scene = page.locator('[data-hero-scene]');
-    await scene.scrollIntoViewIfNeeded();
-    const stitch = async () => Number(await scene.getAttribute('data-stitch'));
-    const before = await stitch();
-    await expect.poll(stitch, { timeout: 12_000 }).not.toBe(before);
-  });
-
-  test('is static and fully readable with reduced motion', async ({ page }) => {
+  test('nothing on the home page stays hidden with reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(at('/'));
-    await expect(page.locator('[data-hero-scene] [data-caption]')).not.toBeEmpty();
+    await expect(page.locator('#operating-room .result')).toHaveCount(4);
     const hidden = await page
       .locator('[data-reveal], [data-reveal="stagger"] > *')
       .evaluateAll(
@@ -221,6 +183,20 @@ test.describe('home page scene', () => {
       );
     expect(hidden).toBe(0);
   });
+});
+
+test('no page draws its figures: every picture of the work is a photograph, a clip, or a figure from a paper', async ({
+  page,
+}) => {
+  for (const path of ['/', '/research/', '/vigil/']) {
+    await page.goto(at(path));
+    await expect(
+      page.locator('canvas, [data-figure], [data-hero-scene], [data-console]'),
+    ).toHaveCount(0);
+    await expect(page.locator('main')).not.toContainText(/illustration|not footage/i);
+    // No figure is numbered by the site itself. A number belongs to the paper a figure is from.
+    await expect(page.locator('main')).not.toContainText(/\bFig\. \d/);
+  }
 });
 
 test('every page title fits on the narrowest phones', async ({ page, isMobile }) => {
@@ -384,51 +360,67 @@ test("the mark's eye follows the pointer and its gear turns with the page", asyn
     .toMatch(/^0\.[1-9]\d*turn$/);
 });
 
-test('every research figure draws its own picture', async ({ page }) => {
+test('every research area opens on a real figure or clip, and has a second figure beside its text', async ({
+  page,
+}) => {
   await page.goto(at('/research/'));
-  // One figure for each of the six areas. The VIGIL project above them is shown in footage.
-  const figures = page.locator('[data-figure]');
-  await expect(figures).toHaveCount(6);
-  const names = new Set<string>();
-  for (const figure of await figures.all()) {
-    await figure.scrollIntoViewIfNeeded();
-    await expect(figure).toHaveAttribute('data-painted', '');
-    const name = (await figure.getAttribute('data-figure'))!;
-    names.add(name);
-    // A figure starts from the beginning of its story, so give it a moment. Then more than the
-    // resting dot grid has been drawn: several distinct colors are on the canvas.
-    const colors = () =>
-      figure.locator('canvas').evaluate((canvas: HTMLCanvasElement) => {
-        const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
-        const seen = new Set<number>();
-        for (let i = 0; i < data.length; i += 4 * 53) {
-          if (data[i + 3] > 200) seen.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]);
-        }
-        return seen.size;
-      });
-    await expect.poll(colors, { message: name, timeout: 8_000 }).toBeGreaterThan(1);
-    await expect(figure.locator('figcaption')).not.toBeEmpty();
+  const areas = page.locator('section.area');
+  await expect(areas).toHaveCount(6);
+  const leads = new Set<string>();
+  for (const area of await areas.all()) {
+    const id = (await area.getAttribute('id'))!;
+    const lead = area.locator('.area-lead');
+    await lead.scrollIntoViewIfNeeded();
+    // The lead is one thing: a figure from a paper, or a clip of the group's footage.
+    const figure = lead.locator('[data-paper-figure]');
+    const clip = lead.locator('[data-clip]');
+    expect((await figure.count()) + (await clip.count()), id).toBe(1);
+    if (await clip.count()) {
+      leads.add(`clip:${await clip.locator('source').getAttribute('src')}`);
+      await expect(clip.locator('figcaption .clip-source')).toHaveText(/(19|20)\d\d$/);
+      await expect(clip.locator('figcaption a.clip-source')).toHaveAttribute('href', /^https:\/\//);
+    } else {
+      leads.add(`figure:${await figure.getAttribute('data-paper-figure')}`);
+    }
+    // It comes before the area's text, and is at least as wide as half the page's measure.
+    const box = (await lead.locator('.sheet, .clip-frame').boundingBox())!;
+    const text = (await area.locator('.area-grid').boundingBox())!;
+    expect(box.y + box.height, id).toBeLessThanOrEqual(text.y);
+    expect(box.width, id).toBeGreaterThanOrEqual(Math.min(text.width, 600) * 0.45);
+    // The second figure is from a different paper than the lead.
+    const second = area.locator('.area-second [data-paper-figure]');
+    await expect(second).toHaveCount(1);
+    expect(leads.has(`figure:${await second.getAttribute('data-paper-figure')}`), id).toBe(false);
   }
-  expect(names.size).toBe(6);
+  expect(leads.size).toBe(6);
 });
 
-test('every research figure names the paper it is drawn after', async ({ page }) => {
-  await page.goto(at('/research/'));
-  const sources = page.locator('.area .figure-source');
-  await expect(sources).toHaveCount(6);
-  for (const source of await sources.all()) {
-    await expect(source).toContainText('Figure after');
-    const link = source.locator('a').first();
-    await expect(link).toHaveAttribute('href', /^https:\/\//);
-    // A citation: who, where, and when.
-    await expect(link).toHaveText(/\S+.*, .+ (19|20)\d\d$/);
-    await expect(link).toHaveAttribute('title', /\S{8,}/);
-  }
-
-  // On the home page the figures sit in cards that are links, so the source is plain text there.
+test('each research card on the home page shows part of a real figure, and says which', async ({
+  page,
+}) => {
   await page.goto(at('/'));
-  await expect(page.locator('.areas .figure-source')).toHaveCount(5);
-  await expect(page.locator('.areas .figure-source a')).toHaveCount(0);
+  const cards = page.locator('.areas .area');
+  await expect(cards).toHaveCount(5);
+  const sources = new Set<string>();
+  const shapes = new Set<string>();
+  for (const card of await cards.all()) {
+    await card.scrollIntoViewIfNeeded();
+    const image = card.locator('.area-figure img');
+    await expect(image).toHaveAttribute('alt', /\S.{60,}/);
+    await expect
+      .poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(300);
+    await expect(image).toHaveCSS('object-fit', 'contain');
+    const frame = (await card.locator('.area-figure').boundingBox())!;
+    shapes.add((frame.width / frame.height).toFixed(1));
+    // The card is itself a link, so the source is plain text: the figure, who, where, and when.
+    const source = card.locator('.area-source');
+    await expect(source).toHaveText(/^From Figure \d+ of .+, .+ (19|20)\d\d$/);
+    await expect(source.locator('a')).toHaveCount(0);
+    sources.add(await source.innerText());
+  }
+  expect(sources.size).toBe(5);
+  expect([...shapes]).toHaveLength(1);
 });
 
 /** A clip of the group's footage: silent, looping, described, and held still on request. */
@@ -513,7 +505,7 @@ test('VIGIL is introduced on the home page and leads to its own page', async ({ 
     'Vectors of Intelligent Guidance in Long-Reach Rural Healthcare',
   );
   // The band shows the team's own footage of the system, not a drawing of it.
-  await expect(band.locator('[data-figure]')).toHaveCount(0);
+  await expect(band.locator('canvas')).toHaveCount(0);
   await expectClip(band.locator('[data-clip]'));
   await expect(band.locator('[data-clip] figcaption a')).toHaveAttribute('href', /\/vigil\/#how$/);
 
@@ -685,7 +677,7 @@ test('the VIGIL page links the published demonstrations in full and shows the te
   expect(response.headers()['content-type']).toMatch(/^image\//);
 });
 
-test('the VIGIL page shows the system at work: photos, both exams, and the demo day', async ({
+test('the VIGIL page shows the system at work: photos, footage, and the demo day', async ({
   page,
 }) => {
   await page.goto(at('/vigil/'));
@@ -717,51 +709,10 @@ test('the VIGIL page shows the system at work: photos, both exams, and the demo 
     .poll(() => still.evaluate((img: HTMLImageElement) => img.naturalWidth))
     .toBeGreaterThan(0);
 
-  // The heart exam and the leg exam are both drawn.
-  for (const name of ['vigil', 'leg']) {
-    const figure = page.locator(`#how [data-figure="${name}"]`);
-    await figure.scrollIntoViewIfNeeded();
-    await expect(figure).toHaveAttribute('data-painted', '');
-  }
-
-  // Each exam has one headline reading in real type, and steps that can be chosen.
-  const heart = page.locator('#how [data-figure="vigil"]');
-  const panel = page.locator('#how [data-figure="vigil"] + [data-console]');
-  await heart.scrollIntoViewIfNeeded();
-  await expect(panel.locator('[data-readout-value]')).toHaveText(/^\d{1,3}%$/);
-  await expect(panel.locator('[data-readout-label]')).toContainText('View quality');
-  const steps = panel.locator('[data-step]');
-  await expect(steps).toHaveCount(5);
-  await steps.nth(3).click();
-  await expect(steps.nth(3)).toHaveAttribute('data-on', '');
-  await expect(steps.nth(2)).toHaveAttribute('data-done', '');
-  await expect(panel).toHaveAttribute('data-on', '3');
-  // Capturing happens with the probe on target, so the reading is high by then.
-  await expect(panel.locator('[data-readout-label]')).toContainText('on target');
-  // What the assistant says is shown in words, and it matches the moment.
-  await expect(panel.locator('[data-says]')).toHaveText('On target. Hold still.');
-  await steps.nth(0).click();
-  await expect(panel).toHaveAttribute('data-on', '0');
-  await expect(panel.locator('[data-readout-label]')).toContainText('no contact');
-  await expect(panel.locator('[data-says]')).toHaveText('Line the patient up with the light.');
-
-  // The animation can be held still to read it, and started again.
-  const pause = panel.getByRole('button', { name: 'Pause the animation' });
-  await pause.click();
-  const held = panel.getByRole('button', { name: 'Play the animation' });
-  await expect(held).toHaveAttribute('aria-pressed', 'true');
-  const frozen = await panel.locator('[data-readout-value]').innerText();
-  await page.waitForTimeout(1500);
-  await expect(panel.locator('[data-readout-value]')).toHaveText(frozen);
-  await expect(panel).toHaveAttribute('data-on', '0');
-  // A step can still be chosen while it is held.
-  await steps.nth(4).click();
-  await expect(panel.locator('[data-says]')).toContainText('report is ready');
-  await held.click();
-  await expect(panel.getByRole('button', { name: 'Pause the animation' })).toHaveAttribute(
-    'aria-pressed',
-    'false',
-  );
+  // The two exams are shown start to finish by the team's own videos, and nothing is drawn.
+  await expect(page.locator('#how .demos .video')).toHaveCount(2);
+  await expect(page.locator('#how canvas')).toHaveCount(0);
+  await expect(page.locator('#how')).not.toContainText(/illustration/i);
 
   // What each team showed, and the research shown alongside.
   const posters = page.locator('#demo-day .poster');
@@ -798,7 +749,7 @@ test('the home page leads with the thesis, then its proof, then the operating ro
     return {
       thesis: top('#thesis'),
       vigil: top('section.vigil'),
-      scene: top('[data-hero-scene]'),
+      scene: top('#operating-room'),
       areas: top('.areas'),
     };
   });
@@ -822,7 +773,7 @@ test('the home page leads with the thesis, then its proof, then the operating ro
 
   // Human-AI collaboration is the thesis itself, so the grid below shows the other five areas.
   await expect(page.locator('.areas > li')).toHaveCount(5);
-  await expect(page.locator('.areas [data-figure="human"]')).toHaveCount(0);
+  await expect(page.locator('.areas .area[data-topic="human"]')).toHaveCount(0);
 });
 
 test('the first screen is calm: one moderate line of headline, with the photograph in view', async ({
@@ -902,8 +853,7 @@ test('the home page is not a dashboard: no rows of big numbers, no ticker, no or
   }
   // A video's summary says what it is about, not how long it runs.
   await expect(page.locator('main')).not.toContainText(/\b\d+ minutes\b/);
-  // The surgery figure has no recording light or frame counter, and the footer no coordinates.
-  await expect(page.locator('[data-hero-scene]')).not.toContainText(/Frame\s*\d/i);
+  // The footer has no coordinates.
   await expect(page.locator('footer')).not.toContainText(/°|\d\.\d{3}/);
   // The VIGIL band and the operating room share one blue field, with no edge between them.
   const join = await page.evaluate(() => {
@@ -934,7 +884,7 @@ test('the thesis makes its claims with real results and the papers behind them',
   expect(await thesis.locator('.claim-papers a').count()).toBeGreaterThanOrEqual(4);
 
   // Both claims are shown with the group's real results, not with drawings of them.
-  await expect(thesis.locator('.claims [data-figure], .claims canvas')).toHaveCount(0);
+  await expect(thesis.locator('.claims canvas')).toHaveCount(0);
 
   // The hazy oracle: a real photograph from the paper, with the model's own boxes and numbers.
   const result = claims.nth(0).locator('[data-result]');
@@ -1001,51 +951,12 @@ test('the thesis makes its claims with real results and the papers behind them',
   }
 });
 
-test('the steps under a live figure stay where they are while the figure plays', async ({
-  page,
-}) => {
-  for (const [path, name] of [
-    ['/research/', 'human'],
-    ['/vigil/', 'vigil'],
-  ] as const) {
-    await page.goto(at(path));
-    const panel = page.locator(`[data-figure="${name}"] + [data-console]`).first();
-    await panel.scrollIntoViewIfNeeded();
-    // Long enough for the story to move through several steps.
-    const seen = new Set<string>();
-    const steps = new Set<string>();
-    for (let i = 0; i < 24; i += 1) {
-      const sample = await panel.evaluate((el) => ({
-        on: el.getAttribute('data-on') ?? '',
-        layout: JSON.stringify([
-          Math.round(el.getBoundingClientRect().height),
-          ...[...el.querySelectorAll('[data-step]')].map((step) => {
-            const box = step.getBoundingClientRect();
-            return [Math.round(box.left), Math.round(box.width), Math.round(box.height)];
-          }),
-        ]),
-      }));
-      seen.add(sample.layout);
-      steps.add(sample.on);
-      await page.waitForTimeout(250);
-    }
-    expect(steps.size, `${name}: the story advanced`).toBeGreaterThan(1);
-    expect([...seen], `${name}: one layout throughout`).toHaveLength(1);
-    // Each step is wide and tall enough to press.
-    for (const step of await panel.locator('[data-step]').all()) {
-      const box = (await step.boundingBox())!;
-      expect(box.width).toBeGreaterThanOrEqual(40);
-    }
-    // The current step is named.
-    await expect(panel.locator('[data-step][data-on] .step-name')).toBeVisible();
-  }
-});
-
 test('figures from the papers are shown as published, each with its paper', async ({ page }) => {
-  // One under the second claim of the thesis, and one in each research area.
+  // One under the second claim of the thesis. On the Research page, one or two in each area: an
+  // area that opens on a clip has one, the others two.
   for (const [path, count] of [
     ['/', 1],
-    ['/research/', 6],
+    ['/research/', 10],
   ] as const) {
     await page.goto(at(path));
     const figures = page.locator('[data-paper-figure]');

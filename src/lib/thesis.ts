@@ -3,10 +3,10 @@
  * "Physically-Grounded Agentic Upskilling". The home page is built from this file.
  *
  * The talk's slides are not public, so only its title, its three claims, and its closing line are
- * quoted, and every result named here links to its published paper. `figure` names a live figure
- * in src/scripts/figures.ts, and `papers` are ids in src/data/publications.yaml.
+ * quoted, and every result named here links to its published paper. `figure` says which real
+ * result src/components/Thesis.astro shows under the claim, and `papers` are ids in
+ * src/data/publications.yaml.
  */
-import type { FigureName } from './figures';
 
 interface Claim {
   /** The claim in the talk's own words: the end of "Physically-grounded agentic upskilling ...". */
@@ -14,7 +14,7 @@ interface Claim {
   /** The same claim, said plainly. */
   title: string;
   body: string;
-  figure?: FigureName;
+  figure?: 'oracle' | 'human';
   papers: readonly string[];
 }
 

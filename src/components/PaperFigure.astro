@@ -4,38 +4,41 @@
  * The figures and their captions are in src/lib/paper-figures.ts.
  */
 import { getImage, Image } from 'astro:assets';
+import { paperOf, paperUrl, shortCite } from '../lib/cite';
 import { getPublications } from '../lib/content';
 import { PAPER_FIGURES, type PaperFigureName } from '../lib/paper-figures';
 
 interface Props {
   name: PaperFigureName;
+  /**
+   * A lead figure opens a section at full width. It is shown as large as it reads well, and its
+   * caption sits beside it when there is room, or under it when the figure fills the row.
+   */
+  lead?: boolean;
 }
+const { lead = false } = Astro.props;
 const figure = PAPER_FIGURES[Astro.props.name];
-const publications = await getPublications();
-const pub = publications.find((entry) => entry.id === figure.paper);
-if (!pub) throw new Error(`PaperFigure: no publication with the id "${figure.paper}"`);
-
-const names = pub.data.authors.map((author) => author.split(' ').at(-1)!);
-const who =
-  names.length === 1
-    ? names[0]
-    : names.length === 2
-      ? `${names[0]} and ${names[1]}`
-      : `${names[0]} et al.`;
-const cite = `${figure.label} of ${who}, ${pub.data.venueShort ?? pub.data.venue} ${pub.data.year}`;
-const url = pub.data.links?.arxiv ?? pub.data.links?.doi ?? pub.data.links?.pdf;
+const pub = paperOf(await getPublications(), figure.paper, 'PaperFigure');
+const cite = `${figure.label} of ${shortCite(pub)}`;
+const url = paperUrl(pub);
 const credit = 'credit' in figure ? figure.credit : undefined;
 /** The whole figure at the size it was cut, for reading its small print. */
 const full = await getImage({ src: figure.image, width: figure.image.width, quality: 90 });
 ---
 
-<figure class="paper-figure" data-paper-figure={figure.paper}>
+<figure
+  class:list={['paper-figure', { 'is-lead': lead }]}
+  data-paper-figure={figure.paper}
+  style={`--ar: ${(figure.image.width / figure.image.height).toFixed(3)}`}
+>
   <a class="sheet" href={full.src} aria-label={`Open ${cite} at full size`}>
     <Image
       src={figure.image}
       alt={figure.alt}
-      widths={[480, 720, 960, 1280, figure.image.width]}
-      sizes="(min-width: 62rem) 40rem, 92vw"
+      widths={[480, 720, 960, 1280, 1920, figure.image.width].filter(
+        (width, i, all) => width <= figure.image.width && all.indexOf(width) === i,
+      )}
+      sizes={lead ? '(min-width: 86rem) 78rem, 92vw' : '(min-width: 62rem) 40rem, 92vw'}
       quality={86}
     />
   </a>
@@ -60,8 +63,9 @@ const full = await getImage({ src: figure.image, width: figure.image.width, qual
 
   /* Paper figures are drawn on white, so they sit on a white sheet in both themes. */
   .sheet {
+    --pad: clamp(0.6rem, 1.4vw, 1rem);
     display: block;
-    padding: clamp(0.6rem, 1.4vw, 1rem);
+    padding: var(--pad);
     cursor: zoom-in;
     background: #fff;
     border: var(--rule) solid var(--text);
@@ -128,6 +132,34 @@ const full = await getImage({ src: figure.image, width: figure.image.width, qual
     margin-top: 0.3rem;
     font-size: 0.8rem;
     color: var(--text-3);
+  }
+
+  /* A lead figure: as wide as it reads well and no taller than --lead-h, with its caption beside
+     it at the foot when there is room, and under it when the figure fills the row. */
+  .is-lead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.9rem clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  /* The sheet takes the width at which the figure is --lead-h tall, unless that would leave the
+     caption less than its room beside it: then the figure fills the row. */
+  .is-lead .sheet {
+    --w: calc(var(--lead-h, 34rem) * var(--ar) + 2 * var(--pad));
+    flex: 0 1 auto;
+    width: min(100%, clamp(var(--w), (var(--w) - (100% - 22rem)) * 9999, 100%));
+  }
+
+  .is-lead figcaption {
+    flex: 1 1 18rem;
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 34rem;
+    margin-top: 0;
+  }
+
+  .is-lead .tag {
+    justify-self: start;
   }
 
   @media (max-width: 30rem) {

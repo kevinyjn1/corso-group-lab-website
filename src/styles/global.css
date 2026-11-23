@@ -3,8 +3,8 @@
 
    The identity comes from the group's mark and its university: maize and
    Michigan blue, used in large flat blocks, with heavy condensed headlines
-   set like a poster. The page is paper by default; the live vision scenes
-   sit on it as dark screens. Corners are square and rules are solid.
+   set like a poster. The page is paper by default; figures from the papers
+   sit on it on white sheets. Corners are square and rules are solid.
    ========================================================================== */
 
 :root {
@@ -36,11 +36,8 @@
   --topic-health: #bf4a1b;
   --topic-learning: #6240cf;
 
-  /* Vision scenes are dark in both themes, like a monitor on a lab bench. */
+  /* The ground behind a video before it plays: dark in both themes. */
   --screen: #00162c;
-  --screen-line: rgb(255 255 255 / 0.14);
-  --screen-text: #f6f3ea;
-  --screen-text-2: #9fb2c8;
 
   --font-display: 'Archivo Variable', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
   --font-sans: 'Archivo Variable', system-ui, 'Helvetica Neue', Arial, sans-serif;
@@ -53,7 +50,7 @@
   --header-h: 4.5rem;
   --rule: 3px;
 
-  /* The dot grid that every figure is drawn on, as a faint texture for the page itself. */
+  /* A faint dot grid, as a texture for the page itself. */
   --grain: rgb(0 39 76 / 0.06);
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -243,7 +240,7 @@ button {
 /*
  * Full-width color fields. Inside one, text and rules take the field's own ink. Neither field is
  * a flat fill: maize carries a halftone of blue dots that gathers toward one corner, as on a
- * printed poster, and blue carries the dot grid of the figures.
+ * printed poster, and blue carries a faint dot grid.
  */
 :root {
   --halftone:
@@ -736,7 +733,7 @@ button {
 
 /*
  * Scroll reveals. See src/scripts/motion.ts. Content arrives with a short fade and nothing
- * more: the page's real motion is in its figures, its rules, and its counts.
+ * more: the page's real motion is in its clips and its rules.
  */
 .js [data-reveal]:not([data-reveal='stagger']),
 .js [data-reveal='stagger'] > * {

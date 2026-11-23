@@ -6,14 +6,17 @@
  * cut from the papers at print resolution and live in src/assets/papers.
  */
 import type { ImageMetadata } from 'astro';
-import robotslang from '../assets/papers/banerjee2021robotslang-fig1.jpg';
-import zcore from '../assets/papers/griffin2026zero-fig1.jpg';
-import followYourHeart from '../assets/papers/guo2026follow-fig1.png';
-import hazyOracle from '../assets/papers/lemmer2023evaluating-fig1.png';
+import agent from '../assets/papers/bellos2025effective-fig1.jpg';
+import tumor from '../assets/papers/corso2008efficient-fig6.jpg';
+import hsr from '../assets/papers/griffin2020video-fig19.jpg';
+import labels from '../assets/papers/griffin2026label-fig1.jpg';
+import ivln from '../assets/papers/krantz2023iterative-fig1.jpg';
 import mistake from '../assets/papers/li2026mistake-fig1.jpg';
-import clickHere from '../assets/papers/szeto2017click-fig1.jpg';
+import bimotion from '../assets/papers/wang2026bimotion-fig4.jpg';
+import supervoxels from '../assets/papers/xu2012streaming-fig6.jpg';
 import a2d from '../assets/papers/xu2015humans-fig1.jpg';
 import youcook2 from '../assets/papers/zhou2018automatic-fig1.jpg';
+import grounded from '../assets/papers/zhou2019grounded-fig1.jpg';
 
 export interface PaperFigure {
   /** The paper's id in src/data/publications.yaml. */
@@ -30,16 +33,6 @@ export interface PaperFigure {
 }
 
 export const PAPER_FIGURES = {
-  oracle: {
-    paper: 'lemmer2023evaluating',
-    label: 'Figure 1',
-    image: hazyOracle,
-    alt: 'A drawing in two parts. A person tells a robot: Please fetch my mug from the table. Three mugs are on the table. Under standard inference, the robot rates the three mugs as equally likely and picks the green one. Under deferred inference, the robot says: I am not sure, can you try again? The person says: Get the orange one. The robot holds the orange mug.',
-    caption:
-      'Asked to "fetch my mug" with three mugs on the table, a model that takes the request as complete has to guess. One that treats the person as a hazy oracle asks again.',
-    credit:
-      'Robot image from Wikimedia Commons (CC-SA) and mug images from freepik.com, as the paper credits them.',
-  },
   mistake: {
     paper: 'li2026mistake',
     label: 'Figure 1',
@@ -48,7 +41,15 @@ export const PAPER_FIGURES = {
     caption:
       'The instruction is "Pick up hammer", and the person picks up a bolt. The attribution names what was violated (the object), when the attempt passed the point of no return (frame 17), and where in the frame (the red box).',
   },
-  video: {
+  supervoxels: {
+    paper: 'xu2012streaming',
+    label: 'Figure 6',
+    image: supervoxels,
+    alt: 'Ten frames of a street video of a violinist, numbered 1 to 901, in four rows. The top row is the video itself. In the three rows below, every frame is divided into colored regions: many small ones in the second row, fewer and larger ones in the third, and the fewest in the last.',
+    caption:
+      'A 30-second street video (top row), segmented at the 5th, 10th, and 14th layers of a hierarchy. The method works through the video as a stream: each frame is processed once, and the whole video is never held in memory.',
+  },
+  a2d: {
     paper: 'xu2015humans',
     label: 'Figure 1',
     image: a2d,
@@ -56,7 +57,15 @@ export const PAPER_FIGURES = {
     caption:
       'Labeled videos from A2D, each marked with who is acting and what they are doing: "adult climbing", "dog walking", "bird flying".',
   },
-  language: {
+  grounded: {
+    paper: 'zhou2019grounded',
+    label: 'Figure 1',
+    image: grounded,
+    alt: 'Two video segments, three frames each. Under the first is the sentence: A man is seen standing in a room speaking to the camera while holding a bike. The words man, room, and bike are boxed, and a line joins each to a green box in one of the frames. Under the second: A group of people are in a raft down a river, with people, raft, and river boxed and joined to the frames in the same way. Under each sentence are three other descriptions of the same segment.',
+    caption:
+      'The model wrote each sentence for a video segment, and tied every boxed word to the part of the frame it names. Under each: the same model trained without boxes, an earlier method, and a description written by a person (GT).',
+  },
+  youcook2: {
     paper: 'zhou2018automatic',
     label: 'Figure 1',
     image: youcook2,
@@ -64,37 +73,53 @@ export const PAPER_FIGURES = {
     caption:
       'One video from YouCook2: making a BLT sandwich, cut into eight steps, each with its start and end time and a sentence.',
   },
-  robotics: {
-    paper: 'banerjee2021robotslang',
+  ivln: {
+    paper: 'krantz2023iterative',
     label: 'Figure 1',
-    image: robotslang,
-    alt: 'Two screens joined by a web server, and a photograph of a small wheeled robot. The commander view shows a map of a maze from above and a picture of the next object to find. The driver view shows what the robot camera sees and the keys that steer it. Both have a chat window.',
+    image: ivln,
+    alt: 'Five panels from one tour of a house: episode 1 of 82, the oracle step that follows it, episode 2, episode 6, and episode 82. Each panel has a map of the tour with the paths walked so far in blue, a map of the parts of the house observed so far, the written instruction for that episode, and the view the agent starts from. The map of what has been observed is almost empty in the first panel and shows the whole floor plan in the last.',
     caption:
-      "RobotSlang. The commander sees a map and guides by text chat. The driver sees only the robot's camera and steers it through a tabletop maze.",
+      'One tour of a house, in 82 instructions. After each attempt an oracle guides the agent to the correct goal, then to the start of the next path. Agents usually begin every instruction with no memory. This one keeps its memory, and its map of the house fills in as the tour goes on.',
   },
-  human: {
-    paper: 'szeto2017click',
-    label: 'Figure 1',
-    image: clickHere,
-    alt: "Two diagrams of a network estimating which way a red taxi faces. With the image alone, the estimate has two peaks, 180 degrees apart. With the image and a person's click on the back left wheel, marked by a star, the estimate has one sharp peak.",
+  hsr: {
+    paper: 'griffin2020video',
+    label: 'Figure 19',
+    image: hsr,
+    alt: 'Nine photographs, in three rows, of a Toyota HSR robot beside a metal tray of small objects, a wooden shelf, and a bin, under a Michigan Robotics sign. The robot looks down at the tray, lowers its arm, grasps a banana peel, lifts it clear, and places it in the bin.',
     caption:
-      'Click-Here CNN. From the image alone, the network cannot tell which way the taxi faces: its estimate has two peaks. One click from a person, on the back left wheel, leaves one.',
+      'A Toyota HSR robot clears a tray. It finds the objects with the camera in its hand (top row), centers on a banana peel and grasps it (middle row), then checks the grasp away from the other objects and places the peel in the bin (bottom row). Each move is guided by segmenting the object in video.',
   },
-  health: {
-    paper: 'guo2026follow',
+  agent: {
+    paper: 'bellos2025effective',
     label: 'Figure 1',
-    image: followYourHeart,
-    alt: 'Part A: a pipeline from an ultrasound video, through a landmark detector and a pose estimator that frames each image green, yellow, or red, to an estimator of ejection fraction that takes the green ones. Part B: a drawing of a probe on a chest, and six ultrasound frames in a strip that runs from green, on target, through yellow, close to target, to red, off target.',
+    image: agent,
+    alt: "A diagram above two photographs. In the diagram, a person in an AR headset and an AI agent exchange speech, and video from the headset and from a second camera goes to a server. The first photograph shows a person applying a tourniquet to the arm of a training manikin in uniform. The second shows the same task as the headset sees it. Beside it is part of the conversation. Agent: Place tourniquet over affected extremity 2-3 inches above wound site. Let me know when you're finished. Human: Ok I did it. what's next. Agent: Pull tourniquet tight. Human: How tight should I pull?",
     caption:
-      "A: landmarks are found in each ultrasound frame, the probe's position is scored from them, and the views scored green go on to an automated estimate of ejection fraction. B: a sweep away from the best position, scored on target, close to target, and off target.",
+      'An AI agent guides a person through applying a tourniquet. The person does the task with their own hands and talks with the agent, which reaches them through an AR headset.',
   },
-  learning: {
-    paper: 'griffin2026zero',
-    label: 'Figure 1',
-    image: zcore,
-    alt: 'A pipeline in four stages: unlabeled images are turned into points in a high-dimensional space by a foundation model, the space is sliced into subspaces again and again, points are sampled to cover it without repeating one another, and a small set of images is chosen.',
+  tumor: {
+    paper: 'corso2008efficient',
+    label: 'Figure 6',
+    image: tumor,
+    alt: 'Four rows of twelve brain MRI slices from one patient. In every slice the tumor is marked in green and the edema around it in red. The rows are labeled a to d.',
     caption:
-      'ZCore chooses which images are worth training on without a single label. It embeds them with foundation models, then samples that space for coverage while penalizing redundancy.',
+      "One patient's brain tumor, slice by slice: tumor in green, edema in red. Row (a) was labeled by hand. Rows (b) and (c) are two other automatic methods, and row (d) is the paper's.",
+  },
+  labels: {
+    paper: 'griffin2026label',
+    label: 'Figure 1',
+    image: labels,
+    alt: 'Pairs of photographs from several object detection datasets, each with a box and a label that a model proposed. In the top row, framed in red and marked Reject, the labels do not fit: a tomato labeled apple, a snow-covered hydrant labeled snowman. In the row below, framed in green and marked Accept, the same labels fit: an apple cut in half, a snowman. Under the photographs is a diagram: pseudo-label tokens go to a judge, the Turing Test Network, which marks each one accept or reject.',
+    caption:
+      'Labels proposed by a model, and the judge that prunes them. A single network, trained only on image classification, rejects the labels framed in red (a tomato called an apple, a snow-covered hydrant called a snowman) and accepts those in green, across several detection datasets and labeling models.',
+  },
+  bimotion: {
+    paper: 'wang2026bimotion',
+    label: 'Figure 4',
+    image: bimotion,
+    alt: 'Four 3D characters: a robot, a robot with a television for a head, a moose, and a tiger. Each sits beside the sentence that describes its motion, for example: The tiger leaps forward and snaps its head to the right to bite something. Below, each character is shown at three moments in time in four columns, one per method. Red circles mark flaws in the first three columns. The last column is labeled Ours.',
+    caption:
+      'A 3D character and a sentence go in, and its motion comes out. Each character is shown at three moments, as animated by three other methods and by BiMotion (last column). Red circles mark artifacts in the others.',
   },
 } as const satisfies Record<string, PaperFigure>;
 

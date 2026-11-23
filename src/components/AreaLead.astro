@@ -1,0 +1,60 @@
+---
+/**
+ * The picture a research area opens on: a figure from one of the group's papers, or a clip of
+ * the group's own footage. Which one each area gets is in src/lib/area-visuals.ts.
+ */
+import Clip from './Clip.astro';
+import PaperFigure from './PaperFigure.astro';
+import { AREA_VISUALS, type AreaId } from '../lib/area-visuals';
+import { paperOf, paperUrl } from '../lib/cite';
+import { getPublications } from '../lib/content';
+
+interface Props {
+  area: AreaId;
+}
+const { lead } = AREA_VISUALS[Astro.props.area];
+const clip = 'clip' in lead ? lead.clip : undefined;
+
+/** Where a clip's source line goes: the paper it names, or the page given for it. */
+let sourceHref: string | undefined;
+if (clip) {
+  const { source } = clip;
+  sourceHref = 'href' in source ? source.href : undefined;
+  if ('paper' in source) {
+    sourceHref = paperUrl(paperOf(await getPublications(), source.paper, 'AreaLead'));
+  }
+}
+---
+
+{clip ? (
+  <Clip src={clip.src} poster={clip.poster} tag={clip.tag} toggle={clip.toggle} alt={clip.alt} lead>
+    <strong>{clip.title}</strong> {clip.caption}{' '}
+    {sourceHref ? (
+      <a class="clip-source" href={sourceHref} rel="noopener">
+        {clip.source.label}
+      </a>
+    ) : (
+      <span class="clip-source">{clip.source.label}</span>
+    )}
+  </Clip>
+) : (
+  'figure' in lead && <PaperFigure name={lead.figure} lead />
+)}
+
+<style>
+  .clip-source {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  a.clip-source {
+    text-decoration: underline;
+    text-decoration-color: var(--line-2);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
+  a.clip-source:hover {
+    text-decoration-color: var(--maize);
+  }
+</style>

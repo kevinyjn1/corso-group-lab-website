@@ -8,7 +8,6 @@ import Base from '../layouts/Base.astro';
 import Clip from '../components/Clip.astro';
 import MediaRow from '../components/MediaRow.astro';
 import PubItem from '../components/PubItem.astro';
-import ResearchFigure from '../components/ResearchFigure.astro';
 import VideoCard from '../components/VideoCard.astro';
 import VigilName from '../components/VigilName.astro';
 import { getMedia, getPublications } from '../lib/content';
@@ -307,7 +306,7 @@ const plate = [
         the group's own recording.
       </p>
 
-      <h3 class="h3 exams-head" data-reveal>
+      <h3 class="h3 demos-head" data-reveal>
         The demonstrations, in full
       </h3>
       <div class="demos" data-reveal="stagger">
@@ -315,32 +314,6 @@ const plate = [
           <VideoCard item={item} sizes="(min-width: 62rem) 45vw, 92vw" />
         ))}
       </div>
-
-      <h3 class="h3 exams-head" data-reveal>
-        Two exams, start to finish
-      </h3>
-      <div class="exams" data-reveal="stagger">
-        <div>
-          <ResearchFigure topic="vigil" number={1} wide />
-          <p class="note">
-            <strong>The heart.</strong> Light marks where the probe goes, the system judges the
-            probe as far, close, or on target, and a voice corrects it until the four chambers are
-            in view.
-          </p>
-        </div>
-        <div>
-          <ResearchFigure topic="leg" number={2} wide />
-          <p class="note">
-            <strong>The leg.</strong> Marks along the thigh show where to press, the ultrasound
-            shows each vein under the probe, and three bars count off the veins as they are scanned.
-          </p>
-        </div>
-      </div>
-      <p class="note note--all" data-reveal>
-        These two figures are illustrations, drawn from the team's public descriptions and its demo
-        day posters to show a whole exam in a few seconds. They are not footage, and the spoken
-        lines are examples.
-      </p>
     </div>
   </section>
 
@@ -889,12 +862,6 @@ const plate = [
     scroll-margin-top: var(--header-h);
   }
 
-  .exams {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2rem clamp(1.25rem, 2.5vw, 2rem);
-  }
-
   .note {
     max-width: 52rem;
     margin-top: 0.8rem;
@@ -949,7 +916,7 @@ const plate = [
     align-items: start;
   }
 
-  .exams-head {
+  .demos-head {
     margin: clamp(3rem, 6vw, 4.5rem) 0 1.25rem;
     padding-top: 1.25rem;
     border-top: var(--rule) solid var(--maize);
@@ -1513,7 +1480,6 @@ const plate = [
   @media (max-width: 62rem) {
     .head-foot,
     .photos,
-    .exams,
     .why,
     .room-grid,
     .record {

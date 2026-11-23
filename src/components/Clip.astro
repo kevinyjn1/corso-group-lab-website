@@ -22,16 +22,21 @@ interface Props {
    * something to read, or the top right when the picture has a margin there and none below.
    */
   toggle?: 'left' | 'right' | 'top';
+  /**
+   * A lead clip opens a section at full width, laid out as a lead figure is: as large as it reads
+   * well, with its caption beside it when there is room. See src/components/PaperFigure.astro.
+   */
+  lead?: boolean;
 }
-const { src, poster, alt, tag = 'Footage', toggle = 'right' } = Astro.props;
+const { src, poster, alt, tag = 'Footage', toggle = 'right', lead = false } = Astro.props;
 const still = await getImage({ src: poster, width: poster.width, format: 'webp', quality: 72 });
 ---
 
-<figure class="clip" data-clip>
+<figure class:list={['clip', { 'is-lead': lead }]} data-clip>
   <div
     class="clip-frame"
     data-toggle={toggle}
-    style={`aspect-ratio: ${poster.width} / ${poster.height}`}
+    style={`aspect-ratio: ${poster.width} / ${poster.height}; --ar: ${(poster.width / poster.height).toFixed(3)}`}
   >
     <video
       muted
@@ -164,5 +169,24 @@ const still = await getImage({ src: poster, width: poster.width, format: 'webp',
 
   figcaption :global(strong) {
     color: var(--text);
+  }
+
+  .is-lead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.9rem clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .is-lead .clip-frame {
+    --w: calc(var(--lead-h, 34rem) * var(--ar));
+    flex: 0 1 auto;
+    width: min(100%, clamp(var(--w), (var(--w) - (100% - 22rem)) * 9999, 100%));
+  }
+
+  .is-lead figcaption {
+    flex: 1 1 18rem;
+    max-width: 34rem;
+    margin-top: 0;
   }
 </style>

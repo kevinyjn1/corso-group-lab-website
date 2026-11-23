@@ -2,12 +2,10 @@
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import PubItem from '../components/PubItem.astro';
-import FigureSource from '../components/FigureSource.astro';
+import AreaLead from '../components/AreaLead.astro';
 import PaperFigure from '../components/PaperFigure.astro';
-import ResearchFigure from '../components/ResearchFigure.astro';
 import VigilBand from '../components/VigilBand.astro';
-import type { FigureName } from '../lib/figures';
-import type { PaperFigureName } from '../lib/paper-figures';
+import { AREA_VISUALS, type AreaId } from '../lib/area-visuals';
 import { getAreas, getPublications, getResources } from '../lib/content';
 import { href, sponsors } from '../lib/site';
 
@@ -22,8 +20,12 @@ const sections = areas.map((area) => {
   const picks = [
     ...new Set([...primary.slice(0, 2), ...primary.filter((p) => p.data.featured), ...primary]),
   ].slice(0, 4);
+  if (!(area.id in AREA_VISUALS)) {
+    throw new Error(`Research: the area "${area.id}" has no figures in src/lib/area-visuals.ts`);
+  }
   return {
     area,
+    visual: AREA_VISUALS[area.id as AreaId],
     picks,
     releases: area.data.releases
       ? area.data.releases.flatMap((id) => resources.filter((r) => r.id === id))
@@ -68,29 +70,29 @@ const sections = areas.map((area) => {
     </div>
   </nav>
 
-  {sections.map(({ area, picks, releases }, i) => (
+  {sections.map(({ area, visual, picks, releases }, i) => (
     <section class="section area" id={area.id} data-topic={area.id}>
       <div class="container">
-        <div class="area-grid" data-reveal="stagger">
-          <div class="area-intro">
-            <ResearchFigure topic={area.id as FigureName} number={i + 1} />
-            <div class="area-source">
-              <FigureSource topic={area.id as FigureName} />
-            </div>
+        <header class="area-head" data-reveal>
+          <div>
             <p class="label area-index">
               {String(i + 1).padStart(2, '0')} / {String(sections.length).padStart(2, '0')}
             </p>
             <h2 class="h2">{area.data.title}</h2>
-            <p class="lead">{area.data.summary}</p>
           </div>
+          <p class="lead">{area.data.summary}</p>
+        </header>
+
+        <div class="area-lead" data-reveal>
+          <AreaLead area={area.id as AreaId} />
+        </div>
+
+        <div class="area-grid" data-reveal="stagger">
           <div class="area-body">
             <div class="prose">
               {area.data.body.map((paragraph) => (
                 <p>{paragraph}</p>
               ))}
-            </div>
-            <div class="area-paper">
-              <PaperFigure name={area.id as PaperFigureName} />
             </div>
             <ul class="threads">
               {area.data.threads.map((thread) => (
@@ -107,6 +109,9 @@ const sections = areas.map((area) => {
                 ))}
               </p>
             )}
+          </div>
+          <div class="area-second">
+            <PaperFigure name={visual.second} />
           </div>
         </div>
 
@@ -200,39 +205,32 @@ const sections = areas.map((area) => {
     scroll-margin-top: calc(var(--header-h) + 3rem);
   }
 
-  .area-grid {
+  /* An area opens on its name and one line, then on a real figure or clip at full width. */
+  .area-head {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: 2.5rem clamp(2rem, 6vw, 6rem);
-    align-items: start;
-  }
-
-  /* The heading stays in view while the longer description scrolls past. */
-  .area-intro {
-    position: sticky;
-    top: calc(var(--header-h) + 5.5rem);
-  }
-
-  /* Each area opens on its own live figure, a little wider than it is tall. */
-  .area-intro :global(.figure) {
-    aspect-ratio: 16 / 11;
-  }
-
-  .area-source {
-    margin-top: 0.7rem;
-  }
-
-  .area-paper {
-    margin-top: 1.75rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem clamp(2rem, 6vw, 6rem);
+    align-items: end;
   }
 
   .area-index {
-    margin-block: 1.25rem 0.75rem;
+    margin-bottom: 0.75rem;
   }
 
-  .area-intro .lead {
-    max-width: 30rem;
-    margin-top: 1.25rem;
+  .area-head .lead {
+    max-width: 32rem;
+  }
+
+  .area-lead {
+    margin-top: clamp(1.75rem, 3.5vw, 2.75rem);
+  }
+
+  .area-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+    margin-top: clamp(2.25rem, 4.5vw, 3.5rem);
   }
 
   .threads {
@@ -314,13 +312,10 @@ const sections = areas.map((area) => {
   }
 
   @media (max-width: 56rem) {
+    .area-head,
     .area-grid,
     .support {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    .area-intro {
-      position: static;
     }
   }
 

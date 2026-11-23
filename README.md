@@ -98,12 +98,11 @@ src/
   data/               Content (YAML)
   lib/                Site config and content helpers
   layouts/Base.astro  Page shell: head, fonts, theme, header, footer
-  components/         Header, footer, publication row, hero scene, charts
+  components/         Header, footer, publication row, figures, clips, charts
   pages/              One file per page
-  scripts/            Browser code: hero scene, publication filter, motion
-    scene/            The cast of the home page scene, and how it is drawn as dots
+  scripts/            Browser code: clips, publication filter, motion
   styles/global.css   Design tokens and shared styles
-tests/                End-to-end tests, plus tests of the scene's timing
+tests/                End-to-end tests
 ```
 
 ## The thesis: physically grounded upskilling
@@ -120,11 +119,10 @@ makes them better at it.
   photograph of VIGIL guiding a heart exam. Everything on it is visible without scrolling on a
   laptop. The headline is sized from the width of the page so that it always fits one line from
   a tablet up; a test holds it to 68 pixels or less.
-- **Two live figures** carry the first two claims (`oracle` and `human` in
-  `src/scripts/figures.ts`): the hazy oracle and mistake attribution. Each redraws Figure 1 of
-  its paper, with the same example and the same words, and shows no number the paper does not
-  give. The paper's own figure sits under each, so the drawing can be checked against it
-  (`src/lib/paper-figures.ts`). The third claim is the VIGIL band.
+- **Two real results** carry the first two claims: a real example from the AAAI 2023 paper on
+  hazy oracles (its Figure 4, cut into three panels), and a clip of the group's own video of
+  the CVPR 2026 results on mistake attribution, with that paper's Figure 1 under it
+  (`src/components/Thesis.astro`). The third claim is the VIGIL band.
 - **The arc** from the kitchen to the clinic runs beside the group's own footage of MILLY catching
   a skipped step.
 - **Private working material** is kept out of this repository by `.gitignore`: slide decks and
@@ -156,10 +154,6 @@ page at `/vigil/`.
   `ffmpeg -ss <start> -to <end> -i <source> -an -vf scale=1280:-2,fps=24 -c:v libx264 -crf 27
 -preset slow -pix_fmt yuv420p -movflags +faststart <name>.mp4`, save one frame of it as the
   poster in `src/assets/clips/posters/`, and describe what it shows in the `alt` text.
-- **The figures** (`vigil` and `leg` in `src/scripts/figures.ts`) are illustrations of a guided
-  heart ultrasound and a guided scan of the leg for blood clots, drawn from the team's public
-  descriptions and its demo day posters. They show a whole exam in a few seconds, which no single
-  clip does. They are labeled as illustrations, and the spoken lines in them are examples.
 - **Demo day posters** are in `src/lib/vigil-posters.ts`: what each team showed, in this site's
   words, with a link to the paper where one has been published. Some of that work is not yet
   published, so have each team confirm its entry before the site is made public.
@@ -197,44 +191,42 @@ page at `/vigil/`.
   below it opens with his own summary of what an AI that guides people has to do: understand the
   task, understand the human, and fill the gap, with its source linked. The Research page takes
   its title from his Toyota Professorship lecture.
-- **Real before drawn.** Where the group has its own photograph or footage of something, the site
-  shows that, and a drawing only where there is none. The two claims of the thesis on the home
-  page show real results: a real example from the AAAI 2023 paper (its Figure 4, cut into three
-  panels in `src/assets/papers/hazy-*.png`), and a clip of the group's own video of the CVPR 2026
-  results (`src/assets/clips/mistake-results.mp4`). Every animated figure illustrates a
-  published result and names the paper it is drawn after (`after` in `src/lib/figures.ts`, shown
-  by `src/components/FigureSource.astro`). A figure with no paper to name does not belong here.
-- **Operating room scene** (`src/scripts/hero-scene.ts`, `src/scripts/scene/operation.ts`) - a
-  bypass graft being sewn onto a coronary artery, drawn as a dot matrix and read four ways. Each
-  reading is published work of the group, listed with its paper in `src/lib/readings.ts`: hand
-  pose tracking, surgical video and language, the surface of the beating heart, and the path of
-  each hand. It is an illustration, not footage, drawn on a canvas with no dependencies, and it
-  pauses when off screen.
+- **Real, never drawn.** The site shows the group's work with photographs, clips of its own
+  footage, and figures cut from its papers. It has no drawn or animated illustrations: the owner
+  had the dot-matrix animations removed in November 2026 because they were hard to understand
+  and did not look professional. A test checks that no page draws on a canvas.
+- **Figures from the papers** are in `src/lib/paper-figures.ts`: the image, the figure's number
+  in its paper, a description for people who cannot see it, and a caption that says only what
+  the paper says. `src/components/PaperFigure.astro` shows one on a white sheet, names the
+  figure and the paper, links to the paper, and opens the figure at full size. To add one, cut it
+  from the paper's PDF at print resolution (`pdftoppm -r 400 -f <page> -l <page> -x <x> -y <y>
+-W <w> -H <h> -png`), leave its caption out, and save it in `src/assets/papers/` under the
+  paper's id.
+- **Research areas** (`src/lib/area-visuals.ts`). Each of the six areas opens on a lead picture
+  at full width, a figure from a paper or a clip, and has a second figure beside its text. Five
+  of them have a card on the home page that shows part of one figure. A lead is shown as large
+  as it reads well, with its caption beside it when there is room and under it when the figure
+  fills the row.
+- **In the operating room** (`src/lib/operating-room.ts`) - two decades of work on surgery and
+  the heart, as four papers show it: a beating heart tracked in stereo video (2004), the tools of
+  a surgical robot (2017), a surgeon's hands (2023), and a heart ultrasound (2026). Pictures of
+  open surgery are left out on purpose.
 - **Type and texture.** Headlines are set at the heaviest weight and lead paragraphs at a light
-  one, so the two contrast instead of competing. Readouts and figure labels use IBM Plex Mono.
+  one, so the two contrast instead of competing. Small labels use IBM Plex Mono.
   No color field is a flat fill: maize carries a halftone of blue dots that gathers toward one
-  corner, blue carries the figures' dot grid with a little maize light, and the page itself has a
+  corner, blue carries a faint dot grid with a little maize light, and the page itself has a
   faint grid, like a lab notebook. The tokens are at the top of `src/styles/global.css`.
-- **What every visualization has to pass.** One message a visitor can get at first glance, said
-  in plain words, with the most important thing the largest. The VIGIL figures are about someone
-  being talked through an exam, so what the assistant says is set in large type under the figure,
-  beside one headline reading and the steps of the exam. Labels avoid jargon ("camera", not
-  "RGB-D"). Anything that moves for more than a few seconds can be paused.
-- **Research figures** (`src/scripts/figures.ts`) - one live figure per research area, each drawn
-  after a named paper of the group: a supervoxel hierarchy (ECCV 2012), dense captioning of a
-  cooking video (CVPR 2018), an agent on a tour of instructions that remembers what it has seen
-  (CVPR 2023), an assistant catching a mistake (CVPR 2026), a four-chamber echocardiogram with
-  tracked landmarks and a rating of the probe (ISBI 2026), and label-free coreset selection by
-  sampling for coverage (WACV 2026). Beside each, the Research page shows a figure from one of
-  the area's papers as published (`src/lib/paper-figures.ts`).
+- **What every picture has to pass.** One message a visitor can get at first glance, said in
+  plain words in its caption. Labels avoid jargon ("camera", not "RGB-D"). A clip that moves for
+  more than a few seconds can be paused.
 - **Spaces around links** are tidied by `src/middleware.ts` on every page. The formatter breaks
   long lines inside links, and in HTML those breaks are spaces: a space at the end of a link is
   underlined with it, and a space before a full stop shows as a gap. A test checks for both.
-- **Motion** - page-load intros, scroll reveals, rules that draw themselves, count-up
-  stats, a reading-progress bar, and cross-page transitions. All of it is switched off for visitors
+- **Motion** - page-load intros, scroll reveals, rules that draw themselves, a
+  reading-progress bar, and cross-page transitions. All of it is switched off for visitors
   who ask their system for reduced motion, and the page is fully readable without JavaScript.
 - **Fonts** - Archivo (variable, from `@fontsource-variable/archivo`) and IBM Plex Mono for
-  readouts and figure labels, both self-hosted.
+  small labels, both self-hosted.
 
 ## Deploying
 
