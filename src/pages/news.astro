@@ -1,0 +1,72 @@
+---
+/**
+ * News from the group, newest first, under the year it happened in. The items are in
+ * src/data/news.yaml: to add one, add an entry there.
+ */
+import Base from '../layouts/Base.astro';
+import NewsRow from '../components/NewsRow.astro';
+import PageHead from '../components/PageHead.astro';
+import { getNews } from '../lib/content';
+import { href } from '../lib/site';
+
+const items = await getNews();
+const years = [...new Set(items.map((item) => item.data.date.slice(0, 4)))];
+---
+
+<Base
+  title="News"
+  description="News from the Corso Group at the University of Michigan: milestones, new papers, coverage of the group's work, and teaching."
+>
+  <PageHead label="News">
+    <Fragment slot="title">
+      What's new at Corso <em>Group</em>.
+    </Fragment>
+    <p class="lead">
+      Milestones, new papers, and coverage of the group's work, newest first. Talks and essays are
+      on the{' '}
+      <a class="link" href={href('/media/')}>
+        Media page
+      </a>
+      , and every paper is on the{' '}
+      <a class="link" href={href('/publications/')}>
+        publication list
+      </a>
+      .
+    </p>
+  </PageHead>
+
+  <section class="section">
+    <div class="container">
+      {years.map((year) => (
+        <section class="year" aria-labelledby={`news-${year}`} data-reveal>
+          <h2 class="year-head" id={`news-${year}`}>
+            {year}
+          </h2>
+          <ul class="rows">
+            {items
+              .filter((item) => item.data.date.startsWith(year))
+              .map((item) => (
+                <NewsRow item={item} />
+              ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .year + .year {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .year-head {
+    margin-bottom: 1rem;
+    font-family: var(--font-display);
+    font-stretch: 70%;
+    font-size: clamp(2rem, 3.4vw, 2.75rem);
+    font-weight: 800;
+    line-height: 0.95;
+    scroll-margin-top: calc(var(--header-h) + 2rem);
+  }
+</style>

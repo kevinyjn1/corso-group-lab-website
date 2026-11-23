@@ -9,6 +9,7 @@ const pages = [
   '/people/',
   '/resources/',
   '/teaching/',
+  '/news/',
   '/join/',
   '/media/',
 ];
@@ -277,6 +278,7 @@ test('navigation reaches every page', async ({ page, isMobile }) => {
     ['People', '/people/'],
     ['Code & Data', '/resources/'],
     ['Teaching', '/teaching/'],
+    ['News', '/news/'],
     ['Media', '/media/'],
     ['Join', '/join/'],
   ];
@@ -836,6 +838,70 @@ test('the VIGIL page shows the annual site visit in six photographs of one shape
   }
 });
 
+test('news is one list, newest first, and the home page shows the top of it', async ({ page }) => {
+  await page.goto(at('/news/'));
+  await expect(page.locator('h1')).toHaveText(/What's new at Corso\s+Group\s*\./);
+  const rows = page.locator('.rows > .row');
+  expect(await rows.count()).toBeGreaterThanOrEqual(10);
+
+  // Newest first, and every item sits under the year it happened in.
+  const dates = await rows.locator('time').evaluateAll((times) =>
+    times.map((time) => ({
+      date: time.getAttribute('datetime')!,
+      year: time.closest('section')!.querySelector('h2')!.textContent!.trim(),
+    })),
+  );
+  expect(dates.map(({ date }) => date)).toEqual(
+    [...dates].map(({ date }) => date).sort((a, b) => b.localeCompare(a)),
+  );
+  for (const { date, year } of dates) expect(date.startsWith(year), date).toBe(true);
+
+  // Every item has the same form: month and year, its kind, a title with no full stop, and one
+  // link whose words say what it opens.
+  const ids = new Set<string>();
+  for (const row of await rows.all()) {
+    const id = (await row.getAttribute('id'))!;
+    ids.add(id);
+    await expect(row.locator('time'), id).toHaveText(/^[A-Z][a-z]{2} 20\d\d$/);
+    await expect(row.locator('.kind'), id).toHaveText(/^[A-Z][a-z]+$/);
+    await expect(row.locator('.title'), id).toHaveText(/\S.{10,}[^.\s]\s*$/);
+    await expect(row.locator('a'), id).toHaveCount(1);
+    const link = row.locator('a.go');
+    await expect(link, id).toHaveText(/\S.{3,}/);
+    const target = (await link.getAttribute('href'))!;
+    if (/^https?:/.test(target)) {
+      expect(target, id).toMatch(/^https:\/\//);
+      expect(target, id).not.toMatch(/[?&](utm_|rcm=|trk=)/);
+      await expect(link, id).toContainText('\u2197');
+    } else {
+      // A link into this site opens a page that exists, at the part it names.
+      const url = new URL(target, page.url());
+      const response = await page.request.get(url.href);
+      expect(response.status(), target).toBe(200);
+      if (url.hash) expect(await response.text(), target).toContain(`id="${url.hash.slice(1)}"`);
+      await expect(link, id).toContainText('\u2192');
+    }
+  }
+  expect(ids.size).toBe(await rows.count());
+  // The lab says what happened and leaves the adjectives out.
+  await expect(page.locator('main')).not.toContainText(
+    /excited|thrilled|proud to|delighted|flagship|world-class/i,
+  );
+
+  // The home page shows the first four of the same list, and leads on to the rest.
+  const all = await rows.evaluateAll((items) => items.map((item) => item.id));
+  await page.goto(at('/'));
+  const home = page.locator('#news');
+  await expect(home.locator('h2')).toHaveText("What's new at Corso Group");
+  expect(await home.locator('.row').evaluateAll((items) => items.map((item) => item.id))).toEqual(
+    all.slice(0, 4),
+  );
+  const more = home.getByRole('link', { name: /More COG news/ });
+  await expect(more).toHaveAttribute('href', /\/news\/$/);
+  await more.click();
+  await expect(page).toHaveURL(/\/news\/$/);
+});
+
 test('the home page leads with the thesis, then its proof, then the operating room', async ({
   page,
 }) => {
@@ -1124,7 +1190,9 @@ test('the header fits at every width where the full navigation shows', async ({
   isMobile,
 }) => {
   test.skip(isMobile, 'Small screens use the menu button instead.');
-  for (const width of [1057, 1120, 1232, 1233, 1440]) {
+  // Just above the width where the menu button gives way to the links, either side of the width
+  // where the group's name joins the mark, and a wide screen.
+  for (const width of [1121, 1200, 1344, 1345, 1440]) {
     await page.setViewportSize({ width, height: 700 });
     await page.goto(at('/'));
     await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
@@ -1136,11 +1204,15 @@ test('the header fits at every width where the full navigation shows', async ({
         overflow: bar.scrollWidth - bar.clientWidth,
         pastEdge: last.right - bar.getBoundingClientRect().right,
         overlap: Math.max(brand.right - nav.left, nav.right - last.left),
+        // The bar keeps a 24 pixel gap between its parts; anything beyond that is spare.
+        spare: nav.left - brand.right - 24 + (last.left - nav.right - 24),
       };
     });
     expect(spill.overflow, `${width}px`).toBeLessThanOrEqual(0);
     expect(spill.pastEdge, `${width}px`).toBeLessThanOrEqual(0.5);
     expect(spill.overlap, `${width}px`).toBeLessThanOrEqual(0);
+    // With room to spare, so that a browser that sets the type a little wider still fits.
+    expect(spill.spare, `${width}px`).toBeGreaterThanOrEqual(20);
   }
 });
 

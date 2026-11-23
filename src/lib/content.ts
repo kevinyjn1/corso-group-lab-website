@@ -45,6 +45,27 @@ export async function getMedia(): Promise<MediaItem[]> {
   );
 }
 
+export type NewsItem = CollectionEntry<'news'>;
+
+/** News, newest first. An item dated to the month comes after the dated days of that month. */
+export async function getNews(): Promise<NewsItem[]> {
+  return (await getCollection('news')).sort(
+    (a, b) => b.data.date.localeCompare(a.data.date) || a.data.title.localeCompare(b.data.title),
+  );
+}
+
+export const NEWS_KINDS = {
+  milestone: 'Milestone',
+  papers: 'Papers',
+  press: 'Press',
+  project: 'Project',
+  teaching: 'Teaching',
+  people: 'People',
+  award: 'Award',
+  talk: 'Talk',
+  release: 'Release',
+} as const;
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** "2026-08-26" as "Aug 2026"; a bare year stays a year. */

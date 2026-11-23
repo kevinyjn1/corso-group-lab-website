@@ -36,6 +36,7 @@ export const nav = [
   { label: 'People', path: '/people/' },
   { label: 'Code & Data', path: '/resources/' },
   { label: 'Teaching', path: '/teaching/' },
+  { label: 'News', path: '/news/' },
   { label: 'Media', path: '/media/' },
   { label: 'Join', path: '/join/' },
 ] as const;
