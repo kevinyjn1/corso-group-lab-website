@@ -85,5 +85,11 @@ const under = rest ? items.slice(BESIDE) : [];
     .record-more {
       grid-template-columns: minmax(0, 1fr);
     }
+
+    /* In one column the two lists read as one: no gap and no second rule between them. */
+    .record-more {
+      margin-top: -2.5rem;
+      border-top: 0;
+    }
   }
 </style>
