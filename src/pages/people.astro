@@ -194,7 +194,7 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
             </div>
             <dl class="thesis-where">
               <div>
-                <dt class="label">First position</dt>
+                <dt class="label">After the Ph.D.</dt>
                 <dd>{person.data.firstPosition}</dd>
               </div>
               {person.data.currentPosition && (
@@ -207,14 +207,17 @@ const programName = (code: string) => PROGRAMS[code] ?? code;
           </li>
         ))}
       </ul>
-      <p class="footnote">Positions as listed in Prof. Corso's curriculum vitae, {site.cv.asOf}.</p>
+      <p class="footnote">
+        Positions are from Prof. Corso's curriculum vitae of {site.cv.asOf}, corrected against each
+        person's own page where one could be read in November 2026.
+      </p>
     </div>
   </section>
 
   <section class="section">
     <div class="container more-alumni" data-reveal="stagger">
       {[
-        { title: 'M.S.E. graduates', list: ms },
+        { title: "Master's graduates", list: ms },
         { title: 'Former undergraduate researchers', list: undergrad },
       ].map(({ title, list }) => (
         <div>

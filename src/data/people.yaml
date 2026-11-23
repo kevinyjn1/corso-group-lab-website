@@ -2,7 +2,9 @@
 # role: pi | phd | ms | undergrad | researcher | staff | collaborator
 # status: current | alumni
 # Current members are as of November 2026, from the group's own member list.
-# Alumni positions are as listed in Prof. Corso's CV (April 2025).
+# Alumni positions are from Prof. Corso's CV (April 2025), corrected on 2026-11-23 against each
+# person's own page or employer's page where one could be read. Thesis titles and years follow
+# the thesis records (ProQuest, the university library), which differ from the CV in places.
 
 - id: jason-corso
   name: Jason J. Corso
@@ -57,8 +59,20 @@
     status: current,
     affiliation: Michigan CSE,
   }
-- { id: chenglin-li, name: Chenglin Li, role: collaborator, status: current }
-- { id: jingying-wang, name: Jingying Wang, role: collaborator, status: current }
+- {
+    id: chenglin-li,
+    name: Chenglin Li,
+    role: collaborator,
+    status: current,
+    affiliation: University of Michigan,
+  }
+- {
+    id: jingying-wang,
+    name: Jingying Wang,
+    role: collaborator,
+    status: current,
+    affiliation: University of Michigan,
+  }
 - {
     id: maximilian-dillitzer,
     name: Maximilian Dillitzer,
@@ -66,7 +80,13 @@
     status: current,
     affiliation: Porsche,
   }
-- { id: miaowei-wang, name: Miaowei Wang, role: collaborator, status: current }
+- {
+    id: miaowei-wang,
+    name: Miaowei Wang,
+    role: collaborator,
+    status: current,
+    affiliation: University of Edinburgh,
+  }
 - {
     id: solomon-song,
     name: Solomon Song,
@@ -81,7 +101,13 @@
     status: current,
     affiliation: Porsche,
   }
-- { id: zhi-cao, name: Zhi Cao, role: collaborator, status: current }
+- {
+    id: zhi-cao,
+    name: Zhi Cao,
+    role: collaborator,
+    status: current,
+    affiliation: University of Michigan,
+  }
 
 # --- Ph.D. alumni, University of Michigan -----------------------------------
 
@@ -92,7 +118,7 @@
   program: ECE
   year: 2024
   thesis: Improving Articulated Pose Tracking and Contact Force Estimation for Qualitative Assessment of Human Actions
-  firstPosition: Research Scientist, Southwest Research Institute
+  firstPosition: Research Engineer, Southwest Research Institute
 
 - id: stephan-lemmer
   name: Stephan Lemmer
@@ -118,7 +144,7 @@
   status: alumni
   program: ECE
   year: 2022
-  thesis: Towards Improving Deep Visio-Linguistic Navigation
+  thesis: Towards Improving Deep Vision and Language Navigation
   firstPosition: Research Scientist, Kodiak Robotics
 
 - id: kyle-min
@@ -138,6 +164,7 @@
   year: 2021
   thesis: Enforcing Realism and Temporal Consistency for Large-Scale Video Inpainting
   firstPosition: Senior Computer Vision Engineer, SafelyYou
+  note: Jointly advised with Prof. Honglak Lee
 
 - id: luowei-zhou
   name: Luowei Zhou
@@ -146,8 +173,8 @@
   program: ROB
   year: 2020
   thesis: Language-Driven Video Understanding
-  firstPosition: Research Scientist, Microsoft
-  currentPosition: Research Scientist, Google Brain
+  firstPosition: Senior Researcher, Microsoft
+  currentPosition: Research Scientist, Google DeepMind
 
 - id: vikas-dhiman
   name: Vikas Dhiman
@@ -155,7 +182,7 @@
   status: alumni
   program: ECE
   year: 2019
-  thesis: Towards Better Navigation
+  thesis: 'Towards Better Navigation: Optimizing Algorithms for Mapping, Localization and Planning'
   firstPosition: Postdoc, UC San Diego
   currentPosition: Assistant Professor, University of Maine
 
@@ -177,9 +204,9 @@
   status: alumni
   institution: buffalo
   year: 2017
-  thesis: Exploring Fusion Models in Computer Vision for Medical Imaging
+  thesis: Exploring Fusion Models in Computer Vision for Medical Image Computing
   firstPosition: Postdoc, MediCIS
-  currentPosition: Lecturer, University of Leeds
+  currentPosition: Assistant Professor, University of Leeds
 
 - id: david-johnson
   name: David Johnson
@@ -187,7 +214,7 @@
   status: alumni
   institution: buffalo
   year: 2017
-  thesis: 'From Hierarchies to Metrics: Learning Nonlinear Models of Semantics Association'
+  thesis: 'From Hierarchies to Metrics: Learning Nonlinear Models of Semantic Association'
   firstPosition: Postdoc, University of Michigan
 
 - id: wei-chen
@@ -196,7 +223,7 @@
   status: alumni
   institution: buffalo
   year: 2015
-  thesis: Video Based Action Understanding
+  thesis: Video-based Action Understanding
   firstPosition: Software Engineer, Amazon
 
 - id: ran-xu
@@ -225,7 +252,6 @@
   year: 2014
   thesis: Learning From and Actively Selecting Pairwise Constraints in Data Science
   firstPosition: Postdoc, UCLA
-  currentPosition: VP of AI Research and Applied AI, Salesforce
 
 - id: jeffrey-delmerico
   name: Jeffrey A. Delmerico
@@ -234,7 +260,7 @@
   institution: buffalo
   year: 2013
   thesis: 'Attributed Object Maps: Descriptive Object Models as High-level Semantic Features for Mobile Robotics'
-  firstPosition: Postdoc, ETH Zurich
+  firstPosition: Postdoc, University of Hawaii at Manoa, then University of Zurich
   currentPosition: Senior Scientist, Microsoft
 
 - id: albert-chen
@@ -245,7 +271,7 @@
   year: 2013
   thesis: Modeling and Optimizing Spatiotemporal Priors for Video Analysis Problems
   firstPosition: Computer Scientist, Tandent Vision Science
-  currentPosition: Applied Scientist Manager, Amazon
+  currentPosition: Director of ML Engineering, GEICO
 
 - id: ifeoma-nwogu
   name: Ifeoma Nwogu
@@ -253,12 +279,12 @@
   status: alumni
   institution: buffalo
   year: 2009
-  thesis: An Ontology Driven Probabilistic Methodology for Image Understanding
+  thesis: Image Parsing using Ontology and Data Semantics (IPODS)
   firstPosition: NSF Computing Innovation Fellow, University of Rochester
-  currentPosition: Assistant Professor, SUNY at Buffalo
+  currentPosition: Associate Professor, SUNY at Buffalo
   note: Jointly advised with Prof. Venu Govindaraju
 
-# --- M.S.E. alumni, University of Michigan ----------------------------------
+# --- Master's alumni, University of Michigan ----------------------------------
 
 - { id: wensong-hu, name: Wensong Hu, role: ms, status: alumni, program: ROB, year: 2024 }
 - { id: wuao-liu, name: Wuao Liu, role: ms, status: alumni, program: ROB, year: 2023 }
@@ -273,7 +299,7 @@
   }
 - { id: eric-hofesmann, name: Eric Hofesmann, role: ms, status: alumni, program: CSE, year: 2020 }
 
-# --- M.S.E. alumni, SUNY at Buffalo -----------------------------------------
+# --- Master's alumni, SUNY at Buffalo -----------------------------------------
 
 - {
     id: duygu-sarikaya-ms,
@@ -322,7 +348,7 @@
     role: ms,
     status: alumni,
     institution: buffalo,
-    year: 2009,
+    year: 2010,
   }
 - {
     id: chris-hoeflich,
