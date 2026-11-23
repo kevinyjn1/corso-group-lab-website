@@ -299,10 +299,12 @@ const placements = [
         <div class="record" data-reveal="stagger">
           <VideoCard item={leadVideo} sizes="(min-width: 62rem) 55vw, 92vw" />
           <ul class="rows record-list">
+            {/* Three beside the video, which is about as tall as they are. The Media page has the rest. */}
             {featuredMedia
               .filter((item) => item !== leadVideo)
+              .slice(0, 3)
               .map((item) => (
-                <MediaRow item={item} showKind />
+                <MediaRow item={item} showKind stacked />
               ))}
           </ul>
         </div>
@@ -394,14 +396,14 @@ const placements = [
               </div>
             )}
           </dl>
-          <div>
-            <p class="label">Where alumni have worked</p>
-            <ul class="placements">
-              {placements.map((place) => (
-                <li class="chip">{place}</li>
-              ))}
-            </ul>
-          </div>
+        </div>
+        <div class="alumni">
+          <p class="label">Where alumni have worked</p>
+          <ul class="placements">
+            {placements.map((place) => (
+              <li class="chip">{place}</li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
@@ -483,14 +485,23 @@ const placements = [
     margin-top: clamp(1.25rem, 2.2vw, 1.75rem);
   }
 
+  /* The photograph's column is as tall as the text's. Where the text runs longer, the frame
+     grows to meet it and shows a little more of the room. */
   .hero-photo {
+    display: flex;
+    flex-direction: column;
     grid-area: photo;
+    align-self: stretch;
     margin: 0;
     animation: rise-in 0.8s var(--ease) 0.2s both;
   }
 
   .hero-frame {
+    position: relative;
     display: block;
+    flex: 1 0 auto;
+    width: 100%;
+    aspect-ratio: 16 / 10;
     border: var(--rule) solid var(--text);
     box-shadow: 8px 8px 0 var(--maize);
     transition:
@@ -506,10 +517,10 @@ const placements = [
 
   /* The sign and the monitors are in the upper part of the photograph, so the crop keeps the top. */
   .hero-frame img {
-    display: block;
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
+    height: 100%;
     object-fit: cover;
     object-position: 50% 12%;
   }
@@ -522,8 +533,11 @@ const placements = [
     color: var(--text-2);
   }
 
+  /* The three words sit at the foot of the column, level with the foot of the photograph's
+     caption, so the two columns start and end together. */
   .hero-more {
     grid-area: more;
+    align-self: end;
     max-width: 38rem;
     animation: rise-in 0.8s var(--ease) 0.28s both;
   }
@@ -771,20 +785,6 @@ const placements = [
     align-items: start;
   }
 
-  .record-list :global(.row) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .record-list :global(.where) {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.75rem;
-  }
-
-  .record-list :global(.chip) {
-    justify-self: start;
-  }
-
   /* --- Releases ------------------------------------------------------------- */
 
   .releases {
@@ -837,8 +837,6 @@ const placements = [
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.75rem 1.5rem;
     margin: 0;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--line);
   }
 
   /* The student list is the tall column; the shorter blocks stack beside it. */
@@ -859,8 +857,20 @@ const placements = [
     line-height: 1.22;
   }
 
-  .people-side > div {
+  /* Where the group's graduates went, on one line across both columns, so neither column has to
+     carry it and run longer than the other. */
+  .alumni {
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
     padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .alumni .placements {
+    margin-top: 0;
   }
 
   .placements {

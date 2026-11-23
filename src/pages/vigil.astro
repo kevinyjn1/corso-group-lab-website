@@ -633,7 +633,7 @@ const plate = [
         {talk && <VideoCard item={talk} sizes="(min-width: 62rem) 45vw, 92vw" />}
         <ul class="rows record-list">
           {coverage.map((item) => (
-            <MediaRow item={item} showKind />
+            <MediaRow item={item} showKind stacked />
           ))}
         </ul>
       </div>
@@ -1322,20 +1322,6 @@ const plate = [
   .record > :global(.video) {
     position: sticky;
     top: calc(var(--header-h) + 2rem);
-  }
-
-  .record-list :global(.row) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .record-list :global(.where) {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.75rem;
-  }
-
-  .record-list :global(.chip) {
-    justify-self: start;
   }
 
   /* --- Demo day ------------------------------------------------------------- */

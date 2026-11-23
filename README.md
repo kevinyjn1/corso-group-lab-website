@@ -121,10 +121,16 @@ makes them better at it.
   a tablet up; a test holds it to 68 pixels or less.
 - **Two real results** carry the first two claims: a real example from the AAAI 2023 paper on
   hazy oracles (its Figure 4, cut into three panels), and a clip of the group's own video of
-  the CVPR 2026 results on mistake attribution, with that paper's Figure 1 under it
-  (`src/components/Thesis.astro`). The third claim is the VIGIL band.
-- **The arc** from the kitchen to the clinic runs beside the group's own footage of MILLY catching
-  a skipped step.
+  the CVPR 2026 results on mistake attribution (`src/components/Thesis.astro`). The two claims
+  share one grid, so the same part of each (words, title, picture, caption, text, papers) sits
+  on the same line and the two pictures are one height. The third claim is the VIGIL band.
+- **The arc** from the kitchen to the clinic is three columns: two of dated steps and one with
+  the group's own footage of MILLY catching a skipped step. The last step, the rural clinic,
+  closes them as one line. On a small laptop there are two columns, with the last step under
+  the clip.
+- **No holes.** Blocks that sit side by side on the home page end together: the owner asked in
+  November 2026 for white space that has a purpose. A test measures each pair of columns at
+  five laptop widths.
 - **Private working material** is kept out of this repository by `.gitignore`: slide decks and
   an Obsidian vault of project notes (`vault/`).
 

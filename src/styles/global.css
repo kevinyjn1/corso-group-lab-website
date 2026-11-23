@@ -206,8 +206,10 @@ button {
   padding-inline: var(--gutter);
 }
 
+/* Two sections on the same ground meet with twice this between them, so it is kept moderate:
+   enough to tell them apart, not a blank band. */
 .section {
-  padding-block: clamp(3.5rem, 8vw, 7rem);
+  padding-block: clamp(3rem, 6vw, 5rem);
 }
 
 .skip-link {
@@ -593,12 +595,6 @@ button {
   .more {
     white-space: normal;
   }
-}
-
-.chip--solid {
-  background: var(--maize);
-  border-color: var(--maize);
-  color: var(--on-maize);
 }
 
 .dot {

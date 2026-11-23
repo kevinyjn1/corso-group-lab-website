@@ -6,12 +6,14 @@ interface Props {
   item: MediaItem;
   /** Show what kind of item this is, for lists that mix kinds. */
   showKind?: boolean;
+  /** For a list in a narrow column, beside a video: the place and the kind share the first line. */
+  stacked?: boolean;
 }
-const { item, showKind = false } = Astro.props;
+const { item, showKind = false, stacked = false } = Astro.props;
 const { title, outlet, date, url, summary, kind } = item.data;
 ---
 
-<li class="row">
+<li class:list={['row', { 'row--stacked': stacked }]}>
   <p class="where">
     <span class="outlet">{outlet}</span>
     {date && <span class="when">{formatDate(date)}</span>}
@@ -93,19 +95,53 @@ const { title, outlet, date, url, summary, kind } = item.data;
     text-wrap: pretty;
   }
 
+  /* In a narrow column the row stacks: where, when, and the kind of item on one line, then the
+     title and its sentence. On a phone every row is laid out this way. */
+  .row--stacked {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .row--stacked .where {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-self: center;
+    gap: 0.25rem 0.75rem;
+    padding-top: 0;
+  }
+
+  .row--stacked > div {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .row--stacked .chip {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+
   @media (max-width: 48rem) {
     .row {
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) auto;
     }
 
     .where {
       flex-direction: row;
       flex-wrap: wrap;
+      align-self: center;
       gap: 0.25rem 0.75rem;
+      padding-top: 0;
+    }
+
+    .row > div {
+      grid-column: 1 / -1;
+      grid-row: 2;
     }
 
     .chip {
-      justify-self: start;
+      grid-column: 2;
+      grid-row: 1;
+      align-self: center;
     }
   }
 </style>

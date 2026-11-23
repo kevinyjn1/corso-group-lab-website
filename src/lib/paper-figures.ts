@@ -11,7 +11,6 @@ import tumor from '../assets/papers/corso2008efficient-fig6.jpg';
 import hsr from '../assets/papers/griffin2020video-fig19.jpg';
 import labels from '../assets/papers/griffin2026label-fig1.jpg';
 import ivln from '../assets/papers/krantz2023iterative-fig1.jpg';
-import mistake from '../assets/papers/li2026mistake-fig1.jpg';
 import bimotion from '../assets/papers/wang2026bimotion-fig4.jpg';
 import supervoxels from '../assets/papers/xu2012streaming-fig6.jpg';
 import a2d from '../assets/papers/xu2015humans-fig1.jpg';
@@ -35,14 +34,6 @@ export interface PaperFigure {
 }
 
 export const PAPER_FIGURES = {
-  mistake: {
-    paper: 'li2026mistake',
-    label: 'Figure 1',
-    image: mistake,
-    alt: 'Three first-person video frames of hands at a workbench, beside a bar chart of the probability that each frame is the point of no return. The instruction text reads: Pick up hammer. Three labels follow. What: the predicate "Pick up" is right and the object "hammer" is marked in red. When: point of no return, frame 17. Where: a red box drawn over the hand in the frame.',
-    caption:
-      'The instruction is "Pick up hammer", and the person picks up a bolt. The attribution names what was violated (the object), when the attempt passed the point of no return (frame 17), and where in the frame (the red box).',
-  },
   supervoxels: {
     paper: 'xu2012streaming',
     label: 'Figure 6',

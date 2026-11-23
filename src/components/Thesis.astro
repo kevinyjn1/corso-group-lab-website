@@ -6,11 +6,10 @@
  */
 import { Image } from 'astro:assets';
 import Clip from './Clip.astro';
-import PaperFigure from './PaperFigure.astro';
 import millyLapse from '../assets/clips/milly-lapse.mp4';
-import mistakeResults from '../assets/clips/mistake-results.mp4';
+import mistakeResults from '../assets/clips/mistake-results-wide.mp4';
 import millyPoster from '../assets/clips/posters/milly-lapse.jpg';
-import mistakePoster from '../assets/clips/posters/mistake-results.jpg';
+import mistakePoster from '../assets/clips/posters/mistake-results-wide.jpg';
 import hazyCombined from '../assets/papers/hazy-combined.png';
 import hazyFirst from '../assets/papers/hazy-request-1.png';
 import hazySecond from '../assets/papers/hazy-request-2.png';
@@ -119,11 +118,6 @@ const RESULT_SOURCE = {
             )}
           </div>
           <p class="claim-body">{claim.body}</p>
-          {claim.figure === 'human' && (
-            <div class="claim-paper">
-              <PaperFigure name="mistake" />
-            </div>
-          )}
           <ul class="claim-papers">
             {papersOf(claim.papers).map((pub) => (
               <li>
@@ -144,27 +138,29 @@ const RESULT_SOURCE = {
       <p class="label">How the group got here</p>
     </div>
     <div class="arc-wrap" data-reveal="stagger">
-      <ol class="arc">
-        {thesis.arc.map((step) => (
-          <li>
-            <p class="arc-when">{step.when}</p>
-            <div>
-              <h3>{step.title}</h3>
-              <p class="arc-body">{step.body}</p>
-              {papersOf('papers' in step ? step.papers : []).map((pub) => (
-                <p class="arc-paper">
-                  <a href={pub.data.links?.arxiv ?? pub.data.links?.doi} rel="noopener">
-                    {pub.data.title}&nbsp;<span aria-hidden="true">&nearr;</span>
-                  </a>
-                  <span class="venue">
-                    {pub.data.venueShort ?? pub.data.venue} {pub.data.year}
-                  </span>
-                </p>
-              ))}
-            </div>
-          </li>
-        ))}
-      </ol>
+      {[thesis.arc.slice(0, 2), thesis.arc.slice(2, -1)].map((steps, column) => (
+        <ol class="arc" start={column * 2 + 1}>
+          {steps.map((step) => (
+            <li>
+              <p class="arc-when">{step.when}</p>
+              <div>
+                <h3>{step.title}</h3>
+                <p class="arc-body">{step.body}</p>
+                {papersOf('papers' in step ? step.papers : []).map((pub) => (
+                  <p class="arc-paper">
+                    <a href={pub.data.links?.arxiv ?? pub.data.links?.doi} rel="noopener">
+                      {pub.data.title}&nbsp;<span aria-hidden="true">&nearr;</span>
+                    </a>
+                    <span class="venue">
+                      {pub.data.venueShort ?? pub.data.venue} {pub.data.year}
+                    </span>
+                  </p>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ol>
+      ))}
       <Clip
         src={millyLapse}
         poster={millyPoster}
@@ -175,6 +171,15 @@ const RESULT_SOURCE = {
         follows the recipe. When they weigh the beans before assembling the cone, it flags the
         lapse.
       </Clip>
+      {thesis.arc.slice(-1).map((step) => (
+        <ol class="arc arc--last" start={thesis.arc.length}>
+          <li>
+            <p class="arc-when">{step.when}</p>
+            <h3>{step.title}</h3>
+            <p class="arc-body">{step.body}</p>
+          </li>
+        </ol>
+      ))}
     </div>
   </div>
 </section>
@@ -184,13 +189,35 @@ const RESULT_SOURCE = {
     scroll-margin-top: var(--header-h);
   }
 
+  /* Two claims side by side. Each has the same six parts (its words, its title, its picture, the
+     caption, the text, the papers), and the same part of each sits on the same line, so the two
+     columns start and end together and neither leaves a hole beside the other. */
   .claims {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 3rem clamp(1.5rem, 3.5vw, 3.5rem);
+    grid-template-rows: repeat(6, auto);
+    column-gap: clamp(1.5rem, 3.5vw, 3.5rem);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .claim,
+  .claim-figure,
+  .claim-figure > :global(figure) {
+    display: grid;
+    grid-template-rows: subgrid;
+  }
+
+  .claim {
+    grid-row: span 6;
+  }
+
+  /* The picture and its caption take the third and fourth lines. */
+  .claim-figure,
+  .claim-figure > :global(figure) {
+    grid-row: span 2;
+    min-width: 0;
   }
 
   /* The claim in the talk's own words, numbered like a proposition. */
@@ -234,10 +261,16 @@ const RESULT_SOURCE = {
     margin: 0;
   }
 
+  /* On a white sheet with a rule, as the clip beside it is, and as tall as that clip. */
   .result-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.1rem 0.75rem;
+    gap: 1.1rem 0.9rem;
+    align-content: space-evenly;
+    padding: clamp(0.7rem, 1.4vw, 1rem);
+    background: #fff;
+    border: var(--rule) solid var(--blue);
+    color: var(--blue);
   }
 
   /* What the three pictures add up to, in the cell beside the answer. */
@@ -257,7 +290,6 @@ const RESULT_SOURCE = {
     display: block;
     width: 100%;
     height: auto;
-    border: var(--rule) solid var(--text);
   }
 
   .result-panel p {
@@ -267,7 +299,7 @@ const RESULT_SOURCE = {
     margin-top: 0.5rem;
     font-size: 0.95rem;
     line-height: 1.3;
-    color: var(--text);
+    color: inherit;
   }
 
   .result-answer p {
@@ -313,9 +345,18 @@ const RESULT_SOURCE = {
     text-decoration-color: var(--maize);
   }
 
-  /* The clip of results has a white ground of its own, so it gets a rule to stand on the page. */
+  /* The clip of results has a white ground of its own, so it gets a rule to stand on the page.
+     Where the picture beside it is the taller one, the frame grows to that height and the clip
+     sits whole in the middle of it. */
   .claim-figure :global(.clip-frame) {
+    align-self: stretch;
+    justify-self: stretch;
     border: var(--rule) solid var(--text);
+    background: #fff;
+  }
+
+  .claim-figure :global(.clip-frame video) {
+    object-fit: contain;
   }
 
   .claim-body {
@@ -325,11 +366,6 @@ const RESULT_SOURCE = {
     line-height: 1.55;
     color: var(--text-2);
     text-wrap: pretty;
-  }
-
-  /* The paper's own figure, which sets out what the clip above shows. */
-  .claim-paper {
-    margin-top: 1.5rem;
   }
 
   .claim-papers {
@@ -380,11 +416,12 @@ const RESULT_SOURCE = {
     border-top: var(--rule) solid var(--text);
   }
 
-  /* The steps run down the left. Beside them is the one that was filmed: MILLY at work. */
+  /* Three even columns: the first two steps, the last two, and the one that was filmed, MILLY
+     at work. A single list of four beside the clip ran far longer than the clip. */
   .arc-wrap {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: 2rem clamp(2rem, 4.5vw, 4.5rem);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem clamp(1.5rem, 3.5vw, 3.5rem);
     align-items: start;
     margin-top: 1.5rem;
   }
@@ -409,8 +446,21 @@ const RESULT_SOURCE = {
     border-top: 0;
   }
 
-  .arc li:last-child {
+  /* The last step of all is the band that follows this section, so it closes the three columns
+     as one line across them, under a maize rule. */
+  .arc--last {
+    grid-column: 1 / -1;
+  }
+
+  .arc--last li:first-child {
+    grid-template-columns: 4.75rem auto minmax(0, 1fr);
+    gap: 0.3rem 1rem;
+    padding-top: 0.9rem;
     border-top: var(--rule) solid var(--maize);
+  }
+
+  .arc--last .arc-body {
+    margin-top: 0;
   }
 
   .arc-when {
@@ -455,13 +505,92 @@ const RESULT_SOURCE = {
     }
   }
 
+  /* On a small laptop three columns are too narrow to read. There are two: the dated steps on
+     the left, and the clip with the last step under it on the right. The two sides share their
+     rows, so they end on the same line. */
+  @media (min-width: 62.01rem) and (max-width: 78rem) {
+    .arc-wrap {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      grid-template-rows: repeat(3, auto);
+      row-gap: 0;
+    }
+
+    .arc:first-child {
+      grid-area: 1 / 1 / 2 / 2;
+    }
+
+    .arc:nth-child(2) {
+      grid-area: 2 / 1 / 4 / 2;
+    }
+
+    .arc:nth-child(2) li:first-child {
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--line-2);
+    }
+
+    .arc-wrap > :global(.clip) {
+      grid-area: 1 / 2 / 3 / 3;
+    }
+
+    .arc--last {
+      grid-area: 3 / 2 / 4 / 3;
+      align-self: end;
+      margin-top: 1.5rem;
+    }
+
+    .arc--last li:first-child {
+      grid-template-columns: 4.75rem minmax(0, 1fr);
+      padding-bottom: 0;
+    }
+
+    .arc--last h3,
+    .arc--last .arc-body {
+      grid-column: 2;
+    }
+  }
+
   @media (max-width: 62rem) {
+    /* One column: each claim is read whole, one after the other. */
     .claims {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      row-gap: 3rem;
+    }
+
+    .claim,
+    .claim-figure,
+    .claim-figure > :global(figure) {
+      display: block;
+      grid-row: auto;
     }
 
     .arc-wrap {
       grid-template-columns: minmax(0, 1fr);
+      row-gap: 0;
+    }
+
+    /* The parts of the list read as one again. */
+    .arc + .arc li:first-child {
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--line-2);
+    }
+
+    .arc--last li:first-child {
+      grid-template-columns: 4.75rem minmax(0, 1fr);
+      border-top: var(--rule) solid var(--maize);
+    }
+
+    .arc--last h3,
+    .arc--last .arc-body {
+      grid-column: 2;
+    }
+
+    .arc--last {
+      margin-top: 2rem;
+    }
+
+    .arc-wrap > :global(.clip) {
+      margin-top: 2rem;
     }
   }
 </style>

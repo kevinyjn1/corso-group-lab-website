@@ -1014,7 +1014,7 @@ test('the thesis makes its claims with real results and the papers behind them',
     /arxiv\.org\/abs\/2110\.10206/,
   );
 
-  // Mistake attribution: a clip of the model's output on real video, then the paper's own figure.
+  // Mistake attribution: a clip of the model's output on real video.
   const footage = claims.nth(1).locator('.claim-figure [data-clip]');
   await expectClip(footage, 'Model output');
   await expect(footage.locator('figcaption')).toContainText('real first-person video');
@@ -1035,7 +1035,9 @@ test('the thesis makes its claims with real results and the papers behind them',
   });
   expect(corners.apart).toBeGreaterThan(8);
   expect(corners.toggleTop).toBeLessThan(corners.frame * 0.2);
-  await expect(claims.nth(1).locator('[data-paper-figure="li2026mistake"]')).toHaveCount(1);
+  // Each claim has one picture, so neither runs on below the other.
+  await expect(thesis.locator('.claim-figure > figure')).toHaveCount(2);
+  await expect(thesis.locator('[data-paper-figure]')).toHaveCount(0);
 
   // The arc ends at the clinic, shows MILLY at work, and the third claim leads on to VIGIL.
   // Every step is dated with a year, and a step that reports a result links its paper.
@@ -1056,13 +1058,61 @@ test('the thesis makes its claims with real results and the papers behind them',
   }
 });
 
+test('on a laptop, blocks that sit side by side on the home page end together', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'On a phone every block is one column.');
+  // Nothing moves into place while the page is measured.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const width of [1000, 1100, 1280, 1372, 1440]) {
+    await page.setViewportSize({ width, height: 872 });
+    await page.goto(at('/'));
+    await page.evaluate(() => document.fonts.ready);
+    const ends = await page.evaluate(() => {
+      const box = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
+      const all = (selector: string) =>
+        [...document.querySelectorAll(selector)].map((el) => el.getBoundingClientRect());
+      const spread = (values: number[]) => Math.round(Math.max(...values) - Math.min(...values));
+      const claims = [...document.querySelectorAll('#thesis .claim')];
+      return {
+        // The opening: the three words end where the photograph's caption ends.
+        hero: spread([box('.hero-more').bottom, box('.hero-photo').bottom]),
+        // The two claims: the same part of each on the same line, and pictures of one height.
+        claimTops: spread(all('#thesis .claim-figure').map((r) => r.top)),
+        claimPictures: spread(
+          all('#thesis .result-grid, #thesis .claim-figure .clip-frame').map((r) => r.height),
+        ),
+        claimTexts: spread(all('#thesis .claim-body').map((r) => r.top)),
+        claimEnds: spread(claims.map((claim) => claim.getBoundingClientRect().bottom)),
+        // How the group got here: the last line on the left against the last on the right.
+        // Three columns, or on a small laptop two, with the last step under the clip.
+        arc: spread(
+          (matchMedia('(max-width: 78rem)').matches
+            ? ['.arc-wrap > .arc:nth-child(2)', '.arc--last']
+            : ['.arc-wrap > .arc:first-child', '.arc-wrap > .arc:nth-child(2)', '.arc-wrap > .clip']
+          ).map((selector) => box(selector).bottom),
+        ),
+        vigil: spread(all('.vigil-grid > *').map((r) => r.bottom)),
+        record: spread([box('.record > .video').bottom, box('.record-list').bottom]),
+        people: spread([box('.people > .lead').bottom, box('.people-side').bottom]),
+      };
+    });
+    const at1 = (name: keyof typeof ends) => `${name} at ${width}: ${ends[name]}px`;
+    expect(ends.hero, at1('hero')).toBeLessThanOrEqual(2);
+    for (const name of ['claimTops', 'claimPictures', 'claimTexts', 'claimEnds'] as const) {
+      expect(ends[name], at1(name)).toBeLessThanOrEqual(2);
+    }
+    for (const name of ['arc', 'vigil', 'record', 'people'] as const) {
+      expect(ends[name], at1(name)).toBeLessThanOrEqual(100);
+    }
+  }
+});
+
 test('figures from the papers are shown as published, each with its paper', async ({ page }) => {
-  // One under the second claim of the thesis. On the Research page, one or two in each area: an
-  // area that opens on a clip has one, the others two.
-  for (const [path, count] of [
-    ['/', 1],
-    ['/research/', 10],
-  ] as const) {
+  // On the Research page, one or two in each area: an area that opens on a clip has one, the
+  // others two.
+  for (const [path, count] of [['/research/', 10]] as const) {
     await page.goto(at(path));
     const figures = page.locator('[data-paper-figure]');
     await expect(figures).toHaveCount(count);

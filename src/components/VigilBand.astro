@@ -169,6 +169,18 @@ const { award } = vigil;
     text-decoration: underline;
   }
 
+  /* On a small laptop the two sides are even, which keeps the two buttons on one line and the
+     text about as tall as the clip. */
+  @media (max-width: 78rem) {
+    .vigil-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cta .btn {
+      padding-inline: 1.1rem;
+    }
+  }
+
   @media (max-width: 62rem) {
     .vigil-grid {
       grid-template-columns: minmax(0, 1fr);
