@@ -360,8 +360,9 @@ test("the mark's eye follows the pointer and its gear turns with the page", asyn
     .toMatch(/^0\.[1-9]\d*turn$/);
 });
 
-test('every research area opens on a real figure or clip, and has a second figure beside its text', async ({
+test('every research area is set on one grid: its text in one column, its two real pictures in the other', async ({
   page,
+  isMobile,
 }) => {
   await page.goto(at('/research/'));
   const areas = page.locator('section.area');
@@ -382,17 +383,77 @@ test('every research area opens on a real figure or clip, and has a second figur
     } else {
       leads.add(`figure:${await figure.getAttribute('data-paper-figure')}`);
     }
-    // It comes before the area's text, and is at least as wide as half the page's measure.
-    const box = (await lead.locator('.sheet, .clip-frame').boundingBox())!;
-    const text = (await area.locator('.area-grid').boundingBox())!;
-    expect(box.y + box.height, id).toBeLessThanOrEqual(text.y);
-    expect(box.width, id).toBeGreaterThanOrEqual(Math.min(text.width, 600) * 0.45);
     // The second figure is from a different paper than the lead.
     const second = area.locator('.area-second [data-paper-figure]');
     await expect(second).toHaveCount(1);
     expect(leads.has(`figure:${await second.getAttribute('data-paper-figure')}`), id).toBe(false);
+
+    // Both pictures are framed at the same width, one under the other, and each caption runs
+    // the full width of its picture: none is squeezed into a narrow block beside it.
+    const frames = await area
+      .locator('.area-figures .sheet, .area-figures .clip-frame')
+      .evaluateAll((els) =>
+        els.map((el) => {
+          const box = el.getBoundingClientRect();
+          return { left: Math.round(box.left), width: Math.round(box.width), top: box.top };
+        }),
+      );
+    expect(frames, id).toHaveLength(2);
+    expect(Math.abs(frames[0].width - frames[1].width), id).toBeLessThanOrEqual(1);
+    expect(Math.abs(frames[0].left - frames[1].left), id).toBeLessThanOrEqual(1);
+    expect(frames[0].top, id).toBeLessThan(frames[1].top);
+    const captions = await area
+      .locator('.area-figures figcaption')
+      .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().width)));
+    for (const width of captions)
+      expect(Math.abs(width - frames[0].width), id).toBeLessThanOrEqual(1);
+    // No picture stands taller than the cap, so a pair stays near the height of the text.
+    const tallest = await area
+      .locator('.area-figures .sheet img, .area-figures video')
+      .evaluateAll((els) => Math.max(...els.map((el) => el.getBoundingClientRect().height)));
+    expect(tallest, id).toBeLessThanOrEqual(481);
+
+    const text = (await area.locator('.area-body').boundingBox())!;
+    const head = (await area.locator('.area-head').boundingBox())!;
+    if (isMobile) {
+      // One column: the name, the pictures, then the text.
+      expect(head.y, id).toBeLessThan(frames[0].top + (await page.evaluate(() => window.scrollY)));
+      expect(Math.abs(text.x - frames[0].left), id).toBeLessThanOrEqual(1);
+    } else {
+      // Two columns: name and text on the left, pictures on the right, starting level.
+      expect(text.x + text.width, id).toBeLessThanOrEqual(frames[0].left);
+      expect(Math.abs(head.x - text.x), id).toBeLessThanOrEqual(1);
+      expect(text.width, id).toBeGreaterThanOrEqual(380);
+    }
   }
   expect(leads.size).toBe(6);
+});
+
+test('on a laptop, the text and the pictures of a research area end near each other', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'On a phone the area is one column.');
+  for (const width of [1280, 1440]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto(at('/research/'));
+    await page.evaluate(() => document.fonts.ready);
+    // A picture's size comes from its proportions, so nothing has to load to measure the page.
+    const gaps = await page.locator('section.area').evaluateAll((areas) =>
+      areas.map((area) => {
+        const textEnd = area.querySelector('.area-body')!.lastElementChild!.getBoundingClientRect();
+        const figureEnd = Math.max(
+          ...[...area.querySelectorAll('.area-figures figcaption')].map(
+            (caption) => caption.getBoundingClientRect().bottom,
+          ),
+        );
+        return { id: area.id, gap: Math.round(textEnd.bottom - figureEnd) };
+      }),
+    );
+    for (const { id, gap } of gaps) {
+      expect(Math.abs(gap), `${id} at ${width}: ${gap}px`).toBeLessThanOrEqual(200);
+    }
+  }
 });
 
 test('each research card on the home page shows part of a real figure, and says which', async ({
@@ -972,7 +1033,7 @@ test('figures from the papers are shown as published, each with its paper', asyn
         .toBeGreaterThan(0);
       // The caption names the figure, the authors, the venue, and the year, and links the paper.
       const source = figure.locator('figcaption a.source');
-      await expect(source).toHaveText(/^(Figure|Table) \d+ of .+, .+ (19|20)\d\d$/);
+      await expect(source).toHaveText(/^(Part of )?(Figure|Table) \d+ of .+, .+ (19|20)\d\d$/);
       await expect(source).toHaveAttribute('href', /^https:\/\//);
       await expect(figure.locator('.tag')).toHaveText('From the paper');
       // The figure opens at full size, for reading its small print.

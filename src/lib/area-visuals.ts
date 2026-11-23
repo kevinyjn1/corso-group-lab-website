@@ -8,9 +8,9 @@
  *   it reads at a small size.
  */
 import type { ImageMetadata } from 'astro';
-import mistakeResults from '../assets/clips/mistake-results.mp4';
+import mistakeResults from '../assets/clips/mistake-results-wide.mp4';
 import viewScoring from '../assets/clips/vigil-view-scoring.mp4';
-import mistakePoster from '../assets/clips/posters/mistake-results.jpg';
+import mistakePoster from '../assets/clips/posters/mistake-results-wide.jpg';
 import viewScoringPoster from '../assets/clips/posters/vigil-view-scoring.jpg';
 import tumorCard from '../assets/papers/corso2008efficient-fig6-card.jpg';
 import hsrCard from '../assets/papers/griffin2020video-fig19-card.jpg';

@@ -73,21 +73,24 @@ const sections = areas.map((area) => {
   {sections.map(({ area, visual, picks, releases }, i) => (
     <section class="section area" id={area.id} data-topic={area.id}>
       <div class="container">
-        <header class="area-head" data-reveal>
-          <div>
+        <div class="area-grid" data-reveal>
+          <header class="area-head">
             <p class="label area-index">
               {String(i + 1).padStart(2, '0')} / {String(sections.length).padStart(2, '0')}
             </p>
             <h2 class="h2">{area.data.title}</h2>
+            <p class="lead">{area.data.summary}</p>
+          </header>
+
+          <div class="area-figures">
+            <div class="area-lead">
+              <AreaLead area={area.id as AreaId} />
+            </div>
+            <div class="area-second">
+              <PaperFigure name={visual.second} />
+            </div>
           </div>
-          <p class="lead">{area.data.summary}</p>
-        </header>
 
-        <div class="area-lead" data-reveal>
-          <AreaLead area={area.id as AreaId} />
-        </div>
-
-        <div class="area-grid" data-reveal="stagger">
           <div class="area-body">
             <div class="prose">
               {area.data.body.map((paragraph) => (
@@ -109,9 +112,6 @@ const sections = areas.map((area) => {
                 ))}
               </p>
             )}
-          </div>
-          <div class="area-second">
-            <PaperFigure name={visual.second} />
           </div>
         </div>
 
@@ -205,12 +205,18 @@ const sections = areas.map((area) => {
     scroll-margin-top: calc(var(--header-h) + 3rem);
   }
 
-  /* An area opens on its name and one line, then on a real figure or clip at full width. */
-  .area-head {
+  /* One grid for every area: its name and its text in the left column, and its two pictures in
+     the right one, both the full width of that column with their captions under them. */
+  .area-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 1rem clamp(2rem, 6vw, 6rem);
-    align-items: end;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-rows: auto 1fr;
+    gap: clamp(1.5rem, 3vw, 2.25rem) clamp(2rem, 5vw, 5rem);
+  }
+
+  .area-head {
+    grid-column: 1;
+    grid-row: 1;
   }
 
   .area-index {
@@ -218,19 +224,27 @@ const sections = areas.map((area) => {
   }
 
   .area-head .lead {
-    max-width: 32rem;
+    margin-top: 1.25rem;
   }
 
-  .area-lead {
-    margin-top: clamp(1.75rem, 3.5vw, 2.75rem);
+  .area-body {
+    grid-column: 1;
+    grid-row: 2;
   }
 
-  .area-grid {
+  .area-figures {
+    /* No figure stands taller than this, so a pair of them stays near the height of the text. */
+    --figure-max-h: 30rem;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 2.5rem clamp(2rem, 6vw, 6rem);
-    align-items: start;
-    margin-top: clamp(2.25rem, 4.5vw, 3.5rem);
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    gap: clamp(2rem, 4vw, 2.75rem);
+    align-content: start;
+  }
+
+  /* A clip stands on the page as a figure's sheet does. */
+  .area-figures :global(.clip-frame) {
+    border: var(--rule) solid var(--text);
   }
 
   .threads {
@@ -311,11 +325,29 @@ const sections = areas.map((area) => {
     font-size: 0.95rem;
   }
 
-  @media (max-width: 56rem) {
-    .area-head,
+  /* On a small laptop the text column gets half the page, so its lines stay a readable length. */
+  @media (max-width: 78rem) {
+    .area-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 64rem) {
     .area-grid,
     .support {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* In one column: the area's name, its pictures, then its text. */
+    .area-grid {
+      grid-template-rows: none;
+    }
+
+    .area-head,
+    .area-figures,
+    .area-body {
+      grid-column: 1;
+      grid-row: auto;
     }
   }
 

@@ -6,7 +6,7 @@
  * cut from the papers at print resolution and live in src/assets/papers.
  */
 import type { ImageMetadata } from 'astro';
-import agent from '../assets/papers/bellos2025effective-fig1.jpg';
+import agent from '../assets/papers/bellos2025effective-fig1-photos.jpg';
 import tumor from '../assets/papers/corso2008efficient-fig6.jpg';
 import hsr from '../assets/papers/griffin2020video-fig19.jpg';
 import labels from '../assets/papers/griffin2026label-fig1.jpg';
@@ -23,6 +23,8 @@ export interface PaperFigure {
   paper: string;
   /** The figure's own number in the paper. */
   label: string;
+  /** Set when the image is a part of that figure, cut so that it reads at the size shown. */
+  part?: boolean;
   image: ImageMetadata;
   /** What the figure shows, for people who cannot see it. */
   alt: string;
@@ -92,8 +94,9 @@ export const PAPER_FIGURES = {
   agent: {
     paper: 'bellos2025effective',
     label: 'Figure 1',
+    part: true,
     image: agent,
-    alt: "A diagram above two photographs. In the diagram, a person in an AR headset and an AI agent exchange speech, and video from the headset and from a second camera goes to a server. The first photograph shows a person applying a tourniquet to the arm of a training manikin in uniform. The second shows the same task as the headset sees it. Beside it is part of the conversation. Agent: Place tourniquet over affected extremity 2-3 inches above wound site. Let me know when you're finished. Human: Ok I did it. what's next. Agent: Pull tourniquet tight. Human: How tight should I pull?",
+    alt: "Two photographs and part of a conversation. In the first photograph a person applies a tourniquet to the arm of a training manikin in uniform. The second shows the same task as the person's headset sees it. The conversation reads. Agent: Place tourniquet over affected extremity 2-3 inches above wound site. Let me know when you're finished. Human: Ok I did it. what's next. Agent: Pull tourniquet tight. Human: How tight should I pull?",
     caption:
       'An AI agent guides a person through applying a tourniquet. The person does the task with their own hands and talks with the agent, which reaches them through an AR headset.',
   },

@@ -27,7 +27,7 @@ if (clip) {
 ---
 
 {clip ? (
-  <Clip src={clip.src} poster={clip.poster} tag={clip.tag} toggle={clip.toggle} alt={clip.alt} lead>
+  <Clip src={clip.src} poster={clip.poster} tag={clip.tag} toggle={clip.toggle} alt={clip.alt}>
     <strong>{clip.title}</strong> {clip.caption}{' '}
     {sourceHref ? (
       <a class="clip-source" href={sourceHref} rel="noopener">
@@ -38,7 +38,7 @@ if (clip) {
     )}
   </Clip>
 ) : (
-  'figure' in lead && <PaperFigure name={lead.figure} lead />
+  'figure' in lead && <PaperFigure name={lead.figure} />
 )}
 
 <style>

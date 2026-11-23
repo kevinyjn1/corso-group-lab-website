@@ -10,16 +10,11 @@ import { PAPER_FIGURES, type PaperFigureName } from '../lib/paper-figures';
 
 interface Props {
   name: PaperFigureName;
-  /**
-   * A lead figure opens a section at full width. It is shown as large as it reads well, and its
-   * caption sits beside it when there is room, or under it when the figure fills the row.
-   */
-  lead?: boolean;
 }
-const { lead = false } = Astro.props;
 const figure = PAPER_FIGURES[Astro.props.name];
 const pub = paperOf(await getPublications(), figure.paper, 'PaperFigure');
-const cite = `${figure.label} of ${shortCite(pub)}`;
+const part = 'part' in figure && figure.part;
+const cite = `${part ? 'Part of ' : ''}${figure.label} of ${shortCite(pub)}`;
 const url = paperUrl(pub);
 const credit = 'credit' in figure ? figure.credit : undefined;
 /** The whole figure at the size it was cut, for reading its small print. */
@@ -27,32 +22,34 @@ const full = await getImage({ src: figure.image, width: figure.image.width, qual
 ---
 
 <figure
-  class:list={['paper-figure', { 'is-lead': lead }]}
+  class="paper-figure"
   data-paper-figure={figure.paper}
-  style={`--ar: ${(figure.image.width / figure.image.height).toFixed(3)}`}
+  style={`--ar: ${(figure.image.width / figure.image.height).toFixed(4)}`}
 >
   <a class="sheet" href={full.src} aria-label={`Open ${cite} at full size`}>
     <Image
       src={figure.image}
       alt={figure.alt}
-      widths={[480, 720, 960, 1280, 1920, figure.image.width].filter(
+      widths={[480, 720, 960, 1280, figure.image.width].filter(
         (width, i, all) => width <= figure.image.width && all.indexOf(width) === i,
       )}
-      sizes={lead ? '(min-width: 86rem) 78rem, 92vw' : '(min-width: 62rem) 40rem, 92vw'}
+      sizes="(min-width: 62rem) 46rem, 92vw"
       quality={86}
     />
   </a>
   <figcaption>
-    <span class="tag">From the paper</span>
-    <span class="text">
-      {figure.caption}{' '}
+    <p class="meta">
+      <span class="tag">From the paper</span>
       {url ? (
         <a class="source" href={url} rel="noopener" title={pub.data.title} set:text={cite} />
       ) : (
         <span class="source" title={pub.data.title} set:text={cite} />
       )}
+    </p>
+    <p class="text">
+      {figure.caption}
       {credit && <span class="credit">{credit}</span>}
-    </span>
+    </p>
   </figcaption>
 </figure>
 
@@ -63,9 +60,8 @@ const full = await getImage({ src: figure.image, width: figure.image.width, qual
 
   /* Paper figures are drawn on white, so they sit on a white sheet in both themes. */
   .sheet {
-    --pad: clamp(0.6rem, 1.4vw, 1rem);
     display: block;
-    padding: var(--pad);
+    padding: clamp(0.6rem, 1.4vw, 1rem);
     cursor: zoom-in;
     background: #fff;
     border: var(--rule) solid var(--text);
@@ -76,21 +72,29 @@ const full = await getImage({ src: figure.image, width: figure.image.width, qual
     outline-offset: 2px;
   }
 
+  /* The figure fills the sheet's width, unless a page caps its height (--figure-max-h): then a
+     tall figure is shown whole at that height, centered on the sheet. Its size comes from its
+     proportions (--ar), so it is right before the image has loaded. */
   .sheet :global(img) {
     display: block;
-    width: 100%;
+    width: min(100%, calc(var(--figure-max-h, 1000rem) * var(--ar)));
     height: auto;
+    margin-inline: auto;
   }
 
+  /* Under the sheet: where the figure is from on one line, then what to notice in it. */
   figcaption {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 0.35rem 0.8rem;
-    align-items: baseline;
     margin-top: 0.75rem;
     font-size: 0.92rem;
     line-height: 1.45;
     color: var(--text-2);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.7rem;
   }
 
   .tag {
@@ -107,13 +111,13 @@ const full = await getImage({ src: figure.image, width: figure.image.width, qual
   }
 
   .text {
+    margin-top: 0.4rem;
     text-wrap: pretty;
   }
 
   .source {
     font-weight: 600;
     color: var(--text);
-    white-space: nowrap;
   }
 
   a.source {
@@ -127,52 +131,18 @@ const full = await getImage({ src: figure.image, width: figure.image.width, qual
     text-decoration-color: var(--maize);
   }
 
+  /* On a phone the tag always sits on its own line, so every caption starts the same way. */
+  @media (max-width: 30rem) {
+    .meta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
   .credit {
     display: block;
     margin-top: 0.3rem;
     font-size: 0.8rem;
     color: var(--text-3);
-  }
-
-  /* A lead figure: as wide as it reads well and no taller than --lead-h, with its caption beside
-     it at the foot when there is room, and under it when the figure fills the row. */
-  .is-lead {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 0.9rem clamp(1.5rem, 3vw, 2.5rem);
-  }
-
-  /* The sheet takes the width at which the figure is --lead-h tall, unless that would leave the
-     caption less than its room beside it: then the figure fills the row. */
-  .is-lead .sheet {
-    --w: calc(var(--lead-h, 34rem) * var(--ar) + 2 * var(--pad));
-    flex: 0 1 auto;
-    width: min(100%, clamp(var(--w), (var(--w) - (100% - 22rem)) * 9999, 100%));
-  }
-
-  .is-lead figcaption {
-    flex: 1 1 18rem;
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 34rem;
-    margin-top: 0;
-  }
-
-  .is-lead .tag {
-    justify-self: start;
-  }
-
-  @media (max-width: 30rem) {
-    figcaption {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .tag {
-      justify-self: start;
-    }
-
-    .source {
-      white-space: normal;
-    }
   }
 </style>
