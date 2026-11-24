@@ -45,6 +45,8 @@ jobs:
         run: npm run format:check
       - name: Types and content schema
         run: npm run check
+      - name: The content gate's own tests
+        run: npm run test:gate
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Build and end-to-end tests
@@ -55,6 +57,22 @@ jobs:
           name: playwright-report-${{ strategy.job-index }}
           path: playwright-report/
           retention-days: 7
+
+  release:
+    # The content repository publishes the site with the code at `release`: the newest commit of
+    # main that has passed every check above. A push that fails leaves `release` where it was, so
+    # a mistake in the code cannot stop the next change of content from being published.
+    name: Mark this commit as the code to publish with
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      # This job runs nothing from the repository: it only moves a branch.
+      - uses: actions/checkout@v7
+      - run: git push --force origin "HEAD:refs/heads/release"
 
   deploy:
     name: Deploy to GitHub Pages

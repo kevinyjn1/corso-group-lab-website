@@ -1,6 +1,22 @@
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { defineCollection } from 'astro:content';
-import { file } from 'astro/loaders';
+import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+
+/**
+ * Where the content is read from. Each entry (a paper, a person, a talk) is one small YAML file,
+ * named by its id, in a folder per kind.
+ *
+ * The live content is kept in its own repository, which the editing tool writes to; the publishing
+ * workflow checks it and passes its place in CONTENT_DIR. Without that, the site is built from
+ * `sample-content/`, a frozen copy that the tests are written against.
+ */
+const contentRoot = resolve(process.env.CONTENT_DIR ?? 'sample-content');
+
+/** One YAML file per entry, in the folder of that name. A file's name is the entry's id. */
+const entries = (folder: string) =>
+  glob({ base: pathToFileURL(`${resolve(contentRoot, folder)}/`), pattern: '*.yaml' });
 
 /** The six research areas. Publications and resources are tagged with these keys. */
 export const TOPICS = ['video', 'language', 'robotics', 'human', 'health', 'learning'] as const;
@@ -13,18 +29,26 @@ export const topic = z.enum(TOPICS);
  */
 const url = z.httpUrl();
 
+/**
+ * A date as text, such as "2026-08" or "2026-08-26". Written without quotes in a YAML file, a
+ * full date is read as a date and a bare year as a number, so both are turned back into text
+ * before the form is checked. An editing tool may write either.
+ */
+const dateText = (form: RegExp) =>
+  z.preprocess((value) => {
+    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    return typeof value === 'number' ? String(value) : value;
+  }, z.string().regex(form));
+
 const publications = defineCollection({
-  loader: file('src/data/publications.yaml'),
-  schema: z.object({
+  loader: entries('publications'),
+  schema: z.strictObject({
     title: z.string(),
     /** Author names in "F. M. Last" form, in publication order. */
     authors: z.array(z.string()).min(1),
     year: z.number().int().min(1990).max(2100),
     /** Optional "YYYY-MM" used to order papers within a year, newest first. */
-    date: z
-      .string()
-      .regex(/^\d{4}-\d{2}$/)
-      .optional(),
+    date: dateText(/^\d{4}-\d{2}$/).optional(),
     type: z.enum(['conference', 'journal', 'preprint', 'report', 'chapter', 'thesis']),
     /** Full venue name, without year or page numbers. */
     venue: z.string(),
@@ -54,8 +78,8 @@ const publications = defineCollection({
 });
 
 const people = defineCollection({
-  loader: file('src/data/people.yaml'),
-  schema: z.object({
+  loader: entries('people'),
+  schema: z.strictObject({
     name: z.string(),
     role: z.enum(['pi', 'phd', 'ms', 'undergrad', 'postdoc', 'staff', 'collaborator']),
     status: z.enum(['current', 'alumni']),
@@ -76,8 +100,8 @@ const people = defineCollection({
 });
 
 const areas = defineCollection({
-  loader: file('src/data/areas.yaml'),
-  schema: z.object({
+  loader: entries('areas'),
+  schema: z.strictObject({
     order: z.number().int(),
     title: z.string(),
     /** Compact name for filters and in-page navigation. */
@@ -97,8 +121,8 @@ const areas = defineCollection({
 });
 
 const resources = defineCollection({
-  loader: file('src/data/resources.yaml'),
-  schema: z.object({
+  loader: entries('resources'),
+  schema: z.strictObject({
     name: z.string(),
     kind: z.enum(['dataset', 'software']),
     year: z.number().int(),
@@ -107,15 +131,15 @@ const resources = defineCollection({
     featured: z.boolean().default(false),
     awards: z.array(z.string()).default([]),
     links: z
-      .array(z.object({ label: z.string(), href: url }))
+      .array(z.strictObject({ label: z.string(), href: url }))
       .min(1)
       .max(3),
   }),
 });
 
 const courses = defineCollection({
-  loader: file('src/data/courses.yaml'),
-  schema: z.object({
+  loader: entries('courses'),
+  schema: z.strictObject({
     order: z.number().int(),
     code: z.string(),
     title: z.string(),
@@ -134,22 +158,19 @@ const courses = defineCollection({
     /** Who the course is taught with, for example "Yayuan Li". */
     with: z.string().optional(),
     /** Extra links for a current course, such as readings or related writing. */
-    links: z.array(z.object({ label: z.string(), href: url })).default([]),
+    links: z.array(z.strictObject({ label: z.string(), href: url })).default([]),
   }),
 });
 
 const media = defineCollection({
-  loader: file('src/data/media.yaml'),
-  schema: z.object({
+  loader: entries('media'),
+  schema: z.strictObject({
     title: z.string(),
     kind: z.enum(['video', 'podcast', 'press', 'essay']),
     /** The channel, show, or publication. */
     outlet: z.string(),
     /** "YYYY", "YYYY-MM", or "YYYY-MM-DD", when the source states a date. */
-    date: z
-      .string()
-      .regex(/^\d{4}(-\d{2}){0,2}$/)
-      .optional(),
+    date: dateText(/^\d{4}(-\d{2}){0,2}$/).optional(),
     url,
     /** For YouTube videos: the 11 character id, which also names the thumbnail image. */
     youtubeId: z

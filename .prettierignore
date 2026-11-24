@@ -4,5 +4,3 @@ node_modules/
 package-lock.json
 playwright-report/
 test-results/
-# Generated once from the lab's publication record; keep the hand-tuned layout.
-src/data/publications.yaml

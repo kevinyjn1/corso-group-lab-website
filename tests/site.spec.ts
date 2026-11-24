@@ -1,35 +1,15 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { at } from './base-path';
+import { pages, watchForProblems } from './helpers';
 
-const pages = [
-  '/',
-  '/research/',
-  '/vigil/',
-  '/publications/',
-  '/people/',
-  '/resources/',
-  '/teaching/',
-  '/join/',
-  '/media/',
-];
-
-/** Collect console errors, uncaught exceptions, and failed requests for a page. */
-function watchForProblems(page: Page): string[] {
-  const problems: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'error') problems.push(`console: ${message.text()}`);
-  });
-  page.on('pageerror', (error) => problems.push(`exception: ${error.message}`));
-  page.on('requestfailed', (request) => problems.push(`request failed: ${request.url()}`));
-  page.on('response', (response) => {
-    if (response.status() >= 400) problems.push(`${response.status()}: ${response.url()}`);
-  });
-  return problems;
-}
+/**
+ * The site as designed, tested against the sample content (sample-content/): what each page
+ * says and shows, how it is laid out, and the house rules of its wording. These run when the
+ * code changes. The checks that every publish of new content must pass are in publish.spec.ts.
+ */
 
 for (const path of pages) {
-  test(`${path} renders cleanly`, async ({ page }) => {
-    const problems = watchForProblems(page);
+  test(`${path} has one title that fits, and keeps the house style`, async ({ page }) => {
     await page.goto(at(path));
     await page.evaluate(() => document.fonts.ready);
 
@@ -43,128 +23,10 @@ for (const path of pages) {
       .evaluate((title) => title.scrollWidth - title.clientWidth);
     expect(spill, 'title overflow').toBeLessThanOrEqual(1);
 
-    // Nothing may push the page wider than the screen.
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    expect(overflow).toBe(0);
-
     // House style: plain dashes only.
     expect(await page.locator('body').innerText()).not.toContain('—');
-    expect(problems).toEqual([]);
   });
 }
-
-test("only the site's own code can run: every page carries a strict content security policy", async ({
-  page,
-}) => {
-  for (const path of pages) {
-    await page.goto(at(path));
-    const policy = await page
-      .locator('meta[http-equiv="content-security-policy"]')
-      .getAttribute('content');
-    const rules = new Map(
-      policy!
-        .split(';')
-        .map((rule) => rule.trim().split(/\s+/))
-        .filter(([name]) => name)
-        .map(([name, ...sources]) => [name, sources]),
-    );
-    expect(rules.get('default-src'), path).toEqual(["'self'"]);
-    // Scripts: the site's own files, and the inline ones it was built with, each by its hash.
-    // No blanket permission, and no outside host.
-    expect(rules.get('script-src'), path).toContain("'self'");
-    for (const source of rules.get('script-src')!) {
-      expect(source, path).toMatch(/^('self'|'sha(256|384|512)-[A-Za-z0-9+/=]+')$/);
-    }
-    for (const source of rules.get('style-src-elem')!) {
-      expect(source, path).toMatch(/^('self'|'sha(256|384|512)-[A-Za-z0-9+/=]+')$/);
-    }
-    expect(rules.get('object-src'), path).toEqual(["'none'"]);
-    expect(rules.get('base-uri'), path).toEqual(["'self'"]);
-    expect(rules.get('form-action'), path).toEqual(["'none'"]);
-    // The one outside frame is the video player.
-    expect(rules.get('frame-src'), path).toEqual(['https://www.youtube-nocookie.com']);
-  }
-
-  // The browser enforces it: a script written into the page does not run, and a link that
-  // carries code does nothing when followed.
-  await page.goto(at('/'));
-  const ran = await page.evaluate(async () => {
-    const flags = window as unknown as { injected?: boolean; followed?: boolean };
-    const script = document.createElement('script');
-    script.textContent = 'window.injected = true';
-    document.body.append(script);
-    const link = document.createElement('a');
-    link.href = 'javascript:window.followed = true';
-    document.body.append(link);
-    link.click();
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    return { injected: flags.injected === true, followed: flags.followed === true };
-  });
-  expect(ran).toEqual({ injected: false, followed: false });
-});
-
-test('every address on every page is an ordinary one: the site, the web, or mail', async ({
-  page,
-}) => {
-  for (const path of pages) {
-    await page.goto(at(path));
-    const odd = await page.evaluate(() => {
-      const found: string[] = [];
-      for (const el of document.querySelectorAll('*')) {
-        for (const attribute of el.attributes) {
-          const name = attribute.name.toLowerCase();
-          // Nothing is wired to run code from an attribute.
-          if (name.startsWith('on')) found.push(`<${el.localName} ${name}>`);
-          if (!['href', 'src', 'action', 'formaction', 'poster', 'data'].includes(name)) continue;
-          const { protocol } = new URL(attribute.value, document.baseURI);
-          // A small picture may be carried inline; nothing else may be anything but a plain
-          // address.
-          const inlinePicture = protocol === 'data:' && el.localName === 'img';
-          if (!['http:', 'https:', 'mailto:'].includes(protocol) && !inlinePicture) {
-            found.push(`<${el.localName} ${name}="${attribute.value.slice(0, 60)}">`);
-          }
-        }
-      }
-      return found;
-    });
-    expect(odd, path).toEqual([]);
-  }
-});
-
-test('every internal link resolves', async ({ page, request, baseURL }) => {
-  const links = new Set<string>();
-  for (const path of pages) {
-    await page.goto(at(path));
-    const hrefs = await page
-      .locator('a[href]')
-      .evaluateAll((anchors) => anchors.map((a) => (a as HTMLAnchorElement).href));
-    for (const href of hrefs) {
-      const url = new URL(href);
-      if (url.origin === new URL(baseURL!).origin) links.add(url.pathname);
-    }
-  }
-  expect(links.size).toBeGreaterThanOrEqual(pages.length);
-  for (const link of links) {
-    const response = await request.get(link);
-    expect(response.status(), link).toBe(200);
-  }
-});
-
-test('in-page anchors point at real elements', async ({ page }) => {
-  for (const path of ['/research/', '/publications/']) {
-    await page.goto(at(path));
-    const missing = await page
-      .locator('a[href^="#"]')
-      .evaluateAll((anchors) =>
-        anchors
-          .map((a) => a.getAttribute('href')!)
-          .filter((href) => href.length > 1 && !document.getElementById(href.slice(1))),
-      );
-    expect(missing, path).toEqual([]);
-  }
-});
 
 test.describe('publications', () => {
   test('search narrows the list and can be cleared', async ({ page }) => {
@@ -613,17 +475,6 @@ test('clips of the system play while on screen and can be held still', async ({ 
   await expect(clip).toHaveAttribute('data-playing', 'false');
   await toggle.click();
   await expect(clip).toHaveAttribute('data-playing', 'true');
-});
-
-test('with motion reduced, no page scrolls sideways', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  for (const path of pages) {
-    await page.goto(at(path));
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    expect(overflow, path).toBe(0);
-  }
 });
 
 test('clips stay still for visitors who ask for reduced motion', async ({ page }) => {
@@ -1527,10 +1378,4 @@ test('a bar of the publications chart shows its count just above itself', async 
   });
   expect(gap).toBeGreaterThanOrEqual(0);
   expect(gap).toBeLessThan(24);
-});
-
-test('unknown pages show the 404 page', async ({ page }) => {
-  const response = await page.goto(at('/no-such-page/'));
-  expect(response?.status()).toBe(404);
-  await expect(page.locator('h1')).toContainText('Nothing in');
 });
