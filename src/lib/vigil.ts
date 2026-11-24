@@ -240,6 +240,6 @@ export const vigil = {
       ],
     },
   ],
-  /** Ids in src/data/publications.yaml of the group's papers on the same problems. */
+  /** Ids (file names in the content's publications/ folder) of the group's papers on the same problems. */
   papers: ['bellos2026echovqa', 'guo2026follow', 'bellos2025effective'],
 } as const;

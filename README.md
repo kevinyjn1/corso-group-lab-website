@@ -15,95 +15,114 @@ npm install
 npm run dev
 ```
 
-| Command           | What it does                                                    |
-| ----------------- | --------------------------------------------------------------- |
-| `npm run dev`     | Start the dev server with live reload                           |
-| `npm run build`   | Build the static site into `dist/`                              |
-| `npm run preview` | Serve the built site locally                                    |
-| `npm run check`   | Type-check the code and validate all content against its schema |
-| `npm run format`  | Format everything with Prettier                                 |
-| `npm test`        | Build the site and run the end-to-end tests (Playwright)        |
-| `npm run verify`  | Formatting, type and content checks, build, and tests in one go |
+| Command            | What it does                                                    |
+| ------------------ | --------------------------------------------------------------- |
+| `npm run dev`      | Start the dev server with live reload                           |
+| `npm run build`    | Build the static site into `dist/`                              |
+| `npm run preview`  | Serve the built site locally                                    |
+| `npm run check`    | Type-check the code and validate all content against its schema |
+| `npm run format`   | Format everything with Prettier                                 |
+| `npm test`         | Build the site and run the end-to-end tests (Playwright)        |
+| `npm run verify`   | Formatting, type and content checks, build, and tests in one go |
+| `npm run content`  | Fetch the live content into `content/`                          |
+| `npm run dev:live` | Start the dev server on the live content                        |
+| `npm run publish`  | Publish the site now (needs the GitHub CLI, signed in)          |
 
 The first test run needs a browser: `npx playwright install chromium`.
 
-## Editing content
+## Content
 
-All content lives in `src/data/` as YAML. Each file is validated when the site builds
-(`src/content.config.ts` holds the schemas), so a typo or a missing field fails the build with a
-message that names the entry, instead of silently producing a broken page.
+The site's code is here. Its content (every paper, person, talk, release, course, and research
+area) is in a second repository,
+[corso-group-lab-website-content](https://github.com/kevinyjn1/corso-group-lab-website-content),
+where people who are not programmers edit it through forms. **That repository's README is the
+guide to editing and to managing the site.** This section is for whoever works on the code.
 
-| File                | What it holds                                                |
-| ------------------- | ------------------------------------------------------------ |
-| `publications.yaml` | Every paper, newest first                                    |
-| `people.yaml`       | Current members and alumni                                   |
-| `areas.yaml`        | The six research areas and their descriptions                |
-| `resources.yaml`    | Datasets and software releases                               |
-| `courses.yaml`      | Courses taught                                               |
-| `media.yaml`        | Talks, podcasts, press, and essays                           |
-| `src/lib/site.ts`   | Site name, navigation, links, the PI's bio, honors, sponsors |
+### Where the site reads content from
 
-### Adding a publication
+Each entry is one small YAML file named by its id, in a folder per kind:
 
-Copy an entry in `src/data/publications.yaml` and edit it:
+| Folder          | One file per                       |
+| --------------- | ---------------------------------- |
+| `publications/` | paper                              |
+| `people/`       | person, current or alumni          |
+| `media/`        | talk, podcast, article, or essay   |
+| `resources/`    | dataset or software release        |
+| `courses/`      | course                             |
+| `areas/`        | research area (a fixed set of six) |
 
-```yaml
-- id: li2026mistake # unique; convention is firstauthor + year + first title word
-  title: 'Mistake Attribution: Fine-Grained Mistake Understanding in Egocentric Videos'
-  authors: ['Y. Li', 'A. Jain', 'F. Bellos', 'J. J. Corso']
-  year: 2026
-  date: '2026-06' # optional, orders papers within a year
-  type: conference # conference | journal | preprint | report | chapter | thesis
-  venue: 'IEEE/CVF Conference on Computer Vision and Pattern Recognition'
-  venueShort: 'CVPR' # optional badge
-  note: 'Oral' # optional distinction
-  topics: [human, video, language] # first topic is the primary area
-  featured: true # optional, surfaces it on the research page
-  links: # all optional: pdf, arxiv, doi, link, code, data, project, poster, slides, video
-    arxiv: 'https://arxiv.org/abs/2511.20525'
-```
+The site builds from the folder named in `CONTENT_DIR`. Without it, it builds from
+[`sample-content/`](sample-content/): a frozen copy of the content, kept here so that the code can
+be built and tested on its own and so that the tests of the design have fixed words to test
+against. To work with the live content instead, run `npm run content` once (it clones the content
+repository into `content/`, which Git ignores here) and then `npm run dev:live`.
 
-Topics are the ids in `areas.yaml`: `video`, `language`, `robotics`, `human`, `health`, `learning`.
-The per-year chart and the selected papers on the research page update from this one file. The
-home page names some of the venues the group publishes at; the build stops if a venue it names
-has fewer than five papers on the list.
+Text and other parts of the pages that are not lists are still in the code, mostly in
+`src/lib/` (`site.ts`, `thesis.ts`, `vigil.ts`) and in the pages themselves.
 
-### Adding a person
+### The rules an entry must meet
 
-Add an entry to `src/data/people.yaml` with `role` (`phd`, `ms`, `undergrad`, `researcher`,
-`staff`, or `collaborator`) and `status` (`current` or `alumni`). Current Ph.D. students can carry
-a `focus` and an expected graduation `year`, collaborators an `affiliation`, and alumni a
-`thesis`, `firstPosition`, and `currentPosition`. When the member list changes, update
-`roster.asOf` in `src/lib/site.ts`.
+[`src/content.config.ts`](src/content.config.ts) says what each kind of entry holds. A build that
+finds a wrong value stops and names the entry and the field. The rules read what a form writes (a
+box left empty is "not given"), and refuse a value of the wrong kind, a field they do not know, and
+any link that is not an `http` or `https` address.
 
-To add a portrait, drop an image named after the person's `id` into `src/assets/people/`, for
-example `src/assets/people/yayuan-li.jpg`. It is resized and compressed at build time. People
-without a photo are shown by their initials.
+When a rule changes, three things change together: the rule here, the form in the content
+repository's `.pages.yml`, and the sample content. The CI job "Verify (live content)" builds the
+live content with the new code and fails if they no longer fit, and the code is not released
+until it passes.
 
-### Adding media
+Pictures are still part of the code. A portrait is an image in `src/assets/people/` named after
+the person's file (`yayuan-li.jpg` for `people/yayuan-li.yaml`); people without one are shown by
+their initials. A YouTube video's thumbnail is an image in `src/assets/media/` named after its
+`youtubeId`.
 
-Add an entry to `src/data/media.yaml` with a `kind` (`video`, `podcast`, `press`, or `essay`), the
-`outlet`, a `url`, and a one sentence `summary`. For a YouTube video, also give its `youtubeId`
-and save a thumbnail named after that id in `src/assets/media/`; it then plays in place on the
-Media page. Give an item a `featured` number to show it at the top of the Media page and on the
-home page: the lowest-numbered video leads, and the next three items stand beside it
-(`src/components/MediaLead.astro`). A fifth would not be shown as featured, so keep it to four.
+The home page names some of the venues the group publishes at; the build stops if a venue it
+names has fewer than five papers on the list.
 
-To feature a course as being taught now, set `current: true` on it in `courses.yaml`.
+## Security
+
+The site is static: no server, no logins, no forms, no cookies, no outside scripts. What can go
+wrong is that its content or its code is changed by someone who should not, so that is what the
+setup guards.
+
+- **The editor reaches the content and nothing else.** The editing tool (Pages CMS, an outside
+  service) is installed only on the content repository. It has no access to this one.
+- **Content is untrusted until checked.** Before a publish,
+  [`scripts/content-gate.mjs`](scripts/content-gate.mjs) copies from the content repository only
+  what it recognizes (the six folders, plain `.yaml` files with simple names, one entry each, of a
+  sane size, with no links to other places and no YAML tricks) and never runs anything it reads.
+  Then the rules above check every field, and
+  [`tests/publish.spec.ts`](tests/publish.spec.ts) tests every page of the build.
+- **Only the site's own code runs in a visitor's browser.** Every page carries a content
+  security policy (`security.csp` in [`astro.config.mjs`](astro.config.mjs)): scripts and style
+  sheets must be the site's own, each inline one by its hash; the only outside frame is the video
+  player; forms and plugins are refused. So text or a link slipped into the content cannot run
+  code.
+- **Publishing happens in one place.** The content repository's workflow builds with the code at
+  this repository's `release` branch, which CI moves only to a commit that has passed every
+  check, and it publishes only from that repository's `main` branch.
+- **No keys or passwords are stored** in either repository.
+
+`npm run test:content` runs the tests of the gate and of the rules: what each lets through and
+what each stops.
 
 ## Structure
 
 ```
 src/
-  content.config.ts   Content schemas
-  data/               Content (YAML)
+  content.config.ts   The rules every entry of the content must meet
   lib/                Site config and content helpers
   layouts/Base.astro  Page shell: head, fonts, theme, header, footer
   components/         Header, footer, publication row, figures, clips, charts
   pages/              One file per page
   scripts/            Browser code: clips, publication filter, motion
   styles/global.css   Design tokens and shared styles
-tests/                End-to-end tests
+sample-content/       A frozen copy of the content, for building and testing the code
+scripts/              The content gate, and the tests of the gate and of the rules
+tests/
+  publish.spec.ts     The checks every publish must pass, whatever the content says
+  site.spec.ts        The tests of the design, written against the sample content
 ```
 
 ## The thesis: physically grounded upskilling
@@ -161,7 +180,7 @@ page at `/vigil/`.
   numbers and no list of sources. It keeps three ordinary links in its text (the award, the
   article a quotation is from, and the post a picture is from), listed as `LINKS` in that file.
   When something changes, change it there, with its date.
-- **Videos and press** are ordinary entries in `src/data/media.yaml` marked `project: vigil`, so
+- **Videos and press** are ordinary entries in the content's `media/` folder marked `project: vigil`, so
   they appear on the Media page and on the VIGIL page.
 - **Related papers** are the publication ids listed under `papers` in `src/lib/vigil.ts`.
 - **Footage** of the system is shown in "How it works" and in the band on the home page. In
@@ -170,7 +189,7 @@ page at `/vigil/`.
   yet and is stated in words. The clips are in `src/assets/clips/`, silent, 9 to 12
   seconds each and about 1 MB or less. Four of the five VIGIL clips are cut from the two videos
   of the November 2025 demonstrations that Prof. Corso published on YouTube; the page shows both
-  videos in full under the clips (the two `vigil-demo-...` entries in `src/data/media.yaml`). They are
+  videos in full under the clips (the two `vigil-demo-...` entries in `media/`). They are
   placed with `src/components/Clip.astro`, which plays a clip only while it is on screen, lets it
   be paused, and keeps it still for visitors who ask for reduced motion. To add one, cut it with
   `ffmpeg -ss <start> -to <end> -i <source> -an -vf scale=1280:-2,fps=24 -c:v libx264 -crf 27
@@ -256,16 +275,30 @@ page at `/vigil/`.
 - **Fonts** - Archivo (variable, from `@fontsource-variable/archivo`) and IBM Plex Mono for
   small labels, both self-hosted.
 
-## Deploying
+## Publishing
 
-Every push to `main` that passes CI is published to GitHub Pages by the `deploy` job in
-[.github/workflows/ci.yml](.github/workflows/ci.yml):
+The site is published by the content repository's
+[Publish workflow](https://github.com/kevinyjn1/corso-group-lab-website-content/actions/workflows/publish.yml),
+to GitHub Pages:
 
-https://kevinyjn1.github.io/corso-group-lab-website/
+https://kevinyjn1.github.io/corso-group-lab-website-content/
+
+It runs when the content changes, once a night, and when asked to. A change to the code reaches
+the site like this:
+
+1. Push to `main` here. CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs every
+   check, at a domain root and under a sub-path, against the sample content and against the live
+   content.
+2. If all pass, CI moves the `release` branch to that commit. If any fail, `release` stays where
+   it was and the site goes on being published with the last good code.
+3. The site is rebuilt with the new code on the next publish. `npm run publish` starts one now.
 
 That deployment is a preview. It is built with `SITE_NOINDEX=true`, which adds a
 `<meta name="robots" content="noindex">` tag so search engines do not list it. Delete that setting
-from the workflow once the group wants the site to be found.
+from the Publish workflow once the group wants the site to be found.
+
+The address this repository's own GitHub Pages used to serve the site at now holds a page that
+sends visitors on ([.github/old-address/](.github/old-address/)).
 
 To host the site somewhere else, `npm run build` writes it to `dist/`. Two environment variables
 describe where it will live:

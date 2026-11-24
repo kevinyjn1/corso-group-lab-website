@@ -17,7 +17,10 @@
     "test": "playwright test",
     "test:subpath": "BASE_PATH=/~jjcorso/ playwright test",
     "verify": "npm run format:check && npm run check && npm run test:content && npm run test && npm run test:subpath",
-    "test:content": "node --test --test-concurrency=1 'scripts/*.test.mjs'"
+    "test:content": "node --test --test-concurrency=1 'scripts/*.test.mjs'",
+    "content": "git -C content pull --ff-only 2>/dev/null || git clone https://github.com/kevinyjn1/corso-group-lab-website-content.git content",
+    "dev:live": "CONTENT_DIR=content astro dev",
+    "publish": "gh workflow run publish.yml --repo kevinyjn1/corso-group-lab-website-content"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

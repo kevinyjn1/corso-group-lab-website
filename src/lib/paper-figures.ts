@@ -1,7 +1,7 @@
 /**
  * Figures taken from the group's own papers, shown as they were published.
  *
- * Each entry names its paper (an id in src/data/publications.yaml) and the figure's number in
+ * Each entry names its paper (the name of its file in the content's publications/ folder) and the figure's number in
  * that paper. The caption says only what the paper's own caption and text say. The images are
  * cut from the papers at print resolution and live in src/assets/papers.
  */
@@ -18,7 +18,7 @@ import youcook2 from '../assets/papers/zhou2018automatic-fig1.jpg';
 import grounded from '../assets/papers/zhou2019grounded-fig1.jpg';
 
 export interface PaperFigure {
-  /** The paper's id in src/data/publications.yaml. */
+  /** The paper's id: the name of its file in the content's publications/ folder. */
   paper: string;
   /** The figure's own number in the paper. */
   label: string;

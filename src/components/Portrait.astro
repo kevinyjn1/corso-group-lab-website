@@ -7,7 +7,7 @@ import type { ImageMetadata } from 'astro';
  * (for example jason-corso.jpg), it is used; otherwise the person's initials are shown.
  */
 interface Props {
-  /** Person id from src/data/people.yaml. */
+  /** The person's id: the name of their file in the content's people/ folder. */
   id?: string;
   name: string;
   size?: 'large' | 'small';

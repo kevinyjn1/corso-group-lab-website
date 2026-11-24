@@ -4,8 +4,8 @@
  *
  * The talk's slides are not public, so only its title, its three claims, and its closing line are
  * quoted, and every result named here links to its published paper. `figure` says which real
- * result src/components/Thesis.astro shows under the claim, and `papers` are ids in
- * src/data/publications.yaml.
+ * result src/components/Thesis.astro shows under the claim, and `papers` are ids: the names of
+ * files in the content's publications/ folder.
  */
 
 interface Claim {

@@ -1,11 +1,11 @@
+# The checks of the site's code. This workflow does not publish: the site is published from the
+# content repository, with the code this workflow marks as `release`.
 name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
-  # Lets the site be published again by hand (Actions, CI, "Run workflow"). Re-running a failed
-  # deploy job inside an old run does not work: the run then holds two copies of the site package.
   workflow_dispatch:
 
 permissions:
@@ -13,8 +13,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  # A newer push replaces an older pull request run. Runs on main always finish, so a deployment
-  # is never cut off half way.
+  # A newer push replaces an older pull request run. Runs on main always finish, so `release` is
+  # only ever moved by a run that tested the commit it moves to.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -58,12 +58,48 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+  live-content:
+    # The site is published from the live content, which changes without the code changing. This
+    # job builds that content with this commit's code and runs the publishing checks, so that a
+    # change to the code which the live content cannot be built with is caught here, and not by
+    # the next person who saves a form.
+    name: Verify (live content)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CONTENT_DIR: content
+    steps:
+      - uses: actions/checkout@v7
+      - name: Get the live content
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.CONTENT_REPOSITORY || 'kevinyjn1/corso-group-lab-website-content' }}
+          path: incoming
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: The content gate
+        run: node scripts/content-gate.mjs incoming content
+      - name: The content rules
+        run: npx astro sync
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Build and publishing checks
+        run: npx playwright test tests/publish.spec.ts
+
   release:
     # The content repository publishes the site with the code at `release`: the newest commit of
     # main that has passed every check above. A push that fails leaves `release` where it was, so
     # a mistake in the code cannot stop the next change of content from being published.
+    #
+    # Moving `release` does not publish by itself. The site is published by the content
+    # repository's "Publish" workflow: on its nightly run, when content next changes, or at once
+    # with `npm run publish`.
     name: Mark this commit as the code to publish with
-    needs: verify
+    needs: [verify, live-content]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -73,50 +109,3 @@ jobs:
       # This job runs nothing from the repository: it only moves a branch.
       - uses: actions/checkout@v7
       - run: git push --force origin "HEAD:refs/heads/release"
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: verify
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    env:
-      # This deployment is a preview that the group has not reviewed, so search engines are asked
-      # not to list it. Delete this setting to let the site be found.
-      SITE_NOINDEX: 'true'
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - name: Look up the Pages address
-        id: pages
-        uses: actions/configure-pages@v6
-      - name: Build for the Pages address
-        run: npm run build
-        env:
-          SITE_URL: ${{ steps.pages.outputs.origin }}
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
-      - name: Confirm the build is hidden from search
-        if: env.SITE_NOINDEX == 'true'
-        run: grep -q 'name="robots" content="noindex"' dist/index.html
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist
-      - name: Publish
-        id: deployment
-        uses: actions/deploy-pages@v5
-      - name: Check the live site responds
-        run: >
-          curl --fail --silent --show-error --output /dev/null
-          --retry 6 --retry-delay 10 --retry-all-errors
-          "${{ steps.deployment.outputs.page_url }}"

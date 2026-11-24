@@ -1,0 +1,33 @@
+name: Old address
+
+# The site used to be published from this repository, at this repository's GitHub Pages address.
+# It is now published from the content repository. This workflow puts a small page at the old
+# address that sends visitors to the new one. Run it by hand (Actions, "Old address", "Run
+# workflow"); it is needed again only if the new address changes.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  redirect:
+    name: Point the old address at the new one
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: .github/old-address
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v5

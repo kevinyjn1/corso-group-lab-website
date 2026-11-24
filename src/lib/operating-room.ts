@@ -1,7 +1,7 @@
 /**
  * The group's work on surgery and the heart, as four of its papers show it: the section "In the
  * operating room" on the home page. Each entry is a real figure, or one panel of one, cut from
- * the paper it names (an id in src/data/publications.yaml). Every line under `what` says only
+ * the paper it names (the name of its file in the content's publications/ folder). Every line under `what` says only
  * what its paper says.
  *
  * Pictures of open surgery are left out on purpose: the hand tracking panel is the one frame of
@@ -20,7 +20,7 @@ export interface Result {
   what: string;
   image: ImageMetadata;
   alt: string;
-  /** The paper's id in src/data/publications.yaml. */
+  /** The paper's id: the name of its file in the content's publications/ folder. */
   paper: string;
   /** Which figure of the paper the picture is, or is cut from. */
   figure: string;
