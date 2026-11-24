@@ -12,6 +12,7 @@ import mistakeResults from '../assets/clips/mistake-results-wide.mp4';
 import viewScoring from '../assets/clips/vigil-view-scoring.mp4';
 import mistakePoster from '../assets/clips/posters/mistake-results-wide.jpg';
 import viewScoringPoster from '../assets/clips/posters/vigil-view-scoring.jpg';
+import agentCard from '../assets/papers/bellos2025effective-fig1-card.jpg';
 import tumorCard from '../assets/papers/corso2008efficient-fig6-card.jpg';
 import hsrCard from '../assets/papers/griffin2020video-fig19-card.jpg';
 import labelsCard from '../assets/papers/griffin2026label-fig1-card.jpg';
@@ -44,7 +45,7 @@ export interface AreaCard {
 interface AreaVisual {
   lead: { figure: PaperFigureName } | { clip: AreaClip };
   second: PaperFigureName;
-  card?: AreaCard;
+  card: AreaCard;
 }
 
 export const AREA_VISUALS = {
@@ -93,6 +94,11 @@ export const AREA_VISUALS = {
       },
     },
     second: 'agent',
+    card: {
+      image: agentCard,
+      figure: 'agent',
+      alt: 'Two hands tighten a tourniquet on the arm of a training manikin in uniform, which lies on a workbench in a lab.',
+    },
   },
   health: {
     lead: {

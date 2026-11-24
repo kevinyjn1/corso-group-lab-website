@@ -78,11 +78,11 @@ test.describe('publications', () => {
   });
 });
 
-test.describe('the operating room on the home page', () => {
+test.describe('the operating room on the Research page', () => {
   test('surgery and the heart are shown by four real figures, oldest first, each with its paper', async ({
     page,
   }) => {
-    await page.goto(at('/'));
+    await page.goto(at('/research/'));
     const results = page.locator('#operating-room .result');
     await expect(results).toHaveCount(4);
     const years = (await results.locator('.result-year').allInnerTexts()).map(Number);
@@ -112,16 +112,20 @@ test.describe('the operating room on the home page', () => {
     expect([...shapes]).toHaveLength(1);
   });
 
-  test('nothing on the home page stays hidden with reduced motion', async ({ page }) => {
+  test('nothing stays hidden with reduced motion, on the home page or the Research page', async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto(at('/'));
+    for (const path of ['/', '/research/']) {
+      await page.goto(at(path));
+      const hidden = await page
+        .locator('[data-reveal], [data-reveal="stagger"] > *')
+        .evaluateAll(
+          (items) => items.filter((item) => getComputedStyle(item).opacity !== '1').length,
+        );
+      expect(hidden, path).toBe(0);
+    }
     await expect(page.locator('#operating-room .result')).toHaveCount(4);
-    const hidden = await page
-      .locator('[data-reveal], [data-reveal="stagger"] > *')
-      .evaluateAll(
-        (items) => items.filter((item) => getComputedStyle(item).opacity !== '1').length,
-      );
-    expect(hidden).toBe(0);
   });
 });
 
@@ -400,8 +404,9 @@ test('each research card on the home page shows part of a real figure, and says 
   page,
 }) => {
   await page.goto(at('/'));
+  // All six areas, three across: no row is left with an empty place.
   const cards = page.locator('.areas .area');
-  await expect(cards).toHaveCount(5);
+  await expect(cards).toHaveCount(6);
   const sources = new Set<string>();
   const shapes = new Set<string>();
   for (const card of await cards.all()) {
@@ -420,7 +425,7 @@ test('each research card on the home page shows part of a real figure, and says 
     await expect(source.locator('a')).toHaveCount(0);
     sources.add(await source.innerText());
   }
-  expect(sources.size).toBe(5);
+  expect(sources.size).toBe(6);
   expect([...shapes]).toHaveLength(1);
 });
 
@@ -769,33 +774,22 @@ test('the VIGIL page shows the annual site visit in six photographs of one shape
   }
 });
 
-test('the home page leads with the thesis, then its proof, then the operating room', async ({
+test('the home page is a brief introduction: what the group is for, who is in it, and what it works on', async ({
   page,
 }) => {
   await page.goto(at('/'));
   // The headline is the group's thesis, in the words of the talk's title.
   const headline = page.locator('h1');
   await expect(headline).toHaveText(/^\s*Physically-grounded agentic\s+upskilling\s*\.\s*$/);
-  // It is defined in a sentence and each word is explained, with no small print under them.
+  // It is defined in a sentence that names the group, and each word is explained.
   await expect(page.locator('.hero .lead')).toContainText(
     'guides a person through a physical task',
   );
+  await expect(page.locator('.hero .lead')).toContainText(
+    'Corso Group at the University of Michigan',
+  );
   await expect(page.locator('.hero .words div')).toHaveCount(3);
   await expect(page.locator('.hero-more > *')).toHaveCount(1);
-
-  const order = await page.evaluate(() => {
-    const top = (selector: string) =>
-      document.querySelector(selector)!.getBoundingClientRect().top + window.scrollY;
-    return {
-      thesis: top('#thesis'),
-      vigil: top('section.vigil'),
-      scene: top('#operating-room'),
-      areas: top('.areas'),
-    };
-  });
-  expect(order.thesis).toBeLessThan(order.vigil);
-  expect(order.vigil).toBeLessThan(order.scene);
-  expect(order.scene).toBeLessThan(order.areas);
 
   // The first picture a visitor sees is a photograph of the system at work.
   const photo = page.locator('.hero-photo img');
@@ -805,15 +799,85 @@ test('the home page leads with the thesis, then its proof, then the operating ro
     .toBeGreaterThan(0);
   await expect(page.locator('.hero-photo figcaption')).toContainText('VIGIL');
   await expect(page.locator('.hero-photo a')).toHaveAttribute('href', /\/vigil\/$/);
+
+  // Then, in this order and nothing more: the people, the six research areas, the project in
+  // the field, the newest papers, and how to join.
+  const sections = await page
+    .locator('main > section')
+    .evaluateAll((all) =>
+      all.map((section) =>
+        section.classList.contains('hero')
+          ? 'hero'
+          : section.classList.contains('vigil')
+            ? 'vigil'
+            : section.classList.contains('join')
+              ? 'join'
+              : (section.querySelector('.section-head .label')?.textContent ?? '').trim(),
+      ),
+    );
+  expect(sections).toEqual(['hero', 'People', 'Research', 'vigil', 'Publications', 'join']);
+  await expect(page.locator('.people .lead')).toContainText('The group is led by');
+  await expect(page.locator('.areas > li')).toHaveCount(6);
+  await expect(page.locator('main .rows > li')).toHaveCount(4);
+
+  // The argument and its results are not here. They open the Research page, which the first
+  // button leads to.
+  await expect(page.locator('#thesis, #operating-room, .claim, .arc')).toHaveCount(0);
+  await expect(page.locator('.hero .btn--primary')).toHaveAttribute('href', /\/research\/#thesis$/);
+  // On its own, the VIGIL band is not one of a numbered series of claims.
+  await expect(page.locator('section.vigil .kicker')).toHaveText(/^\s*Project\s*$/);
+
+  // The page is short: about five screens on a laptop, where it used to be more than ten.
+  if ((page.viewportSize()?.width ?? 0) >= 1000) {
+    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    expect(height).toBeLessThan(6500);
+  }
+});
+
+test('the Research page opens with the thesis, then its proof in the field, then the operating room, then the areas', async ({
+  page,
+}) => {
+  await page.goto(at('/research/'));
+  const order = await page.evaluate(() => {
+    const top = (selector: string) =>
+      document.querySelector(selector)!.getBoundingClientRect().top + window.scrollY;
+    return {
+      menu: top('nav.toc'),
+      thesis: top('#thesis'),
+      vigil: top('section.vigil'),
+      scene: top('#operating-room'),
+      areas: top('section.area'),
+    };
+  });
+  expect(order.menu).toBeLessThan(order.thesis);
+  expect(order.thesis).toBeLessThan(order.vigil);
+  expect(order.vigil).toBeLessThan(order.scene);
+  expect(order.scene).toBeLessThan(order.areas);
   // The third claim is numbered and worded like the two above it, and is written once.
   await expect(page.locator('section.vigil .kicker')).toHaveText(
     /^\s*03\s+It is being proven in healthcare delivery\s*$/,
   );
   await expect(page.getByText('And it is being proven')).toHaveCount(0);
-
-  // Human-AI collaboration is the thesis itself, so the grid below shows the other five areas.
-  await expect(page.locator('.areas > li')).toHaveCount(5);
-  await expect(page.locator('.areas .area[data-topic="human"]')).toHaveCount(0);
+  // The menu of the page lists the thesis and the six areas, and every entry leads somewhere.
+  const entries = page.locator('nav.toc a');
+  await expect(entries).toHaveCount(7);
+  await expect(entries.first()).toHaveText('The thesis');
+  for (const target of await entries.evaluateAll((links) =>
+    links.map((a) => a.getAttribute('href')!),
+  )) {
+    await expect(page.locator(target)).toHaveCount(1);
+  }
+  // The VIGIL band and the operating room share one blue field, with no edge between them.
+  const join = await page.evaluate(() => {
+    const band = document.querySelector('section.vigil')!.getBoundingClientRect();
+    const stage = document.querySelector('.stage')!.getBoundingClientRect();
+    return {
+      gap: Math.round(stage.top - band.bottom),
+      light: getComputedStyle(document.querySelector('.stage')!).backgroundImage,
+    };
+  });
+  expect(join.gap).toBe(0);
+  expect(join.light).not.toContain('255, 203, 5');
 });
 
 test('the first screen is calm: one moderate line of headline, with the photograph in view', async ({
@@ -893,23 +957,12 @@ test('the home page is not a dashboard: no rows of big numbers, no ticker, no or
   await expect(page.locator('main')).not.toContainText(/\b\d+ minutes\b/);
   // The footer has no coordinates.
   await expect(page.locator('footer')).not.toContainText(/°|\d\.\d{3}/);
-  // The VIGIL band and the operating room share one blue field, with no edge between them.
-  const join = await page.evaluate(() => {
-    const band = document.querySelector('section.vigil')!.getBoundingClientRect();
-    const stage = document.querySelector('.stage')!.getBoundingClientRect();
-    return {
-      gap: Math.round(stage.top - band.bottom),
-      light: getComputedStyle(document.querySelector('.stage')!).backgroundImage,
-    };
-  });
-  expect(join.gap).toBe(0);
-  expect(join.light).not.toContain('255, 203, 5');
 });
 
 test('the thesis makes its claims with real results and the papers behind them', async ({
   page,
 }) => {
-  await page.goto(at('/'));
+  await page.goto(at('/research/'));
   const thesis = page.locator('#thesis');
   await expect(thesis.getByRole('heading', { level: 2 })).toContainText('Understand the task.');
   const claims = thesis.locator('.claim');
@@ -991,7 +1044,7 @@ test('the thesis makes its claims with real results and the papers behind them',
   }
 });
 
-test('on a laptop, blocks that sit side by side on the home page end together', async ({
+test('on a laptop, blocks that sit side by side on the home page and in the thesis end together', async ({
   page,
   isMobile,
 }) => {
@@ -1002,6 +1055,33 @@ test('on a laptop, blocks that sit side by side on the home page end together', 
     await page.setViewportSize({ width, height: 872 });
     await page.goto(at('/'));
     await page.evaluate(() => document.fonts.ready);
+    const home = await page.evaluate(() => {
+      const box = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
+      const all = (selector: string) =>
+        [...document.querySelectorAll(selector)].map((el) => el.getBoundingClientRect());
+      const spread = (values: number[]) => Math.round(Math.max(...values) - Math.min(...values));
+      return {
+        // The opening: the three words end where the photograph's caption ends.
+        hero: spread([box('.hero-more').bottom, box('.hero-photo').bottom]),
+        people: spread([box('.people > .lead').bottom, box('.people-side').bottom]),
+        vigil: spread(all('.vigil-grid > *').map((r) => r.bottom)),
+        // The cards of one row are one height, so their last lines sit level.
+        cards: Math.max(
+          ...Object.values(
+            Object.groupBy(all('.areas > li'), (r) => String(Math.round(r.top))),
+          ).map((row) => spread(row!.map((r) => r.bottom))),
+        ),
+      };
+    });
+    const atHome = (name: keyof typeof home) => `${name} at ${width}: ${home[name]}px`;
+    expect(home.hero, atHome('hero')).toBeLessThanOrEqual(2);
+    expect(home.cards, atHome('cards')).toBeLessThanOrEqual(2);
+    for (const name of ['people', 'vigil'] as const) {
+      expect(home[name], atHome(name)).toBeLessThanOrEqual(100);
+    }
+
+    await page.goto(at('/research/'));
+    await page.evaluate(() => document.fonts.ready);
     const ends = await page.evaluate(() => {
       const box = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
       const all = (selector: string) =>
@@ -1009,8 +1089,6 @@ test('on a laptop, blocks that sit side by side on the home page end together', 
       const spread = (values: number[]) => Math.round(Math.max(...values) - Math.min(...values));
       const claims = [...document.querySelectorAll('#thesis .claim')];
       return {
-        // The opening: the three words end where the photograph's caption ends.
-        hero: spread([box('.hero-more').bottom, box('.hero-photo').bottom]),
         // The two claims: the same part of each on the same line, and pictures of one height.
         claimTops: spread(all('#thesis .claim-figure').map((r) => r.top)),
         claimPictures: spread(
@@ -1027,16 +1105,13 @@ test('on a laptop, blocks that sit side by side on the home page end together', 
           ).map((selector) => box(selector).bottom),
         ),
         vigil: spread(all('.vigil-grid > *').map((r) => r.bottom)),
-        record: spread([box('.record > .video').bottom, box('.record-list').bottom]),
-        people: spread([box('.people > .lead').bottom, box('.people-side').bottom]),
       };
     });
     const at1 = (name: keyof typeof ends) => `${name} at ${width}: ${ends[name]}px`;
-    expect(ends.hero, at1('hero')).toBeLessThanOrEqual(2);
     for (const name of ['claimTops', 'claimPictures', 'claimTexts', 'claimEnds'] as const) {
       expect(ends[name], at1(name)).toBeLessThanOrEqual(2);
     }
-    for (const name of ['arc', 'vigil', 'record', 'people'] as const) {
+    for (const name of ['arc', 'vigil'] as const) {
       expect(ends[name], at1(name)).toBeLessThanOrEqual(100);
     }
   }

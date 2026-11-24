@@ -125,18 +125,33 @@ tests/
   site.spec.ts        The tests of the design, written against the sample content
 ```
 
-## The thesis: physically grounded upskilling
+## The home page, and the thesis
 
-The home page is built around the group's thesis, in the words of Prof. Corso's 2026 talk
-"Physically-Grounded Agentic Upskilling": AI that guides a person through a physical task and
-makes them better at it.
+The home page is a brief introduction to the group, about five screens long on a laptop:
+
+1. the group's aim, in the title of Prof. Corso's 2026 talk "Physically-Grounded Agentic
+   Upskilling", with what each word means and a photograph of the system at work;
+2. who is in the group;
+3. its six research areas, each a card with part of a real figure;
+4. VIGIL, its project in the field;
+5. its four newest papers; and how to join.
+
+It carried much more until November 2026: the whole argument with its results, the history, the
+four surgical results, a media section, and a list of releases. The feedback was that the home
+page read like the Research page and was overwhelming. So the argument now opens the Research
+page, where its depth belongs, and Media and Code & data are reached from the menu. A test holds
+the home page to this order and to a short length. When something new seems to belong on the
+home page, it most likely belongs on its own page with a link.
+
+The thesis itself, AI that guides a person through a physical task and makes them better at it,
+is laid out on the Research page:
 
 - **The words** are in `src/lib/thesis.ts`: the definition, what each word means, the talk's
   three claims, and the arc from the kitchen to the clinic. The talk's slides are not public, so
   the site quotes only its title, its three claims, and its closing idea, and links every result
   to its published paper.
-- **The first screen** is the title of the talk on one line, the definition, two buttons, and a
-  photograph of VIGIL guiding a heart exam. Everything on it is visible without scrolling on a
+- **The first screen of the home page** is the title of the talk on one line, the definition,
+  two buttons, and a photograph of VIGIL guiding a heart exam. Everything on it is visible without scrolling on a
   laptop. The headline is sized from the width of the page so that it always fits one line from
   a tablet up; a test holds it to 68 pixels or less.
 - **Two real results** carry the first two claims: a real example from the AAAI 2023 paper on

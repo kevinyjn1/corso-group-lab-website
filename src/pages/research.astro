@@ -3,7 +3,9 @@ import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import PubItem from '../components/PubItem.astro';
 import AreaLead from '../components/AreaLead.astro';
+import OperatingRoom from '../components/OperatingRoom.astro';
 import PaperFigure from '../components/PaperFigure.astro';
+import Thesis from '../components/Thesis.astro';
 import VigilBand from '../components/VigilBand.astro';
 import { AREA_VISUALS, type AreaId } from '../lib/area-visuals';
 import { getAreas, getPublications, getResources } from '../lib/content';
@@ -44,7 +46,7 @@ const sections = areas.map((area) => {
     </Fragment>
     <p class="lead">
       Softening the boundaries between the three is what{' '}
-      <a class="link" href={href('/#thesis')}>
+      <a class="link" href="#thesis">
         physically grounded upskilling
       </a>{' '}
       asks of a machine: understand what a person is doing in the physical world well enough to help
@@ -52,11 +54,12 @@ const sections = areas.map((area) => {
     </p>
   </PageHead>
 
-  <VigilBand />
-
-  <nav class="toc" aria-label="Research areas">
+  <nav class="toc" aria-label="On this page">
     <div class="container">
       <ul>
+        <li>
+          <a href="#thesis">The thesis</a>
+        </li>
         {sections.map(({ area }, i) => (
           <li>
             <a href={`#${area.id}`} data-topic={area.id}>
@@ -69,6 +72,12 @@ const sections = areas.map((area) => {
       </ul>
     </div>
   </nav>
+
+  <Thesis />
+
+  <VigilBand number="03" kicker="It is being proven in healthcare delivery" />
+
+  <OperatingRoom />
 
   {sections.map(({ area, visual, picks, releases }, i) => (
     <section class="section area" id={area.id} data-topic={area.id}>

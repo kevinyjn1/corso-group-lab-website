@@ -3,49 +3,36 @@ import { Image } from 'astro:assets';
 import heartExam from '../assets/vigil/heart-exam-mock-clinic.jpg';
 import Base from '../layouts/Base.astro';
 import PubItem from '../components/PubItem.astro';
-import MediaLead from '../components/MediaLead.astro';
-import Thesis from '../components/Thesis.astro';
 import VigilBand from '../components/VigilBand.astro';
 import { AREA_VISUALS, type AreaId } from '../lib/area-visuals';
-import { paperOf, paperUrl, shortCite } from '../lib/cite';
-import { getAreas, getMedia, getPeople, getPublications, getResources } from '../lib/content';
-import { OPERATING_ROOM } from '../lib/operating-room';
+import { paperOf, shortCite } from '../lib/cite';
+import { getAreas, getPeople, getPublications } from '../lib/content';
 import { PAPER_FIGURES } from '../lib/paper-figures';
 import { href, pi, site } from '../lib/site';
 import { thesis } from '../lib/thesis';
 
+/*
+ * The home page is a brief introduction to the group: what it is for, who is in it, what it
+ * works on, its project in the field, and its newest papers. The argument behind the headline,
+ * with its results, is on the Research page.
+ */
+
 const publications = await getPublications();
 const areas = await getAreas();
-const resources = await getResources();
 const people = await getPeople();
-const featuredMedia = (await getMedia())
-  .filter((item) => item.data.featured)
-  .sort((a, b) => a.data.featured! - b.data.featured!);
-const leadVideo = featuredMedia.find((item) => item.data.youtubeId);
 
-/** Human-AI collaboration is the thesis above, so the grid shows the five areas around it. */
-const THESIS_AREA = 'human';
-/** Each of those areas with the picture on its card: part of a figure from one of its papers. */
-const otherAreas = areas
-  .filter((area) => area.id !== THESIS_AREA)
-  .map((area) => {
-    const visual = AREA_VISUALS[area.id as AreaId];
-    if (!visual || !('card' in visual)) {
-      throw new Error(`Home: the area "${area.id}" has no card in src/lib/area-visuals.ts`);
-    }
-    const figure = PAPER_FIGURES[visual.card.figure];
-    const pub = paperOf(publications, figure.paper, 'Home, research cards');
-    return { area, card: visual.card, source: `From ${figure.label} of ${shortCite(pub)}` };
-  });
-
-/** Surgery and the heart: four results, each with the paper its picture is from. */
-const operatingRoom = OPERATING_ROOM.map((result) => {
-  const pub = paperOf(publications, result.paper, 'Home, operating room');
-  return { ...result, source: `${result.figure} of ${shortCite(pub)}`, href: paperUrl(pub) };
+/** Each research area with the picture on its card: part of a figure from one of its papers. */
+const areaCards = areas.map((area) => {
+  const visual = AREA_VISUALS[area.id as AreaId];
+  if (!visual || !('card' in visual)) {
+    throw new Error(`Home: the area "${area.id}" has no card in src/lib/area-visuals.ts`);
+  }
+  const figure = PAPER_FIGURES[visual.card.figure];
+  const pub = paperOf(publications, figure.paper, 'Home, research cards');
+  return { area, card: visual.card, source: `From ${figure.label} of ${shortCite(pub)}` };
 });
 
-const latest = publications.slice(0, 6);
-const featuredResources = resources.filter((r) => r.data.featured);
+const latest = publications.slice(0, 4);
 const current = (role: string) =>
   people.filter((p) => p.data.status === 'current' && p.data.role === role);
 const students = current('phd');
@@ -112,10 +99,10 @@ const placements = [
             person and the AI on one team, and ground the AI in reality.
           </p>
           <div class="cta">
-            <a class="btn btn--primary" href="#thesis">
+            <a class="btn btn--primary" href={href('/research/#thesis')}>
               The thesis{' '}
               <span class="arrow" aria-hidden="true">
-                &darr;
+                &rarr;
               </span>
             </a>
             <a class="btn" href={href('/vigil/')}>
@@ -155,186 +142,6 @@ const placements = [
           </dl>
         </div>
       </div>
-    </div>
-  </section>
-
-  <Thesis />
-
-  <VigilBand number="03" kicker="It is being proven in healthcare delivery" />
-
-  <section class="stage band--blue" id="operating-room">
-    <div class="container">
-      <div class="section-head" data-reveal>
-        <div>
-          <p class="label">In the operating room</p>
-          <h2 class="h2">
-            Surgery and the heart, since <em>2004</em>.
-          </h2>
-          <p>
-            Two decades of work by Prof. Corso and the group, in four results as their papers show
-            them.
-          </p>
-        </div>
-      </div>
-      <ol class="results" data-reveal="stagger">
-        {operatingRoom.map((result) => (
-          <li class="result" data-result={result.id}>
-            <div class="result-sheet">
-              <Image
-                src={result.image}
-                alt={result.alt}
-                widths={[320, 480, 640, 960].filter((width) => width <= result.image.width)}
-                sizes="(min-width: 62rem) 18rem, (min-width: 38rem) 44vw, 92vw"
-                quality={84}
-              />
-            </div>
-            <h3 class="result-name">
-              <span class="result-year">{result.year}</span>
-              {result.name}
-            </h3>
-            <p class="result-what">{result.what}</p>
-            <p class="result-source">
-              {result.href ? (
-                <a href={result.href} rel="noopener">
-                  {result.source}&nbsp;<span aria-hidden="true">&nearr;</span>
-                </a>
-              ) : (
-                result.source
-              )}
-            </p>
-          </li>
-        ))}
-      </ol>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="section-head" data-reveal>
-        <div>
-          <p class="label">Research</p>
-          <h2 class="h2">
-            Five more threads, and what they <em>add</em>.
-          </h2>
-        </div>
-        <a class="more" href={href('/research/')}>
-          All research{' '}
-          <span class="arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </a>
-      </div>
-
-      <ul class="areas" data-reveal="stagger">
-        {otherAreas.map(({ area, card, source }) => (
-          <li>
-            <a class="area" href={href(`/research/#${area.id}`)} data-topic={area.id}>
-              <div class="area-figure">
-                <Image
-                  src={card.image}
-                  alt={card.alt}
-                  widths={[480, 720, 960, 1400].filter((width) => width <= card.image.width)}
-                  sizes="(min-width: 62rem) 40vw, 92vw"
-                  quality={84}
-                />
-              </div>
-              <div class="area-text">
-                <h3 class="h3">{area.data.title}</h3>
-                <p>{area.data.summary}</p>
-                <span class="area-source">{source}</span>
-                <span class="area-count">
-                  <span class="dot" />
-                  Papers{' '}
-                  <span class="arrow" aria-hidden="true">
-                    &rarr;
-                  </span>
-                </span>
-              </div>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="section-head" data-reveal>
-        <div>
-          <p class="label">Publications</p>
-          <h2 class="h2">The latest work</h2>
-          <p>{venueSentence}</p>
-        </div>
-        <a class="more" href={href('/publications/')}>
-          All publications{' '}
-          <span class="arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </a>
-      </div>
-      <ul class="rows" data-reveal="stagger">
-        {latest.map((pub) => (
-          <PubItem pub={pub} />
-        ))}
-      </ul>
-    </div>
-  </section>
-
-  {leadVideo && (
-    <section class="section band--blue">
-      <div class="container">
-        <div class="section-head" data-reveal>
-          <div>
-            <p class="label">Media</p>
-            <h2 class="h2">On the record</h2>
-          </div>
-          <a class="more" href={href('/media/')}>
-            All talks, press, and essays{' '}
-            <span class="arrow" aria-hidden="true">
-              &rarr;
-            </span>
-          </a>
-        </div>
-        <MediaLead video={leadVideo} items={featuredMedia.filter((item) => item !== leadVideo)} />
-      </div>
-    </section>
-  )}
-
-  <section class="section">
-    <div class="container">
-      <div class="section-head" data-reveal>
-        <div>
-          <p class="label">Code &amp; data</p>
-          <h2 class="h2">Built in the open</h2>
-          <p>
-            Datasets, benchmarks, and software released by the group, from instructional video to
-            surgical video, along with FiftyOne.
-          </p>
-        </div>
-        <a class="more" href={href('/resources/')}>
-          All releases{' '}
-          <span class="arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </a>
-      </div>
-
-      <ul class="releases" data-reveal="stagger">
-        {featuredResources.map((resource) => (
-          <li class="release">
-            <div class="release-head">
-              <span class="chip">{resource.data.kind}</span>
-              <span class="label">{resource.data.year}</span>
-            </div>
-            <h3 class="h3">
-              <a href={resource.data.links[0].href} rel="noopener">
-                {resource.data.name}
-              </a>
-            </h3>
-            <p>{resource.data.summary}</p>
-          </li>
-        ))}
-      </ul>
     </div>
   </section>
 
@@ -394,6 +201,80 @@ const placements = [
           </ul>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Research</p>
+          <h2 class="h2">
+            Six <em>connected</em> areas.
+          </h2>
+        </div>
+        <a class="more" href={href('/research/')}>
+          All research{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+
+      <ul class="areas" data-reveal="stagger">
+        {areaCards.map(({ area, card, source }) => (
+          <li>
+            <a class="area" href={href(`/research/#${area.id}`)} data-topic={area.id}>
+              <div class="area-figure">
+                <Image
+                  src={card.image}
+                  alt={card.alt}
+                  widths={[480, 720, 960, 1400].filter((width) => width <= card.image.width)}
+                  sizes="(min-width: 62rem) 30vw, (min-width: 38rem) 46vw, 92vw"
+                  quality={84}
+                />
+              </div>
+              <div class="area-text">
+                <h3 class="h3">{area.data.title}</h3>
+                <p>{area.data.summary}</p>
+                <span class="area-source">{source}</span>
+                <span class="area-count">
+                  <span class="dot" />
+                  Papers{' '}
+                  <span class="arrow" aria-hidden="true">
+                    &rarr;
+                  </span>
+                </span>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <VigilBand />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="label">Publications</p>
+          <h2 class="h2">The latest work</h2>
+          <p>{venueSentence}</p>
+        </div>
+        <a class="more" href={href('/publications/')}>
+          All publications{' '}
+          <span class="arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+      <ul class="rows" data-reveal="stagger">
+        {latest.map((pub) => (
+          <PubItem pub={pub} />
+        ))}
+      </ul>
     </div>
   </section>
 
@@ -583,102 +464,12 @@ const placements = [
     }
   }
 
-  /* --- The live scene ------------------------------------------------------- */
-
-  .stage {
-    padding-block: clamp(3rem, 6vw, 5.5rem);
-  }
-
-  /* The operating room follows the VIGIL band on the same blue. It leaves out the corner light
-     that a blue band opens with, so the two meet as one field, with no edge between them. */
-  :global(section.vigil) + .stage {
-    padding-top: 0;
-    background:
-      linear-gradient(100deg, var(--band) 28%, transparent 88%),
-      radial-gradient(circle at center, rgb(255 255 255 / 0.11) 1px, transparent 1.6px) 0 0 / 16px
-        16px,
-      var(--band);
-  }
-
-  .stage .section-head {
-    margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
-  }
-
-  /* Four results, oldest first: each a real figure on its white sheet, and what it shows. */
-  .results {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 2.5rem clamp(1.25rem, 2.5vw, 2rem);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  /* Every sheet is the same shape, and each figure is fitted inside it whole. */
-  .result-sheet {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    background: #fff;
-  }
-
-  .result-sheet img {
-    position: absolute;
-    inset: 0.6rem;
-    width: calc(100% - 1.2rem);
-    height: calc(100% - 1.2rem);
-    object-fit: contain;
-  }
-
-  .result-name {
-    margin-top: 1.1rem;
-    font-family: var(--font-display);
-    font-stretch: 80%;
-    font-size: clamp(1.3rem, 1.9vw, 1.55rem);
-    font-weight: 700;
-    line-height: 1.1;
-  }
-
-  .result-year {
-    display: block;
-    margin-bottom: 0.3rem;
-    font-size: 0.9rem;
-    letter-spacing: 0.06em;
-    color: var(--maize);
-  }
-
-  .result-what {
-    margin-top: 0.6rem;
-    font-size: 0.98rem;
-    line-height: 1.5;
-    color: var(--text-2);
-    text-wrap: pretty;
-  }
-
-  .result-source {
-    margin-top: 0.8rem;
-    font-size: 0.86rem;
-    line-height: 1.35;
-    color: var(--text-2);
-  }
-
-  .result-source a {
-    color: var(--text);
-    text-decoration: underline;
-    text-decoration-color: rgb(255 255 255 / 0.4);
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 0.22em;
-  }
-
-  .result-source a:hover {
-    text-decoration-color: var(--maize);
-  }
-
   /* --- Research areas ------------------------------------------------------- */
 
-  /* Five areas on a six-column grid: three across, then two wider ones. */
+  /* The six areas, three across. */
   .areas {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(2rem, 3.5vw, 3rem) clamp(1.25rem, 2.5vw, 2rem);
   }
 
@@ -686,14 +477,6 @@ const placements = [
     display: flex;
     flex-direction: column;
     height: 100%;
-  }
-
-  .areas > li {
-    grid-column: span 2;
-  }
-
-  .areas > li:nth-child(n + 4) {
-    grid-column: span 3;
   }
 
   /* Part of a figure from one of the area's papers, on the white it was printed on. It lifts off
@@ -762,44 +545,6 @@ const placements = [
 
   .area:hover .area-count .arrow {
     transform: translateX(5px);
-  }
-
-  /* --- Releases ------------------------------------------------------------- */
-
-  .releases {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.5rem clamp(1.5rem, 3vw, 2.5rem);
-  }
-
-  .release {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding-top: 1rem;
-    border-top: 2px solid var(--text);
-  }
-
-  .release-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .release h3 a {
-    background: linear-gradient(var(--maize), var(--maize)) left / 0 100% no-repeat;
-    transition: background-size 0.3s var(--ease-out);
-  }
-
-  .release h3 a:hover {
-    background-size: 100% 100%;
-    color: var(--blue);
-  }
-
-  .release p {
-    color: var(--text-2);
-    text-wrap: pretty;
   }
 
   /* --- People --------------------------------------------------------------- */
@@ -887,21 +632,8 @@ const placements = [
   /* --- Responsive ----------------------------------------------------------- */
 
   @media (max-width: 62rem) {
-    .releases {
+    .areas {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .areas > li,
-    .areas > li:nth-child(n + 4) {
-      grid-column: span 3;
-    }
-
-    .results {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .areas > li:last-child {
-      grid-column: 1 / -1;
     }
 
     .people {
@@ -925,16 +657,7 @@ const placements = [
       grid-row: auto;
     }
 
-    .releases {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .areas > li,
-    .areas > li:nth-child(n + 4) {
-      grid-column: 1 / -1;
-    }
-
-    .results {
+    .areas {
       grid-template-columns: minmax(0, 1fr);
     }
 

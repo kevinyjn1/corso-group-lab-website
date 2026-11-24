@@ -1,8 +1,8 @@
 ---
 /**
- * The group's thesis on the home page: what an AI must do to guide a person, the first two of the
- * talk's three claims with a live figure each, and how the group got here. The third claim is the
- * VIGIL band that follows. The words are in src/lib/thesis.ts.
+ * The group's thesis, which opens the Research page: what an AI must do to guide a person, the
+ * first two of the talk's three claims with a real result each, and how the group got here. The
+ * third claim is the VIGIL band that follows. The words are in src/lib/thesis.ts.
  */
 import { Image } from 'astro:assets';
 import Clip from './Clip.astro';
@@ -185,8 +185,9 @@ const RESULT_SOURCE = {
 </section>
 
 <style>
+  /* The Research page keeps its menu of sections in view, under the header. */
   .thesis {
-    scroll-margin-top: var(--header-h);
+    scroll-margin-top: calc(var(--header-h) + 3rem);
   }
 
   /* Two claims side by side. Each has the same six parts (its words, its title, its picture, the
