@@ -6,7 +6,12 @@ import { z } from 'astro/zod';
 export const TOPICS = ['video', 'language', 'robotics', 'human', 'health', 'learning'] as const;
 export const topic = z.enum(TOPICS);
 
-const url = z.url();
+/**
+ * A link a visitor can follow: http or https only. A plain URL check would also accept
+ * `javascript:` and `data:` addresses, which run code when clicked, so those are refused here
+ * whoever edits the content and with whatever tool.
+ */
+const url = z.httpUrl();
 
 const publications = defineCollection({
   loader: file('src/data/publications.yaml'),

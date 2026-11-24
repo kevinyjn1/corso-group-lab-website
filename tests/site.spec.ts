@@ -55,6 +55,84 @@ for (const path of pages) {
   });
 }
 
+test("only the site's own code can run: every page carries a strict content security policy", async ({
+  page,
+}) => {
+  for (const path of pages) {
+    await page.goto(at(path));
+    const policy = await page
+      .locator('meta[http-equiv="content-security-policy"]')
+      .getAttribute('content');
+    const rules = new Map(
+      policy!
+        .split(';')
+        .map((rule) => rule.trim().split(/\s+/))
+        .filter(([name]) => name)
+        .map(([name, ...sources]) => [name, sources]),
+    );
+    expect(rules.get('default-src'), path).toEqual(["'self'"]);
+    // Scripts: the site's own files, and the inline ones it was built with, each by its hash.
+    // No blanket permission, and no outside host.
+    expect(rules.get('script-src'), path).toContain("'self'");
+    for (const source of rules.get('script-src')!) {
+      expect(source, path).toMatch(/^('self'|'sha(256|384|512)-[A-Za-z0-9+/=]+')$/);
+    }
+    for (const source of rules.get('style-src-elem')!) {
+      expect(source, path).toMatch(/^('self'|'sha(256|384|512)-[A-Za-z0-9+/=]+')$/);
+    }
+    expect(rules.get('object-src'), path).toEqual(["'none'"]);
+    expect(rules.get('base-uri'), path).toEqual(["'self'"]);
+    expect(rules.get('form-action'), path).toEqual(["'none'"]);
+    // The one outside frame is the video player.
+    expect(rules.get('frame-src'), path).toEqual(['https://www.youtube-nocookie.com']);
+  }
+
+  // The browser enforces it: a script written into the page does not run, and a link that
+  // carries code does nothing when followed.
+  await page.goto(at('/'));
+  const ran = await page.evaluate(async () => {
+    const flags = window as unknown as { injected?: boolean; followed?: boolean };
+    const script = document.createElement('script');
+    script.textContent = 'window.injected = true';
+    document.body.append(script);
+    const link = document.createElement('a');
+    link.href = 'javascript:window.followed = true';
+    document.body.append(link);
+    link.click();
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    return { injected: flags.injected === true, followed: flags.followed === true };
+  });
+  expect(ran).toEqual({ injected: false, followed: false });
+});
+
+test('every address on every page is an ordinary one: the site, the web, or mail', async ({
+  page,
+}) => {
+  for (const path of pages) {
+    await page.goto(at(path));
+    const odd = await page.evaluate(() => {
+      const found: string[] = [];
+      for (const el of document.querySelectorAll('*')) {
+        for (const attribute of el.attributes) {
+          const name = attribute.name.toLowerCase();
+          // Nothing is wired to run code from an attribute.
+          if (name.startsWith('on')) found.push(`<${el.localName} ${name}>`);
+          if (!['href', 'src', 'action', 'formaction', 'poster', 'data'].includes(name)) continue;
+          const { protocol } = new URL(attribute.value, document.baseURI);
+          // A small picture may be carried inline; nothing else may be anything but a plain
+          // address.
+          const inlinePicture = protocol === 'data:' && el.localName === 'img';
+          if (!['http:', 'https:', 'mailto:'].includes(protocol) && !inlinePicture) {
+            found.push(`<${el.localName} ${name}="${attribute.value.slice(0, 60)}">`);
+          }
+        }
+      }
+      return found;
+    });
+    expect(odd, path).toEqual([]);
+  }
+});
+
 test('every internal link resolves', async ({ page, request, baseURL }) => {
   const links = new Set<string>();
   for (const path of pages) {
