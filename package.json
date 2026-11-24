@@ -16,8 +16,8 @@
     "format:check": "prettier --check .",
     "test": "playwright test",
     "test:subpath": "BASE_PATH=/~jjcorso/ playwright test",
-    "verify": "npm run format:check && npm run check && npm run test:gate && npm run test && npm run test:subpath",
-    "test:gate": "node --test 'scripts/*.test.mjs'"
+    "verify": "npm run format:check && npm run check && npm run test:content && npm run test && npm run test:subpath",
+    "test:content": "node --test --test-concurrency=1 'scripts/*.test.mjs'"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

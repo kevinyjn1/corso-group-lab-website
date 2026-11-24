@@ -45,8 +45,8 @@ jobs:
         run: npm run format:check
       - name: Types and content schema
         run: npm run check
-      - name: The content gate's own tests
-        run: npm run test:gate
+      - name: The content gate and the content rules
+        run: npm run test:content
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Build and end-to-end tests

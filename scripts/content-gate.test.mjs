@@ -1,6 +1,6 @@
 /**
  * Tests of the content gate: what it lets through to the build and what it stops.
- * Run with `npm run test:gate`.
+ * Run with `npm run test:content`.
  */
 import assert from 'node:assert/strict';
 import { cp, mkdir, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';

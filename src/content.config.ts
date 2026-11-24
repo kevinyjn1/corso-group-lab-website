@@ -22,6 +22,39 @@ const entries = (folder: string) =>
 export const TOPICS = ['video', 'language', 'robotics', 'human', 'health', 'learning'] as const;
 export const topic = z.enum(TOPICS);
 
+/*
+ * The content rules. Every entry is checked against them when the site builds, and a build that
+ * finds a wrong value stops and names the file and the field.
+ *
+ * Entries are written by an editing form as well as by hand, so the rules read what a form
+ * writes: a box left empty arrives as "" or as nothing at all, and both mean "not given". What
+ * they do not forgive is a value of the wrong kind, a field they do not know, or a link that is
+ * not a web address.
+ */
+
+/** What an empty box in a form arrives as. */
+const blank = (value: unknown) => (value === '' || value === null ? undefined : value);
+
+/** A field that may be left out. */
+const maybe = <T extends z.ZodType>(schema: T) => z.preprocess(blank, schema.optional());
+
+/** A field that takes a set value when it is left out. */
+const orElse = <T extends z.ZodType>(schema: T, value: z.output<T> & z.input<T>) =>
+  z.preprocess(blank, schema.default(value as never));
+
+/** Text that has to be there: at least one character, with the spaces around it removed. */
+const text = z.string().trim().min(1);
+
+/** A list of phrases. Rows left empty are dropped; `atLeast` says how many must remain. */
+const texts = (atLeast = 0) =>
+  z.preprocess(
+    (value) =>
+      Array.isArray(value)
+        ? value.filter((item) => blank(typeof item === 'string' ? item.trim() : item) !== undefined)
+        : (blank(value) ?? []),
+    z.array(text).min(atLeast),
+  );
+
 /**
  * A link a visitor can follow: http or https only. A plain URL check would also accept
  * `javascript:` and `data:` addresses, which run code when clicked, so those are refused here
@@ -29,73 +62,83 @@ export const topic = z.enum(TOPICS);
  */
 const url = z.httpUrl();
 
+/** A link with the words it is shown as. */
+const labeledLink = z.strictObject({ label: text, href: url });
+
 /**
  * A date as text, such as "2026-08" or "2026-08-26". Written without quotes in a YAML file, a
  * full date is read as a date and a bare year as a number, so both are turned back into text
- * before the form is checked. An editing tool may write either.
+ * before the form is checked.
  */
 const dateText = (form: RegExp) =>
   z.preprocess((value) => {
     if (value instanceof Date) return value.toISOString().slice(0, 10);
-    return typeof value === 'number' ? String(value) : value;
-  }, z.string().regex(form));
+    return typeof value === 'number' ? String(value) : blank(value);
+  }, z.string().regex(form).optional());
 
 const publications = defineCollection({
   loader: entries('publications'),
   schema: z.strictObject({
-    title: z.string(),
+    title: text,
     /** Author names in "F. M. Last" form, in publication order. */
-    authors: z.array(z.string()).min(1),
+    authors: texts(1),
     year: z.number().int().min(1990).max(2100),
     /** Optional "YYYY-MM" used to order papers within a year, newest first. */
-    date: dateText(/^\d{4}-\d{2}$/).optional(),
+    date: dateText(/^\d{4}-\d{2}$/),
     type: z.enum(['conference', 'journal', 'preprint', 'report', 'chapter', 'thesis']),
     /** Full venue name, without year or page numbers. */
-    venue: z.string(),
+    venue: text,
     /** Common abbreviation, shown as a badge (for example "CVPR"). */
-    venueShort: z.string().optional(),
+    venueShort: maybe(text),
     /** Distinctions such as "Oral" or "Best Paper Award". */
-    note: z.string().optional(),
+    note: maybe(text),
     topics: z.array(topic).min(1),
-    featured: z.boolean().default(false),
+    featured: orElse(z.boolean(), false),
+    /** Where the paper can be read or used. A kind of link left empty is simply not shown. */
     links: z
-      .object({
-        pdf: url,
-        arxiv: url,
-        doi: url,
-        link: url,
-        code: url,
-        data: url,
-        project: url,
-        poster: url,
-        slides: url,
-        video: url,
-      })
-      .partial()
-      .strict()
-      .default({}),
+      .preprocess(
+        (value) => blank(value) ?? {},
+        z.strictObject({
+          pdf: maybe(url),
+          arxiv: maybe(url),
+          doi: maybe(url),
+          link: maybe(url),
+          code: maybe(url),
+          data: maybe(url),
+          project: maybe(url),
+          poster: maybe(url),
+          slides: maybe(url),
+          video: maybe(url),
+        }),
+      )
+      .transform(
+        (links) =>
+          Object.fromEntries(
+            Object.entries(links).filter(([, href]) => href !== undefined),
+          ) as Partial<Record<keyof typeof links, string>>,
+      ),
   }),
 });
 
 const people = defineCollection({
   loader: entries('people'),
   schema: z.strictObject({
-    name: z.string(),
+    name: text,
     role: z.enum(['pi', 'phd', 'ms', 'undergrad', 'postdoc', 'staff', 'collaborator']),
     status: z.enum(['current', 'alumni']),
-    institution: z.enum(['michigan', 'buffalo']).default('michigan'),
+    institution: orElse(z.enum(['michigan', 'buffalo']), 'michigan'),
     /** Degree program, for example "ROB", "ECE" or "CSE". */
-    program: z.string().optional(),
+    program: maybe(text),
     /** Graduation year, or expected graduation year for current students. */
-    year: z.number().int().optional(),
-    focus: z.string().optional(),
+    year: maybe(z.number().int().min(1990).max(2100)),
+    focus: maybe(text),
     /** Where a collaborator is based, for example "Porsche". */
-    affiliation: z.string().optional(),
-    thesis: z.string().optional(),
-    firstPosition: z.string().optional(),
-    currentPosition: z.string().optional(),
-    note: z.string().optional(),
-    url: url.optional(),
+    affiliation: maybe(text),
+    thesis: maybe(text),
+    firstPosition: maybe(text),
+    currentPosition: maybe(text),
+    note: maybe(text),
+    url: maybe(url),
   }),
 });
 
@@ -103,37 +146,34 @@ const areas = defineCollection({
   loader: entries('areas'),
   schema: z.strictObject({
     order: z.number().int(),
-    title: z.string(),
+    title: text,
     /** Compact name for filters and in-page navigation. */
-    short: z.string(),
+    short: text,
     /** One sentence for cards and navigation. */
-    summary: z.string(),
+    summary: text,
     /** Longer description shown on the research page, one string per paragraph. */
-    body: z.array(z.string()).min(1),
+    body: texts(1),
     /** Short phrases describing what the group works on in this area. */
-    threads: z.array(z.string()).min(1),
+    threads: texts(1),
     /**
      * Ids of the releases to list under this area on the research page, in order: the ones its
      * text is written around. Without it, the area lists its five newest releases.
      */
-    releases: z.array(z.string()).optional(),
+    releases: maybe(texts(1)),
   }),
 });
 
 const resources = defineCollection({
   loader: entries('resources'),
   schema: z.strictObject({
-    name: z.string(),
+    name: text,
     kind: z.enum(['dataset', 'software']),
-    year: z.number().int(),
-    summary: z.string(),
+    year: z.number().int().min(1990).max(2100),
+    summary: text,
     topics: z.array(topic).min(1),
-    featured: z.boolean().default(false),
-    awards: z.array(z.string()).default([]),
-    links: z
-      .array(z.strictObject({ label: z.string(), href: url }))
-      .min(1)
-      .max(3),
+    featured: orElse(z.boolean(), false),
+    awards: texts(),
+    links: z.array(labeledLink).min(1).max(3),
   }),
 });
 
@@ -141,48 +181,45 @@ const courses = defineCollection({
   loader: entries('courses'),
   schema: z.strictObject({
     order: z.number().int(),
-    code: z.string(),
-    title: z.string(),
+    code: text,
+    title: text,
     institution: z.enum(['michigan', 'buffalo']),
     /** Terms taught, newest first, for example "Fall 2023". */
-    terms: z.array(z.string()).min(1),
-    summary: z.string().optional(),
-    url: url.optional(),
+    terms: texts(1),
+    summary: maybe(text),
+    url: maybe(url),
     /**
      * When the page at `url` is that of one offering among several, the term it belongs to. That
      * term is then the link, and the title is not, so no link promises more than it opens.
      */
-    urlTerm: z.string().optional(),
+    urlTerm: maybe(text),
     /** True for a course being taught this term: it is featured at the top of the page. */
-    current: z.boolean().default(false),
+    current: orElse(z.boolean(), false),
     /** Who the course is taught with, for example "Yayuan Li". */
-    with: z.string().optional(),
+    with: maybe(text),
     /** Extra links for a current course, such as readings or related writing. */
-    links: z.array(z.strictObject({ label: z.string(), href: url })).default([]),
+    links: z.preprocess((value) => blank(value) ?? [], z.array(labeledLink)),
   }),
 });
 
 const media = defineCollection({
   loader: entries('media'),
   schema: z.strictObject({
-    title: z.string(),
+    title: text,
     kind: z.enum(['video', 'podcast', 'press', 'essay']),
     /** The channel, show, or publication. */
-    outlet: z.string(),
+    outlet: text,
     /** "YYYY", "YYYY-MM", or "YYYY-MM-DD", when the source states a date. */
-    date: dateText(/^\d{4}(-\d{2}){0,2}$/).optional(),
+    date: dateText(/^\d{4}(-\d{2}){0,2}$/),
     url,
     /** For YouTube videos: the 11 character id, which also names the thumbnail image. */
-    youtubeId: z
-      .string()
-      .regex(/^[\w-]{11}$/)
-      .optional(),
+    youtubeId: maybe(z.string().regex(/^[\w-]{11}$/)),
     /** What the item is about, in a sentence. Left out when it would only repeat the title. */
-    summary: z.string().optional(),
+    summary: maybe(text),
     /** Featured items lead the Media page and the home page, lowest number first. */
-    featured: z.number().int().positive().optional(),
+    featured: maybe(z.number().int().positive()),
     /** The project an item is about. Its own page lists these items. */
-    project: z.enum(['vigil']).optional(),
+    project: maybe(z.enum(['vigil'])),
   }),
 });
 

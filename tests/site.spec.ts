@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { at } from './base-path';
-import { pages, watchForProblems } from './helpers';
+import { pages } from './helpers';
 
 /**
  * The site as designed, tested against the sample content (sample-content/): what each page

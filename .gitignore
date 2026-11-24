@@ -28,3 +28,6 @@ playwright-report/
 *.ppsx
 *.pptx
 vault/
+
+# the live content: a checkout of the content repository (see README, "Content")
+/content/
