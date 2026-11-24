@@ -12,22 +12,30 @@ permissions:
   contents: read
 
 jobs:
+  package:
+    name: Package the page
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: .github/old-address
+
   redirect:
+    # A job of its own: published in the same job as the upload, the package is sometimes not
+    # yet listed when the publish step looks for it, and the step fails.
     name: Point the old address at the new one
+    needs: package
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: .github/old-address
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v5
