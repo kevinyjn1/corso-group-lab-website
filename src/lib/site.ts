@@ -49,7 +49,7 @@ export const pi = {
     'Co-Founder and Chief Science Officer, Voxel51',
   ],
   bio: [
-    'Jason Corso is the Toyota Professor of Artificial Intelligence at the University of Michigan, where he is a Professor of Robotics and of Electrical Engineering and Computer Science. He is also Co-Founder and Chief Science Officer of Voxel51, the company behind the open-source FiftyOne software for visual AI.',
+    'Jason Corso is the Toyota Professor of Artificial Intelligence at the University of Michigan, where he is a Professor of Robotics and of Electrical Engineering and Computer Science. He is also Co-Founder and Chief Science Officer of Voxel51, which builds data infrastructure for physical AI and is the company behind the open-source FiftyOne software.',
     'The Toyota Professorship recognizes his contributions to computer vision, artificial intelligence, and multimodal machine learning, as well as his work translating AI research into real-world applications. He has led projects applying AI to challenges ranging from surgical video analysis to rural healthcare delivery.',
     'His research focuses on cognitive systems and their entangled challenges in vision, language, robotics, and the physical world. Much of his work is on video understanding - video segmentation, activity recognition, and connecting video to natural language.',
     'He received his Ph.D. in Computer Science from The Johns Hopkins University, was a postdoctoral fellow at UCLA, and served on the faculty at SUNY at Buffalo from 2007 to 2014 before joining Michigan.',
