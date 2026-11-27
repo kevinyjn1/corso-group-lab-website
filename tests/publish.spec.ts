@@ -150,6 +150,17 @@ test('every address on every page is an ordinary one: the site, the web, or mail
   }
 });
 
+test('every video shown as a card has its picture and can be played', async ({ page }) => {
+  // A video the site has no thumbnail for (one just added through the editor, say) is listed as
+  // an ordinary row with a link. A card with no picture would leave a hole in its row.
+  for (const path of ['/media/', '/vigil/']) {
+    await page.goto(at(path));
+    const cards = page.locator('article.video');
+    const count = await cards.count();
+    await expect(cards.locator('.frame button.thumb img'), path).toHaveCount(count);
+  }
+});
+
 test('every internal link resolves', async ({ page, request, baseURL }) => {
   const links = new Set<string>();
   for (const path of pages) {

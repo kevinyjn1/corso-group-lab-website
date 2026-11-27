@@ -5,6 +5,7 @@
  */
 import { Image } from 'astro:assets';
 import { formatDate, type MediaItem } from '../lib/content';
+import { thumbnail } from '../lib/thumbnails';
 
 interface Props {
   item: MediaItem;
@@ -12,12 +13,9 @@ interface Props {
   sizes?: string;
 }
 
-const thumbs = import.meta.glob<{ default: ImageMetadata }>('../assets/media/*.jpg', {
-  eager: true,
-});
 const { item, sizes = '(min-width: 62rem) 40vw, 92vw' } = Astro.props;
 const { title, outlet, date, url, youtubeId, summary } = item.data;
-const thumb = youtubeId ? thumbs[`../assets/media/${youtubeId}.jpg`]?.default : undefined;
+const thumb = thumbnail(youtubeId);
 ---
 
 <article class="video">

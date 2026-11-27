@@ -11,6 +11,7 @@ import PubItem from '../components/PubItem.astro';
 import VideoCard from '../components/VideoCard.astro';
 import VigilName from '../components/VigilName.astro';
 import { getMedia, getPublications } from '../lib/content';
+import { playsInPlace } from '../lib/thumbnails';
 import { href } from '../lib/site';
 import { LINKS, vigil } from '../lib/vigil';
 import { RELATED_POSTERS, SYSTEM_POSTERS } from '../lib/vigil-posters';
@@ -43,7 +44,7 @@ const media = (await getMedia()).filter((item) => item.data.project === 'vigil')
 /** The two demonstration videos that the clips below are cut from, shown in full under them. */
 const DEMOS = ['vigil-demo-task-guidance', 'vigil-demo-lower-limb-dvt'];
 const demos = DEMOS.flatMap((id) => media.filter((item) => item.id === id));
-const talk = media.find((item) => item.data.youtubeId && !DEMOS.includes(item.id));
+const talk = media.find((item) => playsInPlace(item) && !DEMOS.includes(item.id));
 const coverage = media.filter((item) => item !== talk && !DEMOS.includes(item.id));
 const publications = await getPublications();
 const papers = vigil.papers.flatMap((id) => publications.filter((pub) => pub.id === id));

@@ -6,12 +6,13 @@ import MediaRow from '../components/MediaRow.astro';
 import VideoCard from '../components/VideoCard.astro';
 import { MEDIA_KINDS, getMedia } from '../lib/content';
 import { site } from '../lib/site';
+import { playsInPlace } from '../lib/thumbnails';
 
 const items = await getMedia();
 const featured = items
   .filter((item) => item.data.featured)
   .sort((a, b) => a.data.featured! - b.data.featured!);
-const lead = featured.find((item) => item.data.youtubeId);
+const lead = featured.find(playsInPlace);
 const alsoFeatured = featured.filter((item) => item !== lead);
 
 const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((kind) => {
@@ -19,10 +20,11 @@ const kinds = (Object.keys(MEDIA_KINDS) as (keyof typeof MEDIA_KINDS)[]).map((ki
   return {
     kind,
     title: MEDIA_KINDS[kind].many,
-    // Talks with a thumbnail are shown as cards; everything else is a line in a list. A podcast
-    // that happens to be on video is listed with the other podcasts, not as a card on its own.
-    cards: kind === 'video' ? list.filter((item) => item.data.youtubeId) : [],
-    rows: kind === 'video' ? list.filter((item) => !item.data.youtubeId) : list,
+    // Talks the site has a thumbnail for are shown as cards that play in place; everything else
+    // is a line in a list. A podcast that happens to be on video is listed with the other
+    // podcasts, not as a card on its own.
+    cards: kind === 'video' ? list.filter(playsInPlace) : [],
+    rows: kind === 'video' ? list.filter((item) => !playsInPlace(item)) : list,
   };
 });
 ---
